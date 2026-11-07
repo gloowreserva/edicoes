@@ -1,0 +1,74 @@
+{
+ "video": "PASTA_DRIVE/IMG_7421.MOV",
+ "transcript": "PASTA_DRIVE/v7421.json",
+ "work": "PASTA_TRABALHO/work_7421",
+ "output": "PASTA_TRABALHO/work_7421/IMG_7421_editado.mp4",
+ "remove": [
+  [
+   11.95,
+   22.0
+  ]
+ ],
+ "replace": {
+  "tiktok": "ttk",
+  "de ar\\b": "de IA",
+  "\\bbuilt\\b": "bio"
+ },
+ "hook": {
+  "text": "Eu não gravo nada.\nSó copio e colo vídeo\nde marca famosa no ttk",
+  "dur": 4.2
+ },
+ "stickers": [
+  {
+   "start": 53.2,
+   "end": 56.2,
+   "text": "comenta\nCOMUNIDADE"
+  }
+ ],
+ "overlays": [
+  {
+   "type": "card",
+   "file": "PASTA_DRIVE/sobre/IMG_0598.conv.png",
+   "start": 9.9,
+   "end": 11.95,
+   "tilt": -2,
+   "maxw": 900,
+   "y": 260
+  },
+  {
+   "type": "video",
+   "file": "PASTA_DRIVE/sobre/copy_3AAD4AD4-1773-4E61-8F2D-55D3BD70DA05.mov",
+   "from": 9,
+   "start": 23.8,
+   "end": 27.7
+  },
+  {
+   "type": "card",
+   "file": "PASTA_DRIVE/prova/IMG_0868.PNG",
+   "start": 37.9,
+   "end": 40.5,
+   "tilt": -3
+  },
+  {
+   "type": "card",
+   "file": "PASTA_DRIVE/prova/IMG_0884.PNG",
+   "start": 41.2,
+   "end": 44.2,
+   "tilt": 3
+  },
+  {
+   "type": "video",
+   "file": "PASTA_DRIVE/sobre/IMG_4662.mp4",
+   "from": 0,
+   "start": 45.0,
+   "end": 48.1
+  },
+  {
+   "type": "card",
+   "file": "PASTA_DRIVE/prova/IMG_0871.PNG",
+   "start": 60.9,
+   "end": 63.4,
+   "tilt": -2
+  }
+ ]
+}
