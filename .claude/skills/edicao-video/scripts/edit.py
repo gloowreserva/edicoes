@@ -1,4 +1,4 @@
-"""Edição Gloow: corta respiros, zoom alternado nos cortes, hook, legenda animada, sobreposições.
+"""Edição Gloow (estilos 1 e 2): começa na fala, corta respiros, hook, legenda animada (opcional), zoom alternado (opcional), sobreposições em cartão, janela no topo ou tela cheia, selo de comentário.
 Uso: python3 -I edit.py config.json
 """
 import json, os, re, subprocess, sys
@@ -57,7 +57,7 @@ z = cfg.get("zoom", 1.10)
 parts = []
 for i, (a, b) in enumerate(segs):
     v = f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H}"
-    if i % 2 == 1:
+    if i % 2 == 1 and z > 1.001:
         zw, zh = int(W * z) // 2 * 2, int(H * z) // 2 * 2
         v += f",scale={zw}:{zh},crop={W}:{H}:{(zw-W)//2}:{int((zh-H)*0.35)}"
     v += f",fps={FPS},setsar=1"
@@ -112,7 +112,7 @@ Style: Sticker,Inter,70,&H00FFFFFF,&H00FFFFFF,&H00B469FF,&H00000000,-1,0,0,0,100
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"""]
 pop = r"{\fscx72\fscy72\t(0,90,\fscx108\fscy108)\t(90,170,\fscx100\fscy100)}"
-for i, g in enumerate(groups):
+for i, g in enumerate(groups if cfg.get("captions", True) else []):
     a = remap(g[0]["s"]); b = remap(groups[i + 1][0]["s"]) if i + 1 < len(groups) else remap(g[-1]["e"]) + 0.3
     txt = clean(" ".join(x["w"].strip() for x in g)).rstrip(".,!")
     ass.append(f"Dialogue: 1,{ts(a)},{ts(b)},Cap,,0,0,0,,{pop}{txt}")
@@ -163,6 +163,41 @@ for k, ov in enumerate(cfg.get("overlays", [])):
         p = f"clip((t-{a:.3f})/0.32,0,1)"
         yexpr = f"{y0}+160*(1-(1+2.70158*pow({p}-1,3)+1.70158*pow({p}-1,2)))"
         fc.append(f"{last}{tag}overlay=x=(W-w)/2:y='{yexpr}':eval=frame:eof_action=pass[b{k}]")
+    elif ov["type"] == "pip":  # estilo 2: janela no topo, perto da cabeça
+        pw, ph = ov.get("size", [600, 600]); py = ov.get("y", 230); bd, r, sh = 8, 30, 36
+        cx, cy, cw, chh = ov.get("crop", [0, 0, 1, 1])
+        frame = Image.new("RGBA", (pw + 2 * (bd + sh), ph + 2 * (bd + sh)), (0, 0, 0, 0))
+        m = Image.new("L", (pw + 2 * bd, ph + 2 * bd), 0)
+        ImageDraw.Draw(m).rounded_rectangle([0, 0, pw + 2 * bd - 1, ph + 2 * bd - 1], r + bd, fill=255)
+        shadow = Image.new("RGBA", frame.size, (0, 0, 0, 0)); shadow.paste((0, 0, 0, 150), (sh, sh + 12), m)
+        frame = Image.alpha_composite(frame, shadow.filter(ImageFilter.GaussianBlur(16)))
+        frame.paste((255, 255, 255, 255), (sh, sh), m)
+        mask = Image.new("L", (pw, ph), 0); ImageDraw.Draw(mask).rounded_rectangle([0, 0, pw - 1, ph - 1], r, fill=255)
+        maskf = f"{work}/pipmask{k}.png"; mask.save(maskf)
+        if ov["file"].lower().endswith((".mp4", ".mov")):
+            inputs += ["-ss", str(ov.get("from", 0)), "-t", f"{d:.3f}", "-i", ov["file"]]
+            src_v = f"[{idx}:v]crop=iw*{cw}:ih*{chh}:iw*{cx}:ih*{cy},scale={pw}:{ph}:force_original_aspect_ratio=increase,crop={pw}:{ph},fps={FPS},format=rgba"
+        else:
+            im = Image.open(ov["file"]).convert("RGB"); W0, H0 = im.size
+            im = im.crop((int(W0 * cx), int(H0 * cy), int(W0 * (cx + cw)), int(H0 * (cy + chh))))
+            sc = max(pw / im.width, ph / im.height)
+            im = im.resize((max(pw, round(im.width * sc)), max(ph, round(im.height * sc))), Image.LANCZOS)
+            l, t = (im.width - pw) // 2, 0 if ov.get("align_top", True) else (im.height - ph) // 2
+            imf = f"{work}/pipimg{k}.png"; im.crop((l, t, l + pw, t + ph)).save(imf)
+            inputs += ["-loop", "1", "-framerate", str(FPS), "-t", f"{d:.3f}", "-i", imf]
+            src_v = f"[{idx}:v]format=rgba"
+        idx += 1
+        framef = f"{work}/pipframe{k}.png"; frame.save(framef)
+        inputs += ["-loop", "1", "-framerate", str(FPS), "-t", f"{d:.3f}", "-i", maskf]; mi = idx; idx += 1
+        inputs += ["-loop", "1", "-framerate", str(FPS), "-t", f"{d:.3f}", "-i", framef]; fi = idx
+        fade = f"fade=in:st=0:d=0.2:alpha=1,fade=out:st={d-0.2:.3f}:d=0.2:alpha=1,setpts=PTS-STARTPTS+{a:.3f}/TB"
+        fc.append(f"{src_v}[pv{k}];[{mi}:v]format=gray[pm{k}];[pv{k}][pm{k}]alphamerge,{fade}[pc{k}]")
+        fc.append(f"[{fi}:v]format=rgba,{fade}[pf{k}]")
+        p = f"clip((t-{a:.3f})/0.3,0,1)"
+        yo = f"(-50*(1-(1+2.70158*pow({p}-1,3)+1.70158*pow({p}-1,2))))"
+        px = ov.get("x"); fx = "(W-w)/2" if px is None else str(px - bd - sh); vx = "(W-w)/2" if px is None else str(px)
+        fc.append(f"{last}[pf{k}]overlay=x={fx}:y='{py - bd - sh}+{yo}':eval=frame:eof_action=pass[pb{k}]")
+        fc.append(f"[pb{k}][pc{k}]overlay=x={vx}:y='{py}+{yo}':eval=frame:eof_action=pass[b{k}]")
     else:  # vídeo em tela cheia
         inputs += ["-ss", str(ov.get("from", 0)), "-t", f"{d:.3f}", "-i", ov["file"]]
         fc.append(f"[{idx}:v]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS},"

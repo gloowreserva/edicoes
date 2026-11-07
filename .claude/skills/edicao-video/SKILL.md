@@ -1,31 +1,52 @@
 ---
 name: edicao-video
-description: Editar vídeos curtos verticais (TikTok) no padrão Gloow — "estilo de edição 1": corta respiros, começa na fala, hook na tela, legenda animada, zoom alternado, sobreposições e selo de comentário. Use quando o Vitor mandar um link do Google Drive com vídeos brutos para editar.
+description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1 e 2 (hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; estilo 1 com legenda e zoom, estilo 2 limpo e sem legenda). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
 ---
 
-# Edição de vídeo — Estilo de edição 1
+# Edição de vídeo — Estilos de edição 1 e 2
 
-Padrão aprovado pelo Vitor nos 4 primeiros vídeos (IMG_7421, IMG_7423, IMG_7897, IMG_7923).
-O **estilo 2** (menos informação, às vezes sem legenda) ainda está sendo definido e **não** está aqui.
+## Regras que valem para os dois estilos
 
-## Regras do estilo 1
-
-1. **Começa sempre na fala.** Nada de trecho parado no início (o script corta até a primeira palavra).
-2. **Corta respiros e pausas**, e também frases repetidas / tropeços (via `remove` no config).
-3. **Hook** no topo, nos primeiros ~4s: texto branco, contorno preto grosso, 3 linhas curtas.
+1. **Hook obrigatório.** Nenhum vídeo sai sem hook. Topo, primeiros ~4s, texto branco com contorno preto grosso, 3 linhas curtas.
    - Polêmico, mas sem restrição: não promete ganho, não parece venda.
-   - Usar algo que a pessoa fala no vídeo como gancho.
-   - Escrever "ttk" no lugar de "TikTok".
-4. **Legenda da fala**: 2–3 palavras por vez, branca com contorno preto, terço de baixo, entrada com "pop".
-   - Corrigir erros da transcrição via `replace` (ex.: "tiktok"→"ttk", "chat ept"→"ChatGPT", "de ar"→"de IA", "built"→"bio", "Nuri"→"Nulle", "glow"→"GLOOW").
-5. **Zoom de 10% alternado** a cada corte.
-6. **Sobreposições** (4 a 7), cada uma no momento da fala que combina:
-   - prints de prova social → cartão inclinado subindo com quique;
-   - vídeos de tela do app → tela cheia com fade.
+   - Usar algo que a pessoa fala no vídeo como gancho. Escrever "ttk" no lugar de "TikTok".
+2. **Começa sempre na fala.** Nada de trecho parado no início (o script corta até a primeira palavra).
+3. **Corta respiros e pausas**, e também frases repetidas, tentativas refeitas e tropeços (via `remove` no config).
+4. **Selo rosa** "comenta PALAVRA" quando a pessoa pede o comentário.
+5. **Sobreposições no momento da fala que combina** (quando fala do app, das marcas, da comunidade).
+   - Vídeo de tela do app → **janela no topo** (`"type": "pip"`), nunca tela cheia. Gravação de tela que muda rápido vira quadro parado da tela certa.
+   - Janela: borda arredondada + sombra, no topo, do lado da cabeça (pode pegar no rosto), bem visível, dentro da área segura do TikTok (abaixo de "Seguindo | Para você", longe dos botões da direita). Padrão: `"size": [560, 600], "y": 220`. Pessoa muito perto da câmera: janela menor no canto (`"size": [420, 450], "x": 50, "y": 200`).
+   - Se no vídeo bruto a pessoa já mostra o app no celular, deixar rodar sem cobrir.
    - Não colocar print de prova social de outra pessoa logo depois de alguém falar do próprio faturamento (parece que é dele).
-   - Perfil só da própria pessoa do vídeo (perfil do Samuca só em vídeo do Samuca).
-7. **Selo rosa** "comenta PALAVRA" quando a pessoa pede o comentário.
-8. Sinalizar ao Vitor promessas de ganho que estejam na fala (ex.: "300 reais em 10 dias") — podem dar restrição.
+   - Perfil só da própria pessoa do vídeo (perfil "Samuca Sem Dores" só em vídeo do Samuca).
+6. Sinalizar ao Vitor promessas de ganho ou de saúde que estejam na fala (ex.: "300 reais em 10 dias") — podem dar restrição.
+7. Vídeo que não é de venda (conversa solta, sem chamada) fica de fora e é avisado.
+
+## Estilo de edição 1
+
+- **Legenda da fala**: 2–3 palavras por vez, branca com contorno preto, terço de baixo, entrada com "pop".
+  - Corrigir erros da transcrição via `replace` (ex.: "tiktok"→"ttk", "chat ept"→"ChatGPT", "de ar"→"de IA", "built"→"bio", "Nuri"/"Nulli"→"Nulle", "glow"→"GLOOW").
+- **Zoom de 10% alternado** a cada corte.
+- **Sobreposições**: 4 a 7. Prints de prova social como cartão inclinado subindo com quique (`"type": "card"`); telas do app em janela no topo (`"type": "pip"`).
+- Exemplo: `exemplos/estilo1_IMG_7421.json`.
+
+## Estilo de edição 2
+
+- **Sem legenda da fala** (`"captions": false`).
+- **Sem zoom** (`"zoom": 1.0`).
+- **Menos informação**: 2 a 3 sobreposições, só as realmente necessárias, todas em janela no topo (`"type": "pip"`).
+- Hook e selo de comentário iguais ao estilo 1.
+- Exemplo: `exemplos/estilo2_IMG_7486.json`.
+
+## Alternância nos lotes
+
+Num lote, alternar na ordem dos arquivos do Drive: 1º estilo 1, 2º estilo 2, 3º estilo 1, 4º estilo 2...
+Continuar a alternância de onde o lote anterior parou.
+
+## Pessoas
+
+- **Mat (Matheus)**: barbudo, olhos claros.
+- **Samuca**: cara limpa, cabelo grande.
 
 ## Passo a passo
 
@@ -36,17 +57,18 @@ O **estilo 2** (menos informação, às vezes sem legenda) ainda está sendo def
    import gdown
    for f in gdown.download_folder(URL_DA_PASTA, skip_download=True, quiet=True): print(f.id, f.path)
    ```
-4. **Baixar cada arquivo com curl**:
+4. **Baixar cada arquivo com curl** (se vier um HTML de erro 503, baixar de novo):
    `curl -sSL -o ARQUIVO "https://drive.usercontent.google.com/download?id=ID&export=download&confirm=t"`
    - Imagens `.PNG` do iPhone às vezes são HEIC: converter com `pillow_heif` antes de usar.
 5. **Transcrever**: `ffmpeg -i VIDEO -vn -ac 1 -ar 16000 audio.wav` e depois
    `HF_HUB_DISABLE_XET=1 python3 -I scripts/transcribe.py audio.wav transcricao.json medium`.
-6. **Escrever o config** (ver `exemplos/IMG_7421.json`): vídeo, transcrição, `remove`, `replace`, `hook`, `stickers`, `overlays` (tempos do vídeo **original**; o script remapeia).
-7. **Editar**: `python3 -I scripts/edit.py config.json` (corta trecho por trecho para não estourar memória; ~2–5 min por vídeo).
-8. **Conferir quadros** (hook legível, sobreposição certa, legenda) antes de mandar ao Vitor.
+6. **Escrever o config** (ver `exemplos/`): vídeo, transcrição, `remove`, `replace`, `hook`, `stickers`, `overlays`, e no estilo 2 `captions`/`zoom`. Tempos sempre do vídeo **original**; o script remapeia.
+   - `pip`: `file` (imagem ou vídeo), `crop` [x, y, largura, altura] em frações, `size`, `y`, `x` opcional, `from` para vídeo.
+7. **Editar**: `python3 -I scripts/edit.py config.json` (corta trecho por trecho para não estourar memória; ~2–5 min por vídeo; rodar um vídeo por vez).
+8. **Conferir quadros** (hook legível, janela com a tela certa e sem cobrir os olhos, legenda) antes de mandar ao Vitor.
 
 ## Material de apoio no Drive (pasta do Vitor)
 
 - `Provas Sociais/`: prints do Telegram ("primeira venda").
 - `Sobreposições/`: ícones com o Gloow App circulado, perfil "Samuca Sem Dores", vídeo do perfil, gravação de tela do app.
-- Gravação de tela do app (`copy_3AAD4AD4-...mov`, 94s): 0–5s home "Olá Samuca"; 6–8s "Marcas Virais"; 8–10s página da Nulle; 10–12s e 16–21s links de afiliação com comissão; 13–15s e 22–31s site da Nulle (magnésio).
+- Gravação de tela do app (`copy_3AAD4AD4-...mov`, 94s) — bons quadros parados: 6,5s "Marcas Virais"; 9s página da Nulle (com "Vídeos Prontos"); 11s links de afiliação com comissão; 23s site da Nulle ("regular seu cortisol").

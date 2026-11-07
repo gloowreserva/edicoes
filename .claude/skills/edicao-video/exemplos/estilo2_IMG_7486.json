@@ -1,0 +1,73 @@
+{
+ "video": "PASTA_DRIVE/IMG_7486.MOV",
+ "transcript": "PASTA_DRIVE/IMG_7486.json",
+ "work": "PASTA_TRABALHO/work_7486",
+ "output": "PASTA_TRABALHO/work_7486/IMG_7486_editado.mp4",
+ "captions": false,
+ "zoom": 1.0,
+ "replace": {},
+ "hook": {
+  "text": "Recado direto do maior\nevento de creator\neconomy",
+  "dur": 4.2
+ },
+ "stickers": [
+  {
+   "start": 41.8,
+   "end": 45.0,
+   "text": "comenta\n2027"
+  }
+ ],
+ "overlays": [
+  {
+   "type": "pip",
+   "file": "PASTA_DRIVE/stills/tela_6.5.png",
+   "start": 12.4,
+   "end": 15.4,
+   "crop": [
+    0,
+    0.02,
+    1,
+    0.6
+   ],
+   "size": [
+    560,
+    600
+   ],
+   "y": 220
+  },
+  {
+   "type": "pip",
+   "file": "PASTA_DRIVE/prova/IMG_0868.PNG",
+   "start": 21.2,
+   "end": 23.6,
+   "crop": [
+    0,
+    0.13,
+    1,
+    0.5
+   ],
+   "size": [
+    560,
+    600
+   ],
+   "y": 220
+  },
+  {
+   "type": "pip",
+   "file": "PASTA_DRIVE/stills/tela_9.0.png",
+   "start": 51.5,
+   "end": 54.0,
+   "crop": [
+    0,
+    0.04,
+    1,
+    0.55
+   ],
+   "size": [
+    560,
+    600
+   ],
+   "y": 220
+  }
+ ]
+}
