@@ -1,9 +1,9 @@
 ---
 name: edicao-video
-description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1 e 2 (hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; estilo 1 com legenda e zoom, estilo 2 limpo e sem legenda). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
+description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1, 2 e 3 (1 e 2 para vídeos falados: hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; 1 com legenda e zoom, 2 limpo e sem legenda; 3 para B-roll sem fala: texto na tela e música do início ao fim). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
 ---
 
-# Edição de vídeo — Estilos de edição 1 e 2
+# Edição de vídeo — Estilos de edição 1, 2 e 3
 
 ## Regras que valem para os dois estilos
 
@@ -37,6 +37,18 @@ description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos esti
 - **Menos informação**: 2 a 3 sobreposições, só as realmente necessárias, todas em janela no topo (`"type": "pip"`).
 - Hook e selo de comentário iguais ao estilo 1.
 - Exemplo: `exemplos/estilo2_IMG_7486.json`.
+
+## Estilo de edição 3 (B-roll)
+
+Para vídeos **sem fala** (a pessoa só aparece fazendo algo, posando etc.). Não precisa transcrever nem analisar o áudio.
+
+- **Texto na tela do primeiro ao último quadro**, sem fade: variante dos hooks/frases do Vitor (formato viral, 2–3 frases, terminando com chamada tipo "Entra no meu perfil"). Topo, acima da cabeça, branco com contorno preto. Sem emoji (a fonte não desenha). "ttk" no lugar de TikTok quando aparecer.
+- **Música embutida no arquivo, do primeiro ao último segundo**, já no volume cheio (pular silêncio/introdução da faixa). Os vídeos vão para uma pasta de postagem automática, então a música tem que estar no arquivo.
+- **Música**: não só inglesa — priorizar música brasileira que combine com o contexto (sertanejo, sons virais do TikTok). Se o Vitor subir MP3s numa pasta `Músicas` no Drive, usar esses. Sem isso, usar faixa livre de direitos do Mixkit (`mixkit.co`, licença livre para redes sociais; hosts `mixkit.co` e `assets.mixkit.co` liberados no ambiente).
+- Script: `python3 -I scripts/broll.py VIDEO MUSICA SAIDA "TEXTO" INICIO_MUSICA`.
+- Exemplos de frases base do Vitor:
+  - "Enquanto você tá aí só assistindo a vida dos outros, tem gente com menos de 100 seguidores fazendo venda todo dia no app rosa só de copiar e colar vídeos prontos com 1 clique e postar. Pra entender como, entra no meu perfil."
+  - "Antes de ficar esperando o Shop pra começar de verdade no ttk, entra no meu perfil pra entender uma coisa: enquanto você tá aí parada achando que depende de 2000 seguidores pra vender, tem gente começando no app rosa com menos de 100 seguidores fazendo venda sem esperar liberar nada."
 
 ## Alternância nos lotes
 
