@@ -43,6 +43,25 @@ for a, b in cfg["keep"]:
         else: cur[1] = w["end"]
     segs.append((cur[0], min(cur[1] + pad + 0.05, b)))
 segs = [(round(a, 3), round(b, 3)) for a, b in segs if b - a > 0.1]
+# o transcritor estica o fim das palavras por cima do silêncio: tira também os silêncios medidos no áudio
+out = subprocess.run(["ffmpeg", "-nostats", "-i", cfg["video"], "-vn", "-af",
+                      f"silencedetect=n={cfg.get('silence_db', -35)}dB:d={cfg.get('silence_min', 0.3)}", "-f", "null", "-"],
+                     capture_output=True, text=True).stderr
+sil = list(zip([float(x) for x in re.findall(r"silence_start: ([\d.]+)", out)],
+               [float(x) for x in re.findall(r"silence_end: ([\d.]+)", out)]))
+def tira_silencio(a, b):
+    res = [(a, b)]
+    for s, e in sil:
+        s2, e2 = s + 0.06, e - 0.06  # deixa um respiro mínimo nas bordas da fala
+        if e2 - s2 < 0.15: continue
+        nova = []
+        for x, y in res:
+            if e2 <= x or s2 >= y: nova.append((x, y)); continue
+            if s2 - x > 0.1: nova.append((x, s2))
+            if y - e2 > 0.1: nova.append((e2, y))
+        res = nova
+    return res
+segs = [p for a, b in segs for p in tira_silencio(a, b)]
 
 parts = []
 for i, (a, b) in enumerate(segs):
