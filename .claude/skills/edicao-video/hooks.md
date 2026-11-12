@@ -31,3 +31,7 @@
 8. Conta nova, poucos seguidores e mesmo assim vendendo? Sim. Tem gente no app rosa postando 2 vídeos prontos por dia e destravando a conta em poucas semanas. Comenta "app rosa" que eu te explico.
 9. Tá cansado de postar e não vender? O problema não é sua conta, é o que você posta. Quem tá no app rosa só posta vídeo pronto de marca que já vende. Entra no meu perfil.
 10. Enquanto você assiste novela e reclama do mês, tem gente postando 1 vídeo pronto por dia no app rosa e fazendo um extra pra fechar as contas. Quer parar de enrolar? Comenta "app rosa".
+11. Enquanto você ainda acha que precisa aparecer pra vender, tem gente curtindo a noite com vídeo pronto postado de manhã no app rosa. Quer entender como? Comenta "app rosa".
+12. Tem gente com poucos seguidores postando 1 vídeo pronto por dia no app rosa e vendendo de onde estiver. Quer começar do zero também? Entra no meu perfil.
+
+Variantes já usadas em vídeos: 1–12 (criar novas para os próximos B-rolls).
