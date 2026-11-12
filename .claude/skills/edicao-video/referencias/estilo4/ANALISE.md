@@ -46,3 +46,12 @@ As transcrições, geradas automaticamente pelo Whisper, estão em `transcricoes
 - O 05 e o 07 têm o mesmo roteiro ("Como o CORTISOL mudou sua aparência"), com criadores e estilos de texto diferentes.
 - O 01 e o 06 são da mesma criadora e do mesmo estilo de legenda.
 - O 02 e o 09 compartilham o trecho dos "5 tipos de magnésio" quase palavra por palavra.
+
+## Primeira edição de teste (4C, provisória)
+
+- Bruto: `copy_3C9BE62D-....mov` (3min36, sem fala, só gestos), o mesmo roteiro do 05/07.
+- Replicado o **05 (ARTUR VIRAL)**: 13 cenas de ~2,5–3s escolhidas do bruto, os mesmos textos e emojis, a música do 05.
+- Script: `scripts/estilo4c.py`. Config de exemplo: `exemplos/estilo4c_cortisol_nulle.json`.
+- Texto: estilo "clássico" do TikTok (caixa branca arredondada por linha, Inter SemiBold 50, preto, emoji Noto), no meio da tela. Desce quando o produto ou o copo ocupa o meio.
+- Leve ajuste de cor (contraste 1,04, saturação 1,12). Música normalizada (-14 LUFS) com fade de 0,6s no fim.
+- Aguardando o retorno do Vitor pra virar regra.

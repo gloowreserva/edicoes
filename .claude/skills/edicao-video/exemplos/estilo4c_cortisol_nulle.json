@@ -1,0 +1,22 @@
+{
+ "video": "PASTA_TRABALHO/bruto.mov",
+ "work": "PASTA_TRABALHO/work",
+ "output": "PASTA_TRABALHO/Nulle_cortisol_4C.mp4",
+ "music": "PASTA_TRABALHO/musica_ref05.m4a",
+ "music_start": 0,
+ "shots": [
+  {"from": 2.4,   "to": 5.0,   "y": 1060, "text": "Como o CORTISOL mudou\nsua aparência (provavelmente\nvc nem percebeu) 😳🫣"},
+  {"from": 20.2,  "to": 23.2,  "y": 1060, "text": "\"Pochete\" que vc não\nconsegue se livrar"},
+  {"from": 50.1,  "to": 52.8,  "y": 1060, "text": "Rosto inchado 🍪"},
+  {"from": 62.5,  "to": 65.5,  "y": 1060, "text": "Mal cheiro e suor\nem excesso 🤢"},
+  {"from": 77.0,  "to": 79.8,  "y": 1060, "text": "Queda de cabelo"},
+  {"from": 93.2,  "to": 96.0,  "y": 1060, "text": "\"Calombo\" na nuca"},
+  {"from": 113.0, "to": 115.8, "y": 1060, "text": "Olheiras e bolsas\nembaixo dos olhos"},
+  {"from": 130.6, "to": 133.4, "y": 1380, "text": "Esse suplemento pode te\najudar a baixar seus níveis\nde cortisol 🤌✨"},
+  {"from": 148.6, "to": 151.2, "y": 1380, "text": "Esse suplemento pode te\najudar a baixar seus níveis\nde cortisol 🤌✨"},
+  {"from": 164.0, "to": 167.0, "y": 900,  "text": "Eu tomo um desses por dia\npara manter meu cortisol em\nníveis saudáveis 😌"},
+  {"from": 177.3, "to": 180.1, "y": 1500, "text": "Ele é docinho e tem sabor\nde PINK LEMONADE 🍓🍋"},
+  {"from": 202.2, "to": 204.2, "y": 1500, "text": "Ele é docinho e tem sabor\nde PINK LEMONADE 🍓🍋"},
+  {"from": 204.6, "to": 208.2, "y": 1450, "text": "Gostinho de chiclete 🍬"}
+ ]
+}
