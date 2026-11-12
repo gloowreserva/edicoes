@@ -67,3 +67,13 @@ As transcrições, geradas automaticamente pelo Whisper, estão em `transcricoes
 - Problema: as fotos sobrepostas saíam avermelhadas. O bruto do iPhone é **HDR (HLG/BT.2020)** e o arquivo final herdava essa etiqueta, mesmo sendo SDR, então o player "puxava" as cores. Além disso, as imagens eram misturadas com a matriz BT.601.
 - Correção no `estilo4c.py`: etiqueta **BT.709** em todos os trechos e no final, imagens convertidas com matriz BT.709 e prints em Display P3 convertidos pra sRGB.
 - O `edit.py` (estilos 1 e 2) tem o mesmo risco com bruto de iPhone em HDR.
+
+### v4: cortes assertivos (feedback do Samuel)
+- Pedido: "cortes mais assertivos". O bruto tem várias tomadas repetidas de cada gesto; pegar só o **pico** de cada uma.
+- Regras aplicadas:
+  1. Rever o bruto a 3–4 quadros/s e escolher a tomada em que o gesto está mais claro e a expressão mais forte.
+  2. Entrar com o gesto **já acontecendo**; cortar antes de a pessoa relaxar ou mudar de pose. Nada de "se preparando".
+  3. Sintoma com dois gestos bons vira **dois cortes rápidos** (ex.: cheira a axila → polegar pra baixo; mão no cabelo → aponta a entrada).
+  4. **Cortes na batida da música**: detecta o BPM (aqui 115, batida = 0,52s) e cada cena dura um número inteiro de batidas (2–5), com `music_start` na fase da batida.
+  5. Texto nunca em cima dos olhos; sobreposição nunca em cima do rosto nem do produto/copo.
+- Resultado: 28,7s e 17 cortes (antes 36,5s e 13 cortes).
