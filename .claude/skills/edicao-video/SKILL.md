@@ -69,7 +69,14 @@ Vídeos que vão para donos de marca. Cada bruto segue o roteiro de um dos víde
    - Trechos mal transcritos: `fix.py` (retranscreve com o modelo medium e junta no json) e `word_fix` no config.
 4. **Sobreposições obrigatórias**, em lugares parecidos com a referência, com leve mudança; nunca em cima do rosto nem do produto.
 5. **Cor**: brutos de iPhone são HDR (HLG). Os scripts já saem em BT.709; não tirar isso (senão as fotos ficam avermelhadas).
-6. Conferir sempre: retranscrever o vídeo final (frase repetida/cortada) e ver um quadro de cada cena.
+6. **Padrão de qualidade (feedback do Vitor): zero erro.**
+   - **Presença**: só entra take com ele firme, olhando pra câmera, com energia. Nada de mexer no cabelo, balançar a cabeça, olhar pro roteiro/pacote, cara de "pensando" — nem no começo/fim do trecho. Se a frase tem uma tomada melhor (mais presença), usar ela.
+   - **Corte nunca no meio da palavra.** O corte é feito pelo detector de voz (Silero VAD) dentro dos trechos marcados; emenda entre palavras coladas usa borda exata `[ini, fim, "x"]` no ponto de menor volume.
+   - Antes de renderizar, rodar o config com `"dry": true` e os dois verificadores, e corrigir até zerar:
+     - `scripts/checa_cortes.py BRUTO.wav work/segs.json transcricao.json` → 0 cortes com voz no ponto.
+     - `scripts/checa_presenca.py BRUTO work/segs.json` → olhar cada quadro suspeito (`previa`/quadro avulso): gesto de fala fica; olhar pra baixo/lado, cabelo, balanço sai (borda exata ou outra tomada).
+   - Depois de renderizar: retranscrever o final (frase repetida/cortada) e ver um quadro de cada cena.
+7. Rodar UMA análise/render por vez (4 em paralelo estoura a memória da máquina).
 
 ## Alternância nos lotes
 
