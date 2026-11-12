@@ -41,7 +41,7 @@ for a, b in cfg["keep"]:
         if w["start"] - cur[1] > gap:
             segs.append((cur[0], min(cur[1] + pad + 0.1, w["start"] - 0.02))); cur = [w["start"] - pad, w["end"]]
         else: cur[1] = w["end"]
-    segs.append((cur[0], min(cur[1] + pad + 0.15, b)))
+    segs.append((cur[0], b))  # vai até o fim marcado: o silêncio do fim é tirado pelo áudio (o transcritor erra o fim da palavra)
 segs = [(round(a, 3), round(b, 3)) for a, b in segs if b - a > 0.1]
 # o transcritor estica o fim das palavras por cima do silêncio: tira também os silêncios medidos no áudio
 out = subprocess.run(["ffmpeg", "-nostats", "-i", cfg["video"], "-vn", "-af",
