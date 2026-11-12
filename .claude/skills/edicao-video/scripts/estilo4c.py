@@ -99,8 +99,40 @@ for k, b in enumerate(blocks):
     en = f"between(t,{b['start']:.3f},{b['end'] - 0.001:.3f})"
     fc.append(f"{last}[{k + 1}:v]overlay=0:0:enable='{en}':shortest=1[v{k}]"); last = f"[v{k}]"
 
-# 3. música do primeiro ao último segundo
-mi = len(blocks) + 1
+# 3. sobreposições: imagem em cartão (borda branca, canto arredondado, sombra) no topo, ao lado da cabeça.
+#    {"shot": i, "files": [img, ...], "x", "y", "w", "from": seg_na_cena, "dur": seg}. Várias imagens = sequência.
+def card(path, w, out):
+    import pillow_heif; pillow_heif.register_heif_opener()
+    im = Image.open(path).convert("RGB"); im = im.resize((w, round(im.height * w / im.width)), Image.LANCZOS)
+    bd, r, sh = 7, 20, 30
+    c = Image.new("RGBA", (im.width + 2 * (bd + sh), im.height + 2 * (bd + sh)), (0, 0, 0, 0))
+    m = Image.new("L", (im.width + 2 * bd, im.height + 2 * bd), 0)
+    ImageDraw.Draw(m).rounded_rectangle([0, 0, m.width - 1, m.height - 1], r + bd, fill=255)
+    from PIL import ImageFilter
+    shadow = Image.new("RGBA", c.size, (0, 0, 0, 0)); shadow.paste((0, 0, 0, 120), (sh, sh + 10), m)
+    c = Image.alpha_composite(c, shadow.filter(ImageFilter.GaussianBlur(14)))
+    c.paste((255, 255, 255, 255), (sh, sh), m)
+    mi_ = Image.new("L", im.size, 0); ImageDraw.Draw(mi_).rounded_rectangle([0, 0, im.width - 1, im.height - 1], r, fill=255)
+    c.paste(im, (sh + bd, sh + bd), mi_)
+    c.save(out); return sh + bd
+
+starts = [sum(durs[:i]) for i in range(len(durs))]
+n = len(blocks) + 1
+for k, ov in enumerate(cfg.get("overlays", [])):
+    a = starts[ov["shot"]] + ov.get("from", 0.0)
+    b = min(a + ov.get("dur", durs[ov["shot"]] - ov.get("from", 0.0)), total)
+    files = ov.get("files") or [ov["file"]]; step = (b - a) / len(files)
+    for j, f in enumerate(files):
+        png = f"{work}/ov{k:02d}_{j}.png"; off = card(f, ov.get("w", 420), png)
+        s, e = a + j * step, a + (j + 1) * step
+        inputs += ["-loop", "1", "-framerate", str(FPS), "-t", f"{total:.3f}", "-i", png]
+        fi = "" if j else f",fade=in:st={s:.3f}:d=0.15:alpha=1"
+        fc.append(f"[{n}:v]format=rgba{fi}[ovi{k}_{j}]")
+        fc.append(f"{last}[ovi{k}_{j}]overlay={ov['x'] - off}:{ov['y'] - off}:enable='between(t,{s:.3f},{e - 0.001:.3f})'[vo{k}_{j}]")
+        last = f"[vo{k}_{j}]"; n += 1
+
+# 4. música do primeiro ao último segundo
+mi = n
 inputs += ["-ss", str(cfg.get("music_start", 0)), "-i", cfg["music"]]
 fc.append(f"[{mi}:a]atrim=0:{total:.3f},asetpts=PTS-STARTPTS,afade=t=out:st={total - 0.6:.3f}:d=0.6,"
           f"loudnorm=I=-14:TP=-1.5:LRA=11[aout]")

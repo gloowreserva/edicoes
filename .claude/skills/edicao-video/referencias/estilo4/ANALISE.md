@@ -55,3 +55,10 @@ As transcrições, geradas automaticamente pelo Whisper, estão em `transcricoes
 - Texto: estilo "clássico" do TikTok (caixa branca arredondada por linha, Inter SemiBold 50, preto, emoji Noto), no meio da tela. Desce quando o produto ou o copo ocupa o meio.
 - Leve ajuste de cor (contraste 1,04, saturação 1,12). Música normalizada (-14 LUFS) com fade de 0,6s no fim.
 - Aguardando o retorno do Vitor pra virar regra.
+
+### v2: sobreposições (o Vitor pediu: são obrigatórias)
+- Vêm da pasta `Sobreposições` do primeiro Drive (da marca, só leitura).
+- Ficam em cartão com borda branca, canto arredondado e sombra, no topo ao lado da cabeça. Ficam em **lugares parecidos com a referência, com uma leve mudança** (ex.: no 05 a pochete fica em cima à esquerda; aqui a cabeça está à esquerda, então foi pra direita).
+- Mapeamento usado: hook → antes/depois de rosto (IMG_6286); pochete → Apron Belly/FUPA (d0a6c85a); rosto inchado → sequência de mandíbula 30→25→20→15% (745662C4, 6120FB2C, 0AE01E61, 0EFE80F7); preparo → mixer com drink rosa (IMG_6292); final → print de depoimento (IMG_7025).
+- Não usados: a gravação de tela (vídeo de outra criadora) e o antes/depois de emagrecimento (IMG_6796, pode parecer promessa de resultado).
+- Texto em print precisa de largura ≥ 470px; imagem simples, 320–430px.
