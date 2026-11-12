@@ -97,7 +97,19 @@ def fixw(w):
         t, _, orig = k.partition("|")
         if abs(w["start"] - float(t)) < 0.04 and (not orig or orig.lower() == w["word"].strip(" .,!?").lower()): return v
     return clean(w["word"].strip())
-kw = [dict(w=fixw(w), s=remap(w["start"]), e=remap(w["end"])) for w in words if kept((w["start"] + w["end"]) / 2)]
+if cfg.get("recaption", True):
+    # legenda tirada do vídeo JÁ CORTADO (modelo medium): tempo exato de cada palavra no vídeo final
+    import wave, numpy as np
+    from faster_whisper import WhisperModel
+    wav = f"{work}/cut.wav"
+    run(["ffmpeg", "-v", "error", "-y", "-i", cut, "-vn", "-ac", "1", "-ar", "16000", wav])
+    wf = wave.open(wav); au = np.frombuffer(wf.readframes(wf.getnframes()), np.int16).astype(np.float32) / 32768
+    m = WhisperModel(cfg.get("caption_model", "medium"), device="cpu", compute_type="int8")
+    sg, _ = m.transcribe(au, language="pt", word_timestamps=True, condition_on_previous_text=False)
+    kw = [dict(w=clean(w.word.strip()), s=w.start, e=w.end) for x in sg for w in x.words]
+    json.dump(kw, open(f"{work}/legenda_palavras.json", "w"), ensure_ascii=False)
+else:
+    kw = [dict(w=fixw(w), s=remap(w["start"]), e=remap(w["end"])) for w in words if kept((w["start"] + w["end"]) / 2)]
 kw = [w for w in kw if re.sub(r"\W", "", w["w"])]
 def ts(t):
     t = max(0, t); return f"{int(t // 3600)}:{int(t % 3600 // 60):02d}:{t % 60:05.2f}"
