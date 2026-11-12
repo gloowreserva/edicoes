@@ -39,9 +39,9 @@ for a, b in cfg["keep"]:
     cur = [max(a, ws[0]["start"] - pad), ws[0]["end"]]
     for w in ws[1:]:
         if w["start"] - cur[1] > gap:
-            segs.append((cur[0], min(cur[1] + pad, w["start"] - 0.02))); cur = [w["start"] - pad, w["end"]]
+            segs.append((cur[0], min(cur[1] + pad + 0.1, w["start"] - 0.02))); cur = [w["start"] - pad, w["end"]]
         else: cur[1] = w["end"]
-    segs.append((cur[0], min(cur[1] + pad + 0.05, b)))
+    segs.append((cur[0], min(cur[1] + pad + 0.15, b)))
 segs = [(round(a, 3), round(b, 3)) for a, b in segs if b - a > 0.1]
 # o transcritor estica o fim das palavras por cima do silêncio: tira também os silêncios medidos no áudio
 out = subprocess.run(["ffmpeg", "-nostats", "-i", cfg["video"], "-vn", "-af",
@@ -107,6 +107,12 @@ if cfg.get("recaption", True):
     m = WhisperModel(cfg.get("caption_model", "medium"), device="cpu", compute_type="int8")
     sg, _ = m.transcribe(au, language="pt", word_timestamps=True, condition_on_previous_text=False)
     kw = [dict(w=clean(w.word.strip()), s=w.start, e=w.end) for x in sg for w in x.words]
+    for de, para in cfg.get("phrase_fix", []):  # ex.: ["a cara", "acorda"] (erro de transcrição em 2+ palavras)
+        toks = de.lower().split(); i = 0
+        while i <= len(kw) - len(toks):
+            if [re.sub(r"[^\w]", "", x["w"].lower()) for x in kw[i:i + len(toks)]] == toks:
+                kw[i:i + len(toks)] = [dict(w=para, s=kw[i]["s"], e=kw[i + len(toks) - 1]["e"])]
+            i += 1
     json.dump(kw, open(f"{work}/legenda_palavras.json", "w"), ensure_ascii=False)
 else:
     kw = [dict(w=fixw(w), s=remap(w["start"]), e=remap(w["end"])) for w in words if kept((w["start"] + w["end"]) / 2)]
