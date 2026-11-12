@@ -29,39 +29,61 @@ ENC = ["-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709
 def run(cmd):
     print(">>", " ".join(cmd)[:160], flush=True); subprocess.run(cmd, check=True)
 
-# ---------- 1. trechos: tomadas escolhidas, sem respiro ----------
+# ---------- 1. trechos: tomadas escolhidas, cortando SÓ onde não há voz ----------
+# O tempo das palavras do transcritor não é confiável pra cortar. Quem decide é o detector de voz
+# (Silero VAD do faster-whisper), que ignora barulho de mão/roupa: corte nunca cai no meio de palavra.
 words = [w for s in json.load(open(cfg["transcript"])) for w in s["words"]]
-gap = cfg.get("gap", 0.28); pad = 0.07
-segs = []
-for a, b in cfg["keep"]:
-    ws = [w for w in words if w["start"] >= a - 0.05 and w["end"] <= b + 0.05]
-    if not ws: continue
-    cur = [max(a, ws[0]["start"] - pad), ws[0]["end"]]
-    for w in ws[1:]:
-        if w["start"] - cur[1] > gap:
-            segs.append((cur[0], min(cur[1] + pad + 0.1, w["start"] - 0.02))); cur = [w["start"] - pad, w["end"]]
-        else: cur[1] = w["end"]
-    segs.append((cur[0], b))  # vai até o fim marcado: o silêncio do fim é tirado pelo áudio (o transcritor erra o fim da palavra)
-segs = [(round(a, 3), round(b, 3)) for a, b in segs if b - a > 0.1]
-# o transcritor estica o fim das palavras por cima do silêncio: tira também os silêncios medidos no áudio
-out = subprocess.run(["ffmpeg", "-nostats", "-i", cfg["video"], "-vn", "-af",
-                      f"silencedetect=n={cfg.get('silence_db', -35)}dB:d={cfg.get('silence_min', 0.3)}", "-f", "null", "-"],
-                     capture_output=True, text=True).stderr
-sil = list(zip([float(x) for x in re.findall(r"silence_start: ([\d.]+)", out)],
-               [float(x) for x in re.findall(r"silence_end: ([\d.]+)", out)]))
-def tira_silencio(a, b):
-    res = [(a, b)]
-    for s, e in sil:
-        s2, e2 = s + 0.06, e - 0.06  # deixa um respiro mínimo nas bordas da fala
-        if e2 - s2 < 0.15: continue
-        nova = []
-        for x, y in res:
-            if e2 <= x or s2 >= y: nova.append((x, y)); continue
-            if s2 - x > 0.1: nova.append((x, s2))
-            if y - e2 > 0.1: nova.append((e2, y))
-        res = nova
-    return res
-segs = [p for a, b in segs for p in tira_silencio(a, b)]
+import numpy as np
+from faster_whisper.vad import get_speech_timestamps, VadOptions
+_raw = subprocess.run(["ffmpeg", "-v", "error", "-i", cfg["video"], "-vn", "-ac", "1", "-ar", "16000", "-f", "s16le", "-"],
+                      capture_output=True).stdout
+_au = np.frombuffer(_raw, np.int16).astype(np.float32) / 32768
+_vo = VadOptions(threshold=cfg.get("vad_threshold", 0.45), min_silence_duration_ms=cfg.get("vad_silence_ms", 260),
+                 speech_pad_ms=cfg.get("vad_pad_ms", 90), min_speech_duration_ms=150)
+fala = [(t["start"] / 16000, t["end"] / 16000) for t in get_speech_timestamps(_au, _vo)]
+json.dump(fala, open(f"{work}/fala.json", "w"))
+def ajusta(a, b):  # borda marcada caindo no meio da fala: leva até o limite real da fala (no máx. 0,6s)
+    for s, e in fala:
+        if s < a < e and a - s <= 0.6: a = s
+        if s < b < e and e - b <= 0.6: b = e
+    return a, b
+segs, exato = [], []
+for k in cfg["keep"]:  # [ini, fim] ou [ini, fim, "x"] = borda exata (emenda entre duas palavras coladas)
+    x_ = len(k) > 2 and k[2] == "x"
+    a, b = (k[0], k[1]) if x_ else ajusta(k[0], k[1])
+    pedacos = [(max(a, s), min(b, e)) for s, e in fala if e > a and s < b]
+    if x_ and pedacos:  # borda exata manda: vale o ponto marcado, não o detector
+        pedacos[0] = (a, pedacos[0][1]); pedacos[-1] = (pedacos[-1][0], b)
+    for x, y in pedacos:  # junta pedaços separados por respiro curtíssimo
+        if segs and segs[-1][1] >= a and x - segs[-1][1] < cfg.get("respiro_max", 0.12): segs[-1] = (segs[-1][0], y)
+        elif y - x >= 0.3: segs.append((x, y)); exato.append((x_ and x == a, x_ and y == b))
+    if x_ and segs: exato[-1] = (exato[-1][0], segs[-1][1] == b)
+# folga de 0,1s antes/depois (o começo de palavra suave escapa do detector), sem invadir o vizinho nem as bordas exatas
+segs = [(a if ea else max(a - 0.1, segs[i - 1][1] if i and segs[i - 1][1] <= a else 0), b if eb else b + 0.08)
+        for i, ((a, b), (ea, eb)) in enumerate(zip(segs, exato))]
+segs = [(round(a, 3), round(b, 3)) for a, b in segs]
+if cfg.get("apara_olhar", True):
+    # presença: apara as pontas do trecho onde ele já desviou o olhar (pro roteiro/pacote) — no máx. 0,35s
+    import cv2
+    _fd = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+    _cap = cv2.VideoCapture(cfg["video"])
+    def de_frente(t):
+        _cap.set(cv2.CAP_PROP_POS_MSEC, t * 1000); ok, fr = _cap.read()
+        if not ok: return True
+        g = cv2.cvtColor(cv2.resize(fr, (270, 480)), cv2.COLOR_BGR2GRAY)
+        return len(_fd.detectMultiScale(g, 1.08, 10, minSize=(60, 60))) > 0
+    novos = []
+    for a, b in segs:
+        t = b
+        while t > b - 0.35 and not de_frente(t - 0.02): t -= 0.04
+        b2 = t if t < b else b
+        t = a
+        while t < a + 0.25 and not de_frente(t + 0.02): t += 0.04
+        if b2 - t >= 0.3: novos.append((round(t, 3), round(b2, 3)))
+    segs = novos
+json.dump(segs, open(f"{work}/segs.json", "w"))
+if cfg.get("dry"):  # só calcula os cortes (pra conferir), sem renderizar
+    print("segs:", [(round(a, 2), round(b, 2)) for a, b in segs]); sys.exit(0)
 
 parts = []
 for i, (a, b) in enumerate(segs):
