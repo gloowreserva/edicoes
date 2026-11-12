@@ -62,3 +62,8 @@ As transcrições, geradas automaticamente pelo Whisper, estão em `transcricoes
 - Mapeamento usado: hook → antes/depois de rosto (IMG_6286); pochete → Apron Belly/FUPA (d0a6c85a); rosto inchado → sequência de mandíbula 30→25→20→15% (745662C4, 6120FB2C, 0AE01E61, 0EFE80F7); preparo → mixer com drink rosa (IMG_6292); final → print de depoimento (IMG_7025).
 - Não usados: a gravação de tela (vídeo de outra criadora) e o antes/depois de emagrecimento (IMG_6796, pode parecer promessa de resultado).
 - Texto em print precisa de largura ≥ 470px; imagem simples, 320–430px.
+
+### v3: cor corrigida
+- Problema: as fotos sobrepostas saíam avermelhadas. O bruto do iPhone é **HDR (HLG/BT.2020)** e o arquivo final herdava essa etiqueta, mesmo sendo SDR, então o player "puxava" as cores. Além disso, as imagens eram misturadas com a matriz BT.601.
+- Correção no `estilo4c.py`: etiqueta **BT.709** em todos os trechos e no final, imagens convertidas com matriz BT.709 e prints em Display P3 convertidos pra sRGB.
+- O `edit.py` (estilos 1 e 2) tem o mesmo risco com bruto de iPhone em HDR.

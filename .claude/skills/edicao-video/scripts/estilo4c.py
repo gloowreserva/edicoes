@@ -72,12 +72,16 @@ def text_png(text, yc, out):
 
 # 1. cortes
 grade = ",eq=contrast=1.04:saturation=1.12" if cfg.get("grade", True) else ""
+# iPhone grava em HDR (HLG/BT.2020). O vídeo sai em SDR, então a etiqueta de cor TEM que ser BT.709;
+# senão o celular/TikTok lê como HDR e puxa as cores (as fotos sobrepostas ficam avermelhadas).
+TAG = ",setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv"
+ENC = ["-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709", "-color_range", "tv"]
 parts = []
 for i, s in enumerate(cfg["shots"]):
     p = f"{work}/shot{i:02d}.mp4"
     run(["ffmpeg", "-v", "error", "-y", "-ss", str(s["from"]), "-i", cfg["video"], "-t", f"{s['to'] - s['from']:.3f}",
-         "-vf", f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS},setsar=1{grade}",
-         "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "15", p])
+         "-vf", f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS},setsar=1{grade}{TAG}",
+         "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "15", *ENC, p])
     parts.append(p)
 open(f"{work}/list.txt", "w").write("".join(f"file '{p}'\n" for p in parts))
 cut = f"{work}/cut.mp4"
@@ -97,13 +101,19 @@ for k, b in enumerate(blocks):
     png = f"{work}/txt{k:02d}.png"; text_png(b["text"], b["y"], png)
     inputs += ["-loop", "1", "-framerate", str(FPS), "-i", png]
     en = f"between(t,{b['start']:.3f},{b['end'] - 0.001:.3f})"
-    fc.append(f"{last}[{k + 1}:v]overlay=0:0:enable='{en}':shortest=1[v{k}]"); last = f"[v{k}]"
+    fc.append(f"[{k + 1}:v]scale=out_color_matrix=bt709:out_range=tv,format=yuva420p[tx{k}]")
+    fc.append(f"{last}[tx{k}]overlay=0:0:enable='{en}':shortest=1[v{k}]"); last = f"[v{k}]"
 
 # 3. sobreposições: imagem em cartão (borda branca, canto arredondado, sombra) no topo, ao lado da cabeça.
 #    {"shot": i, "files": [img, ...], "x", "y", "w", "from": seg_na_cena, "dur": seg}. Várias imagens = sequência.
 def card(path, w, out):
     import pillow_heif; pillow_heif.register_heif_opener()
-    im = Image.open(path).convert("RGB"); im = im.resize((w, round(im.height * w / im.width)), Image.LANCZOS)
+    im = Image.open(path)
+    icc = im.info.get("icc_profile")
+    if icc:  # converte perfis tipo Display P3 para sRGB, senão as cores mudam
+        import io; from PIL import ImageCms
+        im = ImageCms.profileToProfile(im.convert("RGB"), ImageCms.ImageCmsProfile(io.BytesIO(icc)), ImageCms.createProfile("sRGB"), outputMode="RGB")
+    im = im.convert("RGB"); im = im.resize((w, round(im.height * w / im.width)), Image.LANCZOS)
     bd, r, sh = 7, 20, 30
     c = Image.new("RGBA", (im.width + 2 * (bd + sh), im.height + 2 * (bd + sh)), (0, 0, 0, 0))
     m = Image.new("L", (im.width + 2 * bd, im.height + 2 * bd), 0)
@@ -127,7 +137,7 @@ for k, ov in enumerate(cfg.get("overlays", [])):
         s, e = a + j * step, a + (j + 1) * step
         inputs += ["-loop", "1", "-framerate", str(FPS), "-t", f"{total:.3f}", "-i", png]
         fi = "" if j else f",fade=in:st={s:.3f}:d=0.15:alpha=1"
-        fc.append(f"[{n}:v]format=rgba{fi}[ovi{k}_{j}]")
+        fc.append(f"[{n}:v]format=rgba{fi},scale=out_color_matrix=bt709:out_range=tv,format=yuva420p[ovi{k}_{j}]")
         fc.append(f"{last}[ovi{k}_{j}]overlay={ov['x'] - off}:{ov['y'] - off}:enable='between(t,{s:.3f},{e - 0.001:.3f})'[vo{k}_{j}]")
         last = f"[vo{k}_{j}]"; n += 1
 
@@ -137,6 +147,6 @@ inputs += ["-ss", str(cfg.get("music_start", 0)), "-i", cfg["music"]]
 fc.append(f"[{mi}:a]atrim=0:{total:.3f},asetpts=PTS-STARTPTS,afade=t=out:st={total - 0.6:.3f}:d=0.6,"
           f"loudnorm=I=-14:TP=-1.5:LRA=11[aout]")
 run(["ffmpeg", "-v", "error", "-y", *inputs, "-filter_complex", ";".join(fc), "-map", last, "-map", "[aout]",
-     "-c:v", "libx264", "-preset", "medium", "-crf", "19", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
+     "-c:v", "libx264", "-preset", "medium", "-crf", "19", "-pix_fmt", "yuv420p", *ENC, "-c:a", "aac", "-b:a", "192k",
      "-ar", "48000", "-movflags", "+faststart", "-t", f"{total:.3f}", cfg["output"]])
 print(f"OK {cfg['output']}  {total:.1f}s, {len(cfg['shots'])} cenas, {len(blocks)} textos")
