@@ -1,0 +1,100 @@
+{
+ "video": "PASTA_TRABALHO/IMG_7539.MOV",
+ "transcript": "PASTA_TRABALHO/IMG_7539.json",
+ "work": "PASTA_TRABALHO/w7539",
+ "output": "PASTA_TRABALHO/IMG_7539_estilo4.mp4",
+ "keep": [
+  [
+   5.55,
+   7.0
+  ],
+  [
+   9.3,
+   11.9
+  ],
+  [
+   17.95,
+   23.1
+  ],
+  [
+   33.6,
+   39.1
+  ],
+  [
+   48.8,
+   60.1
+  ],
+  [
+   68.3,
+   77.5
+  ],
+  [
+   117.55,
+   127.6
+  ],
+  [
+   132.6,
+   136.5
+  ],
+  [
+   140.1,
+   144.6
+  ],
+  [
+   154.95,
+   161.1
+  ],
+  [
+   183.2,
+   188.95
+  ]
+ ],
+ "captions": "palavra",
+ "cap_y": 1480,
+ "replace": {
+  "deporments": "depoimentos",
+  "magnetos": "magnésios",
+  "^caba$": "acabe",
+  "^anvisa": "Anvisa",
+  "\\bnull?i\\b": "Nulle"
+ },
+ "hook": {
+  "text": "É isso que acontece se você tomar\nMAGNÉSIO todos os dias‼️",
+  "dur": 3.4,
+  "y": 1000
+ },
+ "overlays": [
+  {
+   "at": 5.6,
+   "dur": 3.4,
+   "file": "PASTA_DRIVE/Sobreposicoes/IMG_6286.PNG",
+   "x": 360,
+   "y": 1090,
+   "w": 360
+  },
+  {
+   "at": 18.0,
+   "dur": 3.0,
+   "file": "PASTA_DRIVE/Sobreposicoes/a8a845ef.jpg",
+   "x": 60,
+   "y": 230,
+   "w": 270
+  },
+  {
+   "at": 33.7,
+   "dur": 3.4,
+   "file": "PASTA_DRIVE/Sobreposicoes/d0a6c85a.jpg",
+   "x": 620,
+   "y": 260,
+   "w": 400
+  },
+  {
+   "at": 72.6,
+   "dur": 3.8,
+   "file": "PASTA_DRIVE/Sobreposicoes/IMG_7025.PNG",
+   "x": 560,
+   "y": 200,
+   "w": 470
+  }
+ ]
+}

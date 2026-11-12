@@ -1,0 +1,140 @@
+{
+ "video": "PASTA_TRABALHO/IMG_7538.MOV",
+ "transcript": "PASTA_TRABALHO/IMG_7538.json",
+ "work": "PASTA_TRABALHO/w7538",
+ "output": "PASTA_TRABALHO/IMG_7538_estilo4.mp4",
+ "keep": [
+  [
+   2.6,
+   5.4
+  ],
+  [
+   8.4,
+   11.6
+  ],
+  [
+   16.9,
+   22.0
+  ],
+  [
+   26.4,
+   30.2
+  ],
+  [
+   47.1,
+   52.0
+  ],
+  [
+   58.2,
+   63.15
+  ],
+  [
+   67.6,
+   68.5
+  ],
+  [
+   72.9,
+   78.4
+  ],
+  [
+   82.4,
+   87.3
+  ],
+  [
+   92.4,
+   98.2
+  ],
+  [
+   105.6,
+   110.8
+  ],
+  [
+   116.5,
+   120.5
+  ],
+  [
+   126.0,
+   143.7
+  ],
+  [
+   149.5,
+   152.1
+  ],
+  [
+   154.8,
+   157.6
+  ],
+  [
+   161.3,
+   166.7
+  ],
+  [
+   171.4,
+   176.6
+  ],
+  [
+   182.1,
+   189.7
+  ],
+  [
+   194.3,
+   198.4
+  ],
+  [
+   204.9,
+   211.9
+  ]
+ ],
+ "captions": "palavra",
+ "cap_y": 1480,
+ "replace": {
+  "\\bnull?i\\b": "Nulle"
+ },
+ "hook": {
+  "text": "É isso que vai acontecer se você\ntomar MAGNÉSIO NULLE‼️",
+  "dur": 4.0,
+  "y": 1000
+ },
+ "overlays": [
+  {
+   "at": 2.6,
+   "dur": 4.0,
+   "file": "PASTA_DRIVE/Sobreposicoes/IMG_6286.PNG",
+   "x": 360,
+   "y": 1090,
+   "w": 360
+  },
+  {
+   "at": 105.7,
+   "dur": 3.2,
+   "file": "PASTA_DRIVE/Sobreposicoes/a8a845ef.jpg",
+   "x": 60,
+   "y": 230,
+   "w": 270
+  },
+  {
+   "at": 116.6,
+   "dur": 3.4,
+   "file": "PASTA_DRIVE/Sobreposicoes/a92333fc.jpg",
+   "x": 720,
+   "y": 230,
+   "w": 290
+  },
+  {
+   "at": 161.4,
+   "dur": 3.2,
+   "file": "PASTA_DRIVE/Sobreposicoes/IMG_6292.PNG",
+   "x": 700,
+   "y": 250,
+   "w": 320
+  },
+  {
+   "at": 187.4,
+   "dur": 3.8,
+   "file": "PASTA_DRIVE/Sobreposicoes/IMG_7025.PNG",
+   "x": 560,
+   "y": 200,
+   "w": 470
+  }
+ ]
+}

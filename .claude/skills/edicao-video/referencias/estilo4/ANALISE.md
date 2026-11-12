@@ -77,3 +77,13 @@ As transcrições, geradas automaticamente pelo Whisper, estão em `transcricoes
   4. **Cortes na batida da música**: detecta o BPM (aqui 115, batida = 0,52s) e cada cena dura um número inteiro de batidas (2–5), com `music_start` na fase da batida.
   5. Texto nunca em cima dos olhos; sobreposição nunca em cima do rosto nem do produto/copo.
 - Resultado: 28,7s e 17 cortes (antes 36,5s e 13 cortes).
+
+## Lote 2 (4 brutos falados do Samuel) → estilo 4 falado
+| Bruto | Referência | Modelo copiado |
+|---|---|---|
+| IMG_7537 | 08 (Criativo 11) | tela dividida com %, palavras-chave verdes, print de cortisol, lo-fi baixinho |
+| IMG_7538 | 06 (E1C) | legenda palavra a palavra, hook + antes/depois, prints |
+| IMG_7539 | 01 (E2L) | igual ao 06 |
+| IMG_7540 | 03 (0902) | legenda com palavra-chave amarela; sem iPad no bruto, então as sobreposições fazem esse papel |
+Configs em `exemplos/estilo4f_IMG_*.json`.
+Lições: escolher tomada olhando pra câmera (`olhar.py`); o transcritor rápido erra o tempo das palavras → silêncio cortado pelo áudio, legenda transcrita do vídeo já cortado (medium) e trecho indo até o fim marcado.
