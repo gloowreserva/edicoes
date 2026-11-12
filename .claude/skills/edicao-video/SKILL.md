@@ -1,6 +1,6 @@
 ---
 name: edicao-video
-description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1, 2 e 3 (1 e 2 para vídeos falados: hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; 1 com legenda e zoom, 2 limpo e sem legenda; 3 para B-roll sem fala: texto na tela e música do início ao fim). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
+description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1, 2, 3 e 4 (4 = anúncio UGC de marca copiando a edição de uma referência da marca) (1 e 2 para vídeos falados: hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; 1 com legenda e zoom, 2 limpo e sem legenda; 3 para B-roll sem fala: texto na tela e música do início ao fim). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
 ---
 
 # Edição de vídeo — Estilos de edição 1, 2 e 3
@@ -53,6 +53,23 @@ Para vídeos **sem fala** (a pessoa só aparece fazendo algo, posando etc.). Nã
 - Exemplos de frases base do Vitor:
   - "Enquanto você tá aí só assistindo a vida dos outros, tem gente com menos de 100 seguidores fazendo venda todo dia no app rosa só de copiar e colar vídeos prontos com 1 clique e postar. Pra entender como, entra no meu perfil."
   - "Antes de ficar esperando o Shop pra começar de verdade no ttk, entra no meu perfil pra entender uma coisa: enquanto você tá aí parada achando que depende de 2000 seguidores pra vender, tem gente começando no app rosa com menos de 100 seguidores fazendo venda sem esperar liberar nada."
+
+## Estilo de edição 4 (UGC para marcas — copia a referência)
+
+Vídeos que vão para donos de marca. Cada bruto segue o roteiro de um dos vídeos de referência da marca e a edição **copia o modelo daquela referência**. Material bruto e análise: `referencias/estilo4/ANALISE.md` (referências da Nulle: pasta do 1º Drive do Vitor, só leitura; sobreposições na subpasta `Sobreposições`).
+
+1. **Casar bruto ↔ referência** pelo roteiro (transcrição) e pelos gestos. Ex.: "Como o CORTISOL mudou sua aparência" = 05/07; "Será que isso aqui funciona mesmo?" = 06; "O que acontece se você tomar magnésio" = 01; "O impacto real do cortisol… 30%" = 08; "Cortisol alto, cortisol regulado" = 03.
+2. **Sem fala → 4C** (`scripts/estilo4c.py`): cenas no pico do gesto, cortes na batida da música (BPM detectado), texto estilo TikTok clássico com emoji, música da referência, sobreposições em cartão.
+3. **Com fala → 4 falado** (`scripts/estilo4f.py`):
+   - Brutos têm muitas tomadas repetidas e trechos lidos olhando pro lado. **Só entra tomada olhando pra câmera**: rodar `scripts/olhar.py VIDEO olhar.json` e `scripts/frases.py` (OpenCV, detector frontal a 5 fps; precisa `opencv-python-headless<5`) e conferir ≥85% de frente em cada trecho.
+   - Melhor tomada de cada frase (normalmente a última e mais firme); respiros > 0,28s cortados automaticamente.
+   - Legenda conforme a referência: `palavra` (1 palavra, caixa alta, ref. 01/06/09), `destaque` (2–4 palavras com palavra-chave amarela, ref. 02/03), `nenhuma` + `keywords` verdes (ref. 08). Tela dividida com foto em cima e % grande (`split`, ref. 08).
+   - Hook em caixa branca estilo TikTok + imagem de antes/depois quando a referência tem (01/06).
+   - Música baixinha só quando a referência tem (08: lo-fi do Mixkit a −26 dB).
+   - Trechos mal transcritos: `fix.py` (retranscreve com o modelo medium e junta no json) e `word_fix` no config.
+4. **Sobreposições obrigatórias**, em lugares parecidos com a referência, com leve mudança; nunca em cima do rosto nem do produto.
+5. **Cor**: brutos de iPhone são HDR (HLG). Os scripts já saem em BT.709; não tirar isso (senão as fotos ficam avermelhadas).
+6. Conferir sempre: retranscrever o vídeo final (frase repetida/cortada) e ver um quadro de cada cena.
 
 ## Alternância nos lotes
 

@@ -20,7 +20,8 @@ def run(cmd):
 
 def is_emoji(ch):
     o = ord(ch)
-    return o >= 0x1F000 or 0x2600 <= o <= 0x27BF or o in (0xFE0F, 0x200D)
+    return (o >= 0x1F000 or 0x2600 <= o <= 0x27BF or 0x2B00 <= o <= 0x2BFF or 0x2300 <= o <= 0x23FF
+            or o in (0xFE0F, 0x200D, 0x203C, 0x2049, 0x2122, 0x2139, 0x3030, 0x303D))
 
 def runs(line):  # quebra a linha em trechos texto/emoji
     out = []
