@@ -38,8 +38,8 @@ from faster_whisper.vad import get_speech_timestamps, VadOptions
 _raw = subprocess.run(["ffmpeg", "-v", "error", "-i", cfg["video"], "-vn", "-ac", "1", "-ar", "16000", "-f", "s16le", "-"],
                       capture_output=True).stdout
 _au = np.frombuffer(_raw, np.int16).astype(np.float32) / 32768
-_vo = VadOptions(threshold=cfg.get("vad_threshold", 0.45), min_silence_duration_ms=cfg.get("vad_silence_ms", 260),
-                 speech_pad_ms=cfg.get("vad_pad_ms", 90), min_speech_duration_ms=150)
+_vo = VadOptions(threshold=cfg.get("vad_threshold", 0.45), min_silence_duration_ms=cfg.get("vad_silence_ms", 200),
+                 speech_pad_ms=cfg.get("vad_pad_ms", 60), min_speech_duration_ms=150)
 fala = [(t["start"] / 16000, t["end"] / 16000) for t in get_speech_timestamps(_au, _vo)]
 json.dump(fala, open(f"{work}/fala.json", "w"))
 def ajusta(a, b):  # borda marcada caindo no meio da fala: leva até o limite real da fala (no máx. 0,6s)
@@ -59,9 +59,14 @@ for k in cfg["keep"]:  # [ini, fim] ou [ini, fim, "x"] = borda exata (emenda ent
         elif y - x >= 0.3: segs.append((x, y)); exato.append((x_ and x == a, x_ and y == b))
     if x_ and segs: exato[-1] = (exato[-1][0], segs[-1][1] == b)
 # folga de 0,1s antes/depois (o começo de palavra suave escapa do detector), sem invadir o vizinho nem as bordas exatas
-segs = [(a if ea else max(a - 0.1, segs[i - 1][1] if i and segs[i - 1][1] <= a else 0), b if eb else b + 0.08)
+segs = [(a if ea else max(a - 0.06, segs[i - 1][1] if i and segs[i - 1][1] <= a else 0), b if eb else b + 0.04)
         for i, ((a, b), (ea, eb)) in enumerate(zip(segs, exato))]
 segs = [(round(a, 3), round(b, 3)) for a, b in segs]
+# garante que nenhuma borda (não exata) caia com voz: recua o início / avança o fim até o silêncio (máx. 0,25s)
+def _db(t0, t1):
+    x = _au[max(0, int(t0 * 16000)):int(t1 * 16000)]
+    return 20 * np.log10(np.sqrt(np.mean(x ** 2)) + 1e-9) if len(x) else -99
+_lim = np.percentile([_db(t, t + 0.05) for t in np.arange(0, len(_au) / 16000 - 0.05, 0.05)], 90) - 16
 if cfg.get("apara_olhar", True):
     # presença: apara as pontas do trecho onde ele já desviou o olhar (pro roteiro/pacote) — no máx. 0,35s
     import cv2
@@ -72,15 +77,28 @@ if cfg.get("apara_olhar", True):
         if not ok: return True
         g = cv2.cvtColor(cv2.resize(fr, (270, 480)), cv2.COLOR_BGR2GRAY)
         return len(_fd.detectMultiScale(g, 1.08, 10, minSize=(60, 60))) > 0
-    novos = []
-    for a, b in segs:
+    novos, nex = [], []
+    for (a, b), (ea, eb) in zip(segs, exato):
         t = b
-        while t > b - 0.35 and not de_frente(t - 0.02): t -= 0.04
+        while not eb and t > b - 0.35 and not de_frente(t - 0.02) and _db(t - 0.16, t - 0.04) <= _lim: t -= 0.04
         b2 = t if t < b else b
         t = a
-        while t < a + 0.25 and not de_frente(t + 0.02): t += 0.04
-        if b2 - t >= 0.3: novos.append((round(t, 3), round(b2, 3)))
-    segs = novos
+        while not ea and t < a + 0.25 and not de_frente(t + 0.02) and _db(t + 0.04, t + 0.16) <= _lim: t += 0.04
+        if b2 - t >= 0.3: novos.append((round(t, 3), round(b2, 3))); nex.append((ea, eb))
+    segs, exato = novos, nex
+exato_final = exato
+_s2 = []
+for i, ((a, b), (ea, eb)) in enumerate(zip(segs, exato_final)):
+    lo = _s2[-1][1] if _s2 else 0
+    if not ea:
+        n = 0
+        while _db(a - 0.02, a) > _lim - 25 and n < 15 and a - 0.02 > lo: a -= 0.02; n += 1
+        a = max(lo, a - 0.04)  # uns 40ms de silêncio antes da primeira sílaba
+    if not eb:
+        n = 0
+        while _db(b, b + 0.02) > _lim - 25 and n < 15: b += 0.02; n += 1
+    _s2.append((round(a, 3), round(b, 3)))
+segs = _s2
 json.dump(segs, open(f"{work}/segs.json", "w"))
 if cfg.get("dry"):  # só calcula os cortes (pra conferir), sem renderizar
     print("segs:", [(round(a, 2), round(b, 2)) for a, b in segs]); sys.exit(0)
@@ -135,6 +153,17 @@ if cfg.get("recaption", True):
             if [re.sub(r"[^\w]", "", x["w"].lower()) for x in kw[i:i + len(toks)]] == toks:
                 kw[i:i + len(toks)] = [dict(w=para, s=kw[i]["s"], e=kw[i + len(toks) - 1]["e"])]
             i += 1
+    # o transcritor da legenda às vezes pula palavra: completa com a transcrição do bruto onde ficou buraco
+    for w in words:
+        c = (w["start"] + w["end"]) / 2
+        if not kept(c): continue
+        t = remap(w["start"]); d = min(w["end"] - w["start"], 0.6)
+        prev = [x for x in kw if x["s"] <= t]; nxt = [x for x in kw if x["s"] > t]
+        livre = (not prev or prev[-1]["e"] <= t + 0.05) and (not nxt or nxt[0]["s"] >= t + 0.25)
+        txt = clean(w["word"].strip())
+        perto = " ".join(x["w"].lower() for x in kw if abs(x["s"] - t) < 1.5)
+        if livre and re.sub(r"\W", "", txt) and re.sub(r"\W", "", txt.lower()) not in perto:
+            kw.append(dict(w=txt, s=t, e=min(t + d, nxt[0]["s"] if nxt else t + d))); kw.sort(key=lambda x: x["s"])
     json.dump(kw, open(f"{work}/legenda_palavras.json", "w"), ensure_ascii=False)
 else:
     kw = [dict(w=fixw(w), s=remap(w["start"]), e=remap(w["end"])) for w in words if kept((w["start"] + w["end"]) / 2)]
