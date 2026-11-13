@@ -80,6 +80,7 @@ Vídeos que vão para donos de marca. Cada bruto segue o roteiro de um dos víde
    - `scripts/previa.py BRUTO work/segs.json saida.jpg` = mosaico de tudo que vai entrar (3 quadros/s) pra revisão visual.
    - Feedback 7537 (v3): imagem do iPhone fica **estourada/branca** → o script aplica por padrão `eq=gamma=0.8:contrast=1.12:brightness=-0.05:saturation=1.15` (`"grade"` troca, `"nenhum"` desliga). **Cortar colado no fim da fala**; o script segura a imagem sozinho (≤0,3s) onde ele já vira o rosto no começo/fim do trecho. Tela dividida **sem número de %** (foto cortada pela base com `"crop_y": "base"` pra esconder o selinho).
    - Conferir sempre que **áudio e vídeo têm a mesma duração** (`ffprobe`): música + voz em taxas diferentes encurtava o áudio e o final "travava".
+   - Feedback 7538: corte **nem colado nem largo** — respiro natural de ~0,15s depois da última palavra (`respiro_fim`). O Samuel vira o rosto pro roteiro em quase todo fim de frase e o detector automático NÃO pega giro de olhar: revisar **toda ponta** com `scripts/pontas.py BRUTO work/segs.json folha.jpg` (fazer em folhas de 7 trechos pra enxergar) e marcar `segura_imagem` `{"v1": último quadro de frente}`. Se ele fala uma palavra inteira já virado (>0,4s), usar **corte pro produto** em tela cheia: overlay `{"at": t, "ate_fim": true, "cheia": true, "file": foto do produto}`.
 7. Rodar UMA análise/render por vez (4 em paralelo estoura a memória da máquina).
 
 ## Alternância nos lotes
