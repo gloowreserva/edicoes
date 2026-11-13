@@ -6,13 +6,15 @@ uso: python3 -I cta_video.py VIDEO CORTE_FIM SAIDA_DIR CTA1.mov[:INI:FIM] [CTA2.
   :INI:FIM  : trecho do CTA a usar (do começo ao fim da fala; padrão: o CTA inteiro)
   --falha   : trecho do original com quadros com defeito; esses quadros saem e o quadro anterior segura o lugar
               (o áudio não é tocado, então não perde fala nem dessincroniza)
+  --corta   : trecho do original a remover (vídeo e áudio), ex.: travada/pausa em que a mesma cena aparece duas vezes
 """
 import json, os, subprocess, sys
 
 args = sys.argv[1:]
-falhas = []
-while "--falha" in args:
-    i = args.index("--falha"); a, b = map(float, args[i + 1].split("-")); falhas.append((a, b)); del args[i:i + 2]
+falhas, cortes = [], []
+for nome, lista in (("--falha", falhas), ("--corta", cortes)):
+    while nome in args:
+        i = args.index(nome); a, b = map(float, args[i + 1].split("-")); lista.append((a, b)); del args[i:i + 2]
 video, corte, outdir, ctas = args[0], float(args[1]), args[2], args[3:]
 os.makedirs(outdir, exist_ok=True)
 
@@ -23,11 +25,20 @@ def loud(path):
 alvo = loud(video)  # o CTA fica no mesmo volume do vídeo original
 base = os.path.join(outdir, "_base.mkv")
 sel = "".join(f"*not(between(t,{a},{b}))" for a, b in falhas)
-vf = (f"{'select=' + repr('1' + sel) + ',' if falhas else ''}fps=30,"
-      "hqdn3d=1.5:1.5:3:3,scale=1080:1920:flags=lanczos,cas=0.6,eq=contrast=1.04:saturation=1.08,setsar=1,format=yuv420p")
+q = "hqdn3d=1.5:1.5:3:3,scale=1080:1920:flags=lanczos,cas=0.6,eq=contrast=1.04:saturation=1.08,setsar=1,format=yuv420p"
+# trechos mantidos (tirando os --corta), emendados
+keep, t0 = [], 0.0
+for a, b in sorted(cortes):
+    keep.append((t0, a)); t0 = b
+keep.append((t0, corte))
+fc = []
+for k, (a, b) in enumerate(keep):
+    fc.append(f"[0:v]trim={a}:{b},{'select=' + repr('1' + sel) + ',' if falhas else ''}fps=30,setpts=PTS-STARTPTS,{q}[v{k}];"
+              f"[0:a]atrim={a}:{b},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo[a{k}]")
+fc.append("".join(f"[v{k}][a{k}]" for k in range(len(keep))) + f"concat=n={len(keep)}:v=1:a=1[v][a]")
 if not os.path.exists(base):  # reaproveita a base se um render anterior foi interrompido
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", video, "-t", f"{corte:.3f}", "-vf", vf,
-                    "-c:v", "libx264", "-preset", "medium", "-crf", "12", "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", base + ".tmp.mkv"], check=True)
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", video, "-filter_complex", ";".join(fc), "-map", "[v]", "-map", "[a]",
+                    "-c:v", "libx264", "-preset", "medium", "-crf", "12", "-c:a", "pcm_s16le", base + ".tmp.mkv"], check=True)
     os.replace(base + ".tmp.mkv", base)
 
 for c in ctas:
