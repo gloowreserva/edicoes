@@ -69,6 +69,11 @@ Para vídeos **que já foram postados e já estão editados** (geralmente salvos
 - **Uma sobreposição só, junto com o CTA** (mesmo tempo), tirada da pasta `Sobreposição/` do Drive, em cartão com borda branca, abaixo do rosto. Nunca as três no mesmo vídeo: **ordem 1, 2, 3** pela ordem dos vídeos (1º vídeo → 1ª sobreposição, 2º → 2ª, 3º → 3ª, depois recomeça).
   - Sobreposições atuais: 1) perfil do grupo "Aulão 15/11 - 19:00" (IMG_7558); 2) conversa do grupo com print de vendas (IMG_7561); 3) conversa do grupo com print da B4you (IMG_7562).
 - Script: `python3 -I scripts/trafego.py VIDEO SOBREPOSICAO SAIDA "LINHA1\nLINHA2\nLINHA3"` (~3,5 min por vídeo de 1 min).
+- **CTA em vídeo (novo CTA gravado)**: quando houver a pasta `Cta Vídeos/` no Drive, cada CTA vira **uma versão nova** do vídeo.
+  - **Corrigir falhas** do vídeo (quadros pretos/escuros de outra gravação, piscadas): tirar os quadros com defeito sem perder contexto nem fala (`--falha INI-FIM`; o quadro anterior segura o lugar e o áudio fica intacto). Se o corte tirar contexto demais, avisar o Vitor antes.
+  - **Cortar o CTA antigo do fim** (ex.: "se você quer entender como eu faço isso, comenta...") e emendar o CTA novo, aparado do começo ao fim da fala. O CTA fica no mesmo volume do vídeo original.
+  - Sinalizar CTA com promessa de ganho (ex.: "300 reais em menos de 10 dias").
+  - Script: `python3 -I scripts/cta_video.py VIDEO CORTE_FIM PASTA_SAIDA CTA1.mov:INI:FIM CTA2.mov:INI:FIM ... --falha INI-FIM`.
 - Em aberto: onde fica o botão "Saiba mais" do anúncio (a definir com a equipe depois do teste).
 
 ## Alternância nos lotes
