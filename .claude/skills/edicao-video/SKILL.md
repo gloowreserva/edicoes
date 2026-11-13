@@ -1,9 +1,11 @@
 ---
 name: edicao-video
-description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1, 2 e 3 (1 e 2 para vídeos falados: hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; 1 com legenda e zoom, 2 limpo e sem legenda; 3 para B-roll sem fala: texto na tela e música do início ao fim). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
+description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1, 2, 3 e simples (simples: só melhora de qualidade e CTA no final; 1 e 2 para vídeos falados: hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; 1 com legenda e zoom, 2 limpo e sem legenda; 3 para B-roll sem fala: texto na tela e música do início ao fim). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
 ---
 
-# Edição de vídeo — Estilos de edição 1, 2 e 3
+# Edição de vídeo — Estilos de edição 1, 2, 3 e simples
+
+> **Quem conduz:** o Vitor conduz este chat. Ele pode adicionar novos estilos e/ou alterar qualquer um dos estilos daqui; a última instrução dele vale e deve ser registrada neste arquivo.
 
 ## Regras que valem para os dois estilos
 
@@ -53,6 +55,13 @@ Para vídeos **sem fala** (a pessoa só aparece fazendo algo, posando etc.). Nã
 - Exemplos de frases base do Vitor:
   - "Enquanto você tá aí só assistindo a vida dos outros, tem gente com menos de 100 seguidores fazendo venda todo dia no app rosa só de copiar e colar vídeos prontos com 1 clique e postar. Pra entender como, entra no meu perfil."
   - "Antes de ficar esperando o Shop pra começar de verdade no ttk, entra no meu perfil pra entender uma coisa: enquanto você tá aí parada achando que depende de 2000 seguidores pra vender, tem gente começando no app rosa com menos de 100 seguidores fazendo venda sem esperar liberar nada."
+
+## Estilo de edição simples
+
+O que compõe este estilo (só isso, nada além):
+
+- **Melhora de qualidade** do vídeo.
+- **CTA no final** do vídeo.
 
 ## Alternância nos lotes
 
