@@ -62,10 +62,14 @@ Para vídeos **que já foram postados e já estão editados** (geralmente salvos
 
 - **Não mexer em nada do vídeo**: sem cortes, sem hook, sem legenda, sem zoom, sem selo, sem música. Só o que está listado aqui.
 - **Melhora de qualidade**: vídeo salvo do TikTok vem em baixa resolução (ex.: 576x1024). Ampliar para 1080x1920 com limpeza de ruído leve, nitidez e leve ajuste de contraste e cor, exportando com qualidade alta. Não recupera o que já está borrado no original.
-- **CTA no finalzinho do vídeo**, direcionando para o grupo:
-  > Toca aqui em "Saiba mais" para entender de graça o que muitos te cobrariam caro para ensinar.
-- **Uma sobreposição só, junto com o CTA** (mesmo momento), tirada da pasta `Sobreposição/` do Drive. Nunca as três no mesmo vídeo: **ir variando** entre os vídeos (1º vídeo uma, 2º outra, 3º a outra...).
-  - Sobreposições atuais: perfil do grupo "Aulão 15/11 - 19:00" (329 membros); conversa do grupo com print de vendas; conversa do grupo com print da B4you.
+- **CTA perto do fim, direcionando para o grupo** (texto exato, em 3 linhas):
+  > Toca em “saiba mais” para entender de graça o que muitos te cobrariam caro pra ensinar!
+  - **Não esticar o vídeo.** O CTA entra **6s antes do fim** e fica **5s na tela** (ex.: vídeo de 58,5s → 52,5s a 57,5s).
+  - Posição: **em cima da cabeça, centralizado**, dentro da área segura do TikTok (abaixo de "Seguindo | Para você"), branco com contorno preto.
+- **Uma sobreposição só, junto com o CTA** (mesmo tempo), tirada da pasta `Sobreposição/` do Drive, em cartão com borda branca, abaixo do rosto. Nunca as três no mesmo vídeo: **ordem 1, 2, 3** pela ordem dos vídeos (1º vídeo → 1ª sobreposição, 2º → 2ª, 3º → 3ª, depois recomeça).
+  - Sobreposições atuais: 1) perfil do grupo "Aulão 15/11 - 19:00" (IMG_7558); 2) conversa do grupo com print de vendas (IMG_7561); 3) conversa do grupo com print da B4you (IMG_7562).
+- Script: `python3 -I scripts/trafego.py VIDEO SOBREPOSICAO SAIDA "LINHA1\nLINHA2\nLINHA3"` (~3,5 min por vídeo de 1 min).
+- Em aberto: onde fica o botão "Saiba mais" do anúncio (a definir com a equipe depois do teste).
 
 ## Alternância nos lotes
 
