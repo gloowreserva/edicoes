@@ -157,12 +157,15 @@ _novos, _holds = [], []
 for a, b in segs:
     vs = next((c["v0"] - a for c in congela if "v0" in c and a <= c["v0"] < min(b, a + 0.6)), 0)
     ve = next((b - c["v1"] for c in congela if "v1" in c and max(a, b - 0.6) < c["v1"] <= b), 0)
+    a0, b0 = a, b
     if ve > 0:
         v1, fe = b - ve, _fala_fim(a, b) + 0.04
+        while fe < b0 and _db(fe, fe + 0.02) > _lim - 25: fe += 0.02   # fim real da voz (o detector erra um pouco)
         if v1 >= fe: b, ve = v1, 0                       # já tinha parado de falar: só corta antes
         else: b, ve = fe, min(fe - v1, MAXC)             # ainda falando: corta no fim da fala, congela ≤ 0,1s
     if vs > 0:
         v0, fi = a + vs, _fala_ini(a, b) - 0.04
+        while fi > a0 and _db(fi - 0.02, fi) > _lim - 25: fi -= 0.02   # começo real da voz
         if v0 <= fi: a, vs = v0, 0                       # ainda não tinha começado a falar: só começa depois
         else: a, vs = fi, min(v0 - fi, MAXC)
     _novos.append((round(a, 3), round(b, 3))); _holds.append((vs, ve))
