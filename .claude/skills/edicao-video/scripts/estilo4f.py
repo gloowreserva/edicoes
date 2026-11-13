@@ -252,7 +252,7 @@ if sps:
         inputs += ["-loop", "1", "-framerate", str(FPS), "-t", f"{total:.3f}", "-i", sp["file"]]
         fc.append(f"[{n}:v]scale={W}:{th}:force_original_aspect_ratio=increase,crop={W}:{th},setsar=1,format=rgba,"
                   f"scale=out_color_matrix=bt709:out_range=tv,format=yuv420p[top{i}];[top{i}][bot{i}]vstack[sp{i}]")
-        fc.append(f"{last}[sp{i}]overlay=0:0:enable='between(t,{a:.3f},{b - 0.001:.3f})'[sv{i}]"); last = f"[sv{i}]"; n += 1
+        fc.append(f"{last}[sp{i}]overlay=0:0:enable='between(t,{a - 0.034:.3f},{b + 0.034:.3f})'[sv{i}]"); last = f"[sv{i}]"; n += 1
 if cfg.get("hook"):
     hk = cfg["hook"]; png = f"{work}/hook.png"; text_png(hk["text"], hk.get("y", 560), png)
     inputs += ["-loop", "1", "-framerate", str(FPS), "-t", f"{total:.3f}", "-i", png]

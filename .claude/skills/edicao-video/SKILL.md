@@ -76,6 +76,8 @@ Vídeos que vão para donos de marca. Cada bruto segue o roteiro de um dos víde
      - `scripts/checa_cortes.py BRUTO.wav work/segs.json transcricao.json` → 0 cortes com voz no ponto.
      - `scripts/checa_presenca.py BRUTO work/segs.json` → olhar cada quadro suspeito (`previa`/quadro avulso): gesto de fala fica; olhar pra baixo/lado, cabelo, balanço sai (borda exata ou outra tomada).
    - Depois de renderizar: retranscrever o final (frase repetida/cortada) e ver um quadro de cada cena.
+   - Giro de cabeça de 0,2–0,3s no começo/fim da fala (começa a falar ainda virando pra câmera): não cortar a palavra — usar `"segura_imagem": [{"v0": t}]` / `[{"v1": t}]` (áudio inteiro, imagem segura o 1º/último quadro de frente).
+   - `scripts/previa.py BRUTO work/segs.json saida.jpg` = mosaico de tudo que vai entrar (3 quadros/s) pra revisão visual.
 7. Rodar UMA análise/render por vez (4 em paralelo estoura a memória da máquina).
 
 ## Alternância nos lotes
