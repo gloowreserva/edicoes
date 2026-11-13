@@ -109,7 +109,13 @@ if cfg.get("dry"):  # só calcula os cortes (pra conferir), sem renderizar
 # "segura imagem": {"v0": t} / {"v1": t} — o áudio fica inteiro, mas a imagem segura o 1º/último quadro
 # com ele de frente (esconde o giro de cabeça de 0,2–0,3s no começo/fim da fala sem cortar palavra)
 congela = list(cfg.get("segura_imagem", []))
-GRADE = "," + cfg["grade"] if cfg.get("grade") else ",eq=gamma=0.8:contrast=1.12:brightness=-0.05:saturation=1.15"
+# COR: bruto de iPhone é HDR (HLG / BT.2020). Converter de verdade pra SDR BT.709 (tone mapping), senão a pele fica
+# pálida/acinzentada ("ar de fantasma") e as cores da marca apagadas. Depois só um toque leve de luz.
+_trc = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=color_transfer",
+                       "-of", "csv=p=0", cfg["video"]], capture_output=True, text=True).stdout.strip()
+HDR = "zscale=t=linear:npl=203:tin=arib-std-b67:pin=bt2020:min=bt2020nc,format=gbrpf32le,zscale=p=bt709," \
+      "tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p," if _trc in ("arib-std-b67", "smpte2084") else ""
+GRADE = "," + cfg["grade"] if cfg.get("grade") else (",eq=brightness=0.05:contrast=1.05" if HDR else "")
 if cfg.get("grade") == "nenhum": GRADE = ""
 # segura imagem AUTOMÁTICO: em todo começo/fim de trecho, se ele já está virando o rosto, a imagem segura
 # o quadro firme mais próximo (máx. 0,5s) e o áudio segue inteiro
@@ -152,7 +158,7 @@ for i, (a, b) in enumerate(segs):
         hold = (f"trim=start={vs:.3f}:end={b - a - ve:.3f},setpts=PTS-STARTPTS,"
                 f"tpad=start_duration={vs:.3f}:start_mode=clone:stop_duration={ve:.3f}:stop_mode=clone,")
     run(["ffmpeg", "-v", "error", "-y", "-ss", f"{a:.3f}", "-i", cfg["video"], "-t", f"{b - a:.3f}",
-         "-vf", f"{hold}scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS},setsar=1{TAG}{GRADE}",
+         "-vf", f"{hold}{HDR}scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS},setsar=1{TAG}{GRADE}",
          "-af", f"afade=t=in:d=0.012,afade=t=out:st={max(0, b - a - 0.012):.3f}:d=0.012",
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "15", *ENC, "-c:a", "pcm_s16le", "-ar", "48000", p.replace(".mp4", ".mov")])
     parts.append(p.replace(".mp4", ".mov"))
