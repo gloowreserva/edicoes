@@ -297,12 +297,21 @@ if cfg.get("hook"):
     fc.append(f"{last}[hk]overlay=0:0:enable='between(t,0,{hk.get('dur', 3.0):.3f})'[vh]"); last = "[vh]"; n += 1
 for k, ov in enumerate(cfg.get("overlays", [])):
     a = remap(ov["at"]); b = min(a + ov.get("dur", 2.5), total)
+    if ov.get("ate_fim"): b = remap_fim(ov["at"])
     files = ov.get("files") or [ov["file"]]; step = (b - a) / len(files)
     for j, f in enumerate(files):
-        png = f"{work}/ov{k:02d}_{j}.png"; off = card(f, ov.get("w", 420), png)
+        png = f"{work}/ov{k:02d}_{j}.png"
+        if ov.get("cheia"):  # corte pro produto em tela cheia (cobre um trecho em que ele desvia o olhar)
+            import pillow_heif; pillow_heif.register_heif_opener()
+            im = Image.open(f).convert("RGB"); sc = max(W / im.width, H / im.height)
+            im = im.resize((round(im.width * sc), round(im.height * sc)), Image.LANCZOS)
+            l, t_ = (im.width - W) // 2, (im.height - H) // 2; im.crop((l, t_, l + W, t_ + H)).save(png); off = 0
+            ov = dict(ov, x=0, y=0)
+        else:
+            off = card(f, ov.get("w", 420), png)
         s, e = a + j * step, a + (j + 1) * step
         inputs += ["-loop", "1", "-framerate", str(FPS), "-t", f"{total:.3f}", "-i", png]
-        fi = "" if j else f",fade=in:st={s:.3f}:d=0.15:alpha=1"
+        fi = "" if (j or ov.get("cheia")) else f",fade=in:st={s:.3f}:d=0.15:alpha=1"
         fc.append(f"[{n}:v]format=rgba{fi},scale=out_color_matrix=bt709:out_range=tv,format=yuva420p[o{k}_{j}]")
         fc.append(f"{last}[o{k}_{j}]overlay={ov['x'] - off}:{ov['y'] - off}:enable='between(t,{s:.3f},{e - 0.001:.3f})'[v{k}_{j}]")
         last = f"[v{k}_{j}]"; n += 1
