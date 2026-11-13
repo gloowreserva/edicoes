@@ -1,9 +1,9 @@
 ---
 name: edicao-video
-description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1, 2, 3 e simples (simples: só melhora de qualidade e CTA no final; 1 e 2 para vídeos falados: hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; 1 com legenda e zoom, 2 limpo e sem legenda; 3 para B-roll sem fala: texto na tela e música do início ao fim). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
+description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1, 2, 3 e 4 (4 para vídeos de tráfego já postados: não mexe em nada, só melhora a qualidade e coloca CTA para o grupo com uma sobreposição no final; 1 e 2 para vídeos falados: hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; 1 com legenda e zoom, 2 limpo e sem legenda; 3 para B-roll sem fala: texto na tela e música do início ao fim). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
 ---
 
-# Edição de vídeo — Estilos de edição 1, 2, 3 e simples
+# Edição de vídeo — Estilos de edição 1, 2, 3 e 4
 
 > **Quem conduz:** o Vitor conduz este chat. Ele pode adicionar novos estilos e/ou alterar qualquer um dos estilos daqui; a última instrução dele vale e deve ser registrada neste arquivo.
 
@@ -56,12 +56,16 @@ Para vídeos **sem fala** (a pessoa só aparece fazendo algo, posando etc.). Nã
   - "Enquanto você tá aí só assistindo a vida dos outros, tem gente com menos de 100 seguidores fazendo venda todo dia no app rosa só de copiar e colar vídeos prontos com 1 clique e postar. Pra entender como, entra no meu perfil."
   - "Antes de ficar esperando o Shop pra começar de verdade no ttk, entra no meu perfil pra entender uma coisa: enquanto você tá aí parada achando que depende de 2000 seguidores pra vender, tem gente começando no app rosa com menos de 100 seguidores fazendo venda sem esperar liberar nada."
 
-## Estilo de edição simples
+## Estilo de edição 4 (tráfego)
 
-O que compõe este estilo (só isso, nada além):
+Para vídeos **que já foram postados e já estão editados** (geralmente salvos do TikTok), usados em tráfego pago. Não seguem os padrões dos estilos 1, 2 e 3.
 
-- **Melhora de qualidade** do vídeo.
-- **CTA no final** do vídeo.
+- **Não mexer em nada do vídeo**: sem cortes, sem hook, sem legenda, sem zoom, sem selo, sem música. Só o que está listado aqui.
+- **Melhora de qualidade**: vídeo salvo do TikTok vem em baixa resolução (ex.: 576x1024). Ampliar para 1080x1920 com limpeza de ruído leve, nitidez e leve ajuste de contraste e cor, exportando com qualidade alta. Não recupera o que já está borrado no original.
+- **CTA no finalzinho do vídeo**, direcionando para o grupo:
+  > Toca aqui em "Saiba mais" para entender de graça o que muitos te cobrariam caro para ensinar.
+- **Uma sobreposição só, junto com o CTA** (mesmo momento), tirada da pasta `Sobreposição/` do Drive. Nunca as três no mesmo vídeo: **ir variando** entre os vídeos (1º vídeo uma, 2º outra, 3º a outra...).
+  - Sobreposições atuais: perfil do grupo "Aulão 15/11 - 19:00" (329 membros); conversa do grupo com print de vendas; conversa do grupo com print da B4you.
 
 ## Alternância nos lotes
 
