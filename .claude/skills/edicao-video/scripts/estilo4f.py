@@ -59,7 +59,7 @@ for k in cfg["keep"]:  # [ini, fim] ou [ini, fim, "x"] = borda exata (emenda ent
         elif y - x >= 0.3: segs.append((x, y)); exato.append((x_ and x == a, x_ and y == b))
     if x_ and segs: exato[-1] = (exato[-1][0], segs[-1][1] == b)
 # folga de 0,1s antes/depois (o começo de palavra suave escapa do detector), sem invadir o vizinho nem as bordas exatas
-segs = [(a if ea else max(a - 0.06, segs[i - 1][1] if i and segs[i - 1][1] <= a else 0), b if eb else b + 0.04)
+segs = [(a if ea else max(a - 0.06, segs[i - 1][1] if i and segs[i - 1][1] <= a else 0), b if eb else b)
         for i, ((a, b), (ea, eb)) in enumerate(zip(segs, exato))]
 segs = [(round(a, 3), round(b, 3)) for a, b in segs]
 # garante que nenhuma borda (não exata) caia com voz: recua o início / avança o fim até o silêncio (máx. 0,25s)
@@ -105,7 +105,40 @@ if cfg.get("dry"):  # só calcula os cortes (pra conferir), sem renderizar
 
 # "segura imagem": {"v0": t} / {"v1": t} — o áudio fica inteiro, mas a imagem segura o 1º/último quadro
 # com ele de frente (esconde o giro de cabeça de 0,2–0,3s no começo/fim da fala sem cortar palavra)
-congela = cfg.get("segura_imagem", [])
+congela = list(cfg.get("segura_imagem", []))
+GRADE = "," + cfg["grade"] if cfg.get("grade") else ",eq=gamma=0.8:contrast=1.12:brightness=-0.05:saturation=1.15"
+if cfg.get("grade") == "nenhum": GRADE = ""
+# segura imagem AUTOMÁTICO: em todo começo/fim de trecho, se ele já está virando o rosto, a imagem segura
+# o quadro firme mais próximo (máx. 0,5s) e o áudio segue inteiro
+if cfg.get("segura_auto", True):
+    import cv2
+    _fd2 = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+    _cp = cv2.VideoCapture(cfg["video"])
+    def _rosto(t):
+        _cp.set(cv2.CAP_PROP_POS_MSEC, t * 1000); ok, fr = _cp.read()
+        if not ok: return None
+        g = cv2.cvtColor(cv2.resize(fr, (270, 480)), cv2.COLOR_BGR2GRAY)
+        f = _fd2.detectMultiScale(g, 1.08, 8, minSize=(60, 60))
+        return max(f, key=lambda r: r[2]) if len(f) else None
+    for a, b in segs:
+        meio = [r for r in (_rosto(a + (b - a) * k / 6) for k in range(1, 6)) if r is not None]
+        if not meio: continue
+        mx = np.median([r[0] + r[2] / 2 for r in meio]); my = np.median([r[1] + r[3] / 2 for r in meio])
+        mw = np.median([r[2] for r in meio])
+        def firme(t):
+            r = _rosto(t)
+            return r is not None and abs(r[0] + r[2] / 2 - mx) < 0.22 * mw and abs(r[1] + r[3] / 2 - my) < 0.22 * mw \
+                and abs(r[2] - mw) < 0.15 * mw
+        if b - a > 1.2:
+            if not any("v1" in c and abs(c["v1"] - b) < 0.6 for c in congela):
+                t = b - 0.03
+                while t > b - 0.3 and not firme(t): t -= 1 / 15
+                if t < b - 0.05 and firme(t): congela.append({"v1": round(t, 3)})
+            if not any("v0" in c and abs(c["v0"] - a) < 0.6 for c in congela):
+                t = a + 0.03
+                while t < a + 0.3 and not firme(t): t += 1 / 15
+                if t > a + 0.05 and firme(t): congela.append({"v0": round(t, 3)})
+    json.dump(congela, open(f"{work}/segura.json", "w"))
 parts = []
 for i, (a, b) in enumerate(segs):
     p = f"{work}/p{i:03d}.mp4"
@@ -116,7 +149,7 @@ for i, (a, b) in enumerate(segs):
         hold = (f"trim=start={vs:.3f}:end={b - a - ve:.3f},setpts=PTS-STARTPTS,"
                 f"tpad=start_duration={vs:.3f}:start_mode=clone:stop_duration={ve:.3f}:stop_mode=clone,")
     run(["ffmpeg", "-v", "error", "-y", "-ss", f"{a:.3f}", "-i", cfg["video"], "-t", f"{b - a:.3f}",
-         "-vf", f"{hold}scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS},setsar=1{TAG}",
+         "-vf", f"{hold}scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS},setsar=1{TAG}{GRADE}",
          "-af", f"afade=t=in:d=0.012,afade=t=out:st={max(0, b - a - 0.012):.3f}:d=0.012",
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "15", *ENC, "-c:a", "pcm_s16le", "-ar", "48000", p.replace(".mp4", ".mov")])
     parts.append(p.replace(".mp4", ".mov"))
@@ -250,7 +283,8 @@ if sps:
     for i, sp in enumerate(sps):
         a, b = remap(sp["at"]), remap_fim(sp["until"])
         inputs += ["-loop", "1", "-framerate", str(FPS), "-t", f"{total:.3f}", "-i", sp["file"]]
-        fc.append(f"[{n}:v]scale={W}:{th}:force_original_aspect_ratio=increase,crop={W}:{th},setsar=1,format=rgba,"
+        cy = "ih-oh" if sp.get("crop_y") == "base" else "(ih-oh)/2"
+        fc.append(f"[{n}:v]scale={W}:{th}:force_original_aspect_ratio=increase,crop={W}:{th}:(iw-ow)/2:{cy},setsar=1,format=rgba,"
                   f"scale=out_color_matrix=bt709:out_range=tv,format=yuv420p[top{i}];[top{i}][bot{i}]vstack[sp{i}]")
         fc.append(f"{last}[sp{i}]overlay=0:0:enable='between(t,{a - 0.034:.3f},{b + 0.034:.3f})'[sv{i}]"); last = f"[sv{i}]"; n += 1
 if cfg.get("hook"):
@@ -274,11 +308,11 @@ fc.append(f"{last}ass={assf}[vout]")
 # ---------- 4. áudio: voz normalizada (+ música baixinha opcional) ----------
 if cfg.get("music"):
     inputs += ["-ss", str(cfg.get("music_start", 0)), "-i", cfg["music"]]
-    fc.append(f"[0:a]loudnorm=I=-14:TP=-1.5:LRA=11[voz];[{n}:a]atrim=0:{total:.3f},asetpts=PTS-STARTPTS,"
+    fc.append(f"[0:a]loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000[voz];[{n}:a]aresample=48000,atrim=0:{total:.3f},asetpts=PTS-STARTPTS,"
               f"volume={cfg.get('music_db', -24)}dB,afade=t=out:st={total - 0.8:.3f}:d=0.8[mus];"
               f"[voz][mus]amix=inputs=2:duration=first:normalize=0[aout]")
 else:
-    fc.append("[0:a]loudnorm=I=-14:TP=-1.5:LRA=11[aout]")
+    fc.append("[0:a]loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000[aout]")
 run(["ffmpeg", "-v", "error", "-y", *inputs, "-filter_complex", ";".join(fc), "-map", "[vout]", "-map", "[aout]",
      "-c:v", "libx264", "-preset", "medium", "-crf", "19", "-pix_fmt", "yuv420p", *ENC, "-c:a", "aac", "-b:a", "192k",
      "-ar", "48000", "-movflags", "+faststart", "-t", f"{total:.3f}", cfg["output"]])
