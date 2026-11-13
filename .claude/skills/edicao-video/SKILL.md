@@ -74,7 +74,10 @@ Para vídeos **que já foram postados e já estão editados** (geralmente salvos
   - **Cortar o CTA antigo do fim** (ex.: "se você quer entender como eu faço isso, comenta...") e emendar o CTA novo, aparado do começo ao fim da fala. O CTA fica no mesmo volume do vídeo original.
   - Sinalizar CTA com promessa de ganho (ex.: "300 reais em menos de 10 dias").
   - Script: `python3 -I scripts/cta_video.py VIDEO CORTE_FIM PASTA_SAIDA CTA1.mov:INI:FIM CTA2.mov:INI:FIM ... --falha INI-FIM`.
-- Em aberto: onde fica o botão "Saiba mais" do anúncio (a definir com a equipe depois do teste).
+- **Seta para baixo** (branca com contorno preto, pulando) abaixo da sobreposição, junto com o CTA: os vídeos de tráfego rodam em **anúncio do Facebook**, e o botão "Saiba mais" fica embaixo.
+- **Vídeo com CTA em vídeo + CTA escrito**: depois do `cta_video.py`, aplicar o CTA escrito + sobreposição + seta por cima, sem refazer a qualidade:
+  `python3 -I scripts/trafego.py VIDEO_CTA.mp4 SOBREPOSICAO SAIDA "LINHA1\nLINHA2\nLINHA3" --sem-qualidade --seta --y 1290 --maxh 360 --maxw 520`
+  (cartão menor e mais baixo para não cobrir o rosto e deixar espaço para a seta).
 
 ## Alternância nos lotes
 

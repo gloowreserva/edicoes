@@ -1,14 +1,27 @@
 """Estilo de edição 4 (tráfego): não mexe no vídeo; melhora a qualidade e coloca
 CTA + uma sobreposição perto do fim.
 
-uso: python3 -I trafego.py VIDEO SOBREPOSICAO SAIDA "TEXTO DO CTA" [ANTES_DO_FIM=6] [DURACAO=5]
+uso: python3 -I trafego.py VIDEO SOBREPOSICAO SAIDA "TEXTO DO CTA" [ANTES_DO_FIM=6] [DURACAO=5] [opções]
+  --sem-qualidade : não refaz a melhora de qualidade (vídeo já passou pelo cta_video.py)
+  --seta          : seta para baixo pulando, abaixo da sobreposição (botão "Saiba mais" do anúncio)
+  --y N --maxh N --maxw N : posição/tamanho do cartão da sobreposição (padrão 1110, 470, 600)
 """
 import json, os, subprocess, sys, tempfile
 from PIL import Image, ImageDraw, ImageFilter
 
-video, sob, saida, texto = sys.argv[1:5]
-antes = float(sys.argv[5]) if len(sys.argv) > 5 else 6.0
-dura = float(sys.argv[6]) if len(sys.argv) > 6 else 5.0
+argv = sys.argv[1:]
+def opt(nome, padrao):
+    if nome in argv:
+        i = argv.index(nome); v = argv[i + 1]; del argv[i:i + 2]; return int(v)
+    return padrao
+def flag(nome):
+    if nome in argv: argv.remove(nome); return True
+    return False
+qualidade, seta = not flag("--sem-qualidade"), flag("--seta")
+Y, MAXH, MAXW = opt("--y", 1110), opt("--maxh", 470), opt("--maxw", 600)
+video, sob, saida, texto = argv[:4]
+antes = float(argv[4]) if len(argv) > 4 else 6.0
+dura = float(argv[5]) if len(argv) > 5 else 5.0
 
 info = json.loads(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                                   "-of", "json", video], capture_output=True, text=True, check=True).stdout)
@@ -36,7 +49,6 @@ Dialogue: 0,{ts(a)},{ts(b)},CTA,,0,0,0,,{{\\fad(150,150)}}{linhas}
 """)
 
 # ---- sobreposição: cartão com borda branca, canto arredondado e sombra ----
-MAXW, MAXH, Y = 600, 470, 1110
 im = Image.open(sob).convert("RGB"); im.thumbnail((MAXW, MAXH), Image.LANCZOS)
 w, h = im.size; r, bd, sh = 30, 8, 36
 card = Image.new("RGBA", (w + 2 * (bd + sh), h + 2 * (bd + sh)), (0, 0, 0, 0))
@@ -50,15 +62,29 @@ card.paste(im, (sh + bd, sh + bd), mi)
 png = f"{work}/sob.png"; card.save(png)
 
 d = b - a
+extra_in, extra_fc, fim_card = [], "", Y - sh + card.height - sh
+if seta:  # seta branca com contorno preto, pulando para baixo
+    S = 150; ar = Image.new("RGBA", (S + 40, S + 60), (0, 0, 0, 0)); dr = ImageDraw.Draw(ar)
+    pts = [(20 + S * .32, 20), (20 + S * .68, 20), (20 + S * .68, 20 + S * .5), (20 + S * .95, 20 + S * .5),
+           (20 + S / 2, 20 + S), (20 + S * .05, 20 + S * .5), (20 + S * .32, 20 + S * .5)]
+    dr.polygon(pts, fill=(255, 255, 255, 255), outline=(0, 0, 0, 255), width=9)
+    sombra = Image.new("RGBA", ar.size, (0, 0, 0, 0)); sombra.paste((0, 0, 0, 120), (0, 8), ar.split()[3])
+    ar = Image.alpha_composite(sombra.filter(ImageFilter.GaussianBlur(8)), ar)
+    arpng = f"{work}/seta.png"; ar.save(arpng)
+    extra_in = ["-loop", "1", "-framerate", "30", "-t", f"{d:.3f}", "-i", arpng]
+    ys = fim_card + 10
+    extra_fc = (f";[2:v]format=rgba,fade=in:st=0:d=0.2:alpha=1,fade=out:st={d - 0.2:.3f}:d=0.2:alpha=1,"
+                f"setpts=PTS-STARTPTS+{a:.3f}/TB[s];[c][s]overlay=x=(W-w)/2:y='{ys}+22*abs(sin(2*PI*1.4*(t-{a:.3f})))':eval=frame:eof_action=pass[c2]")
 # qualidade: limpeza leve de ruído, 1080x1920, nitidez e um toque de contraste/cor
-fc = (f"[0:v]hqdn3d=1.5:1.5:3:3,scale=1080:1920:flags=lanczos,cas=0.6,"
-      f"eq=contrast=1.04:saturation=1.08,setsar=1[v];"
+q = "hqdn3d=1.5:1.5:3:3,scale=1080:1920:flags=lanczos,cas=0.6,eq=contrast=1.04:saturation=1.08," if qualidade else ""
+fc = (f"[0:v]{q}setsar=1[v];"
       f"[1:v]format=rgba,fade=in:st=0:d=0.2:alpha=1,fade=out:st={d - 0.2:.3f}:d=0.2:alpha=1,"
       f"setpts=PTS-STARTPTS+{a:.3f}/TB[o];"
-      f"[v][o]overlay=x=(W-w)/2:y={Y - sh}:eof_action=pass,ass={ass},format=yuv420p[out]")
+      f"[v][o]overlay=x=(W-w)/2:y={Y - sh}:eof_action=pass[c]" + extra_fc +
+      f";[{'c2' if seta else 'c'}]ass={ass},format=yuv420p[out]")
 subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", video,
-                "-loop", "1", "-framerate", "30", "-t", f"{d:.3f}", "-i", png,
+                "-loop", "1", "-framerate", "30", "-t", f"{d:.3f}", "-i", png, *extra_in,
                 "-filter_complex", fc, "-map", "[out]", "-map", "0:a?",
-                "-c:v", "libx264", "-preset", "slow", "-crf", "16", "-c:a", "copy",
+                "-c:v", "libx264", "-preset", "slow", "-crf", "16" if qualidade else "17", "-c:a", "copy",
                 "-movflags", "+faststart", saida], check=True)
 print(f"OK {saida} ({total:.1f}s; CTA {a:.1f}s–{b:.1f}s)")
