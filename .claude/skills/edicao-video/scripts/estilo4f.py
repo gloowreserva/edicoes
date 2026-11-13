@@ -97,6 +97,9 @@ for i, ((a, b), (ea, eb)) in enumerate(zip(segs, exato_final)):
     if not eb:
         n = 0
         while _db(b, b + 0.02) > _lim - 25 and n < 15: b += 0.02; n += 1
+        # respiro natural depois da última palavra (não cortar "em cima" da fala), só enquanto for silêncio
+        alvo = b + cfg.get("respiro_fim", 0.15)
+        while b < alvo and _db(b, b + 0.02) <= _lim - 25: b += 0.02
     _s2.append((round(a, 3), round(b, 3)))
 segs = _s2
 json.dump(segs, open(f"{work}/segs.json", "w"))
@@ -132,7 +135,7 @@ if cfg.get("segura_auto", True):
         if b - a > 1.2:
             if not any("v1" in c and abs(c["v1"] - b) < 0.6 for c in congela):
                 t = b - 0.03
-                while t > b - 0.3 and not firme(t): t -= 1 / 15
+                while t > b - 0.45 and not firme(t): t -= 1 / 15
                 if t < b - 0.05 and firme(t): congela.append({"v1": round(t, 3)})
             if not any("v0" in c and abs(c["v0"] - a) < 0.6 for c in congela):
                 t = a + 0.03
