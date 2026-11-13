@@ -112,7 +112,7 @@ congela = list(cfg.get("segura_imagem", []))
 # COR: bruto de iPhone é HDR (HLG / BT.2020). Converter de verdade pra SDR BT.709 (tone mapping), senão a pele fica
 # pálida/acinzentada ("ar de fantasma") e as cores da marca apagadas. Depois só um toque leve de luz.
 _trc = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=color_transfer",
-                       "-of", "csv=p=0", cfg["video"]], capture_output=True, text=True).stdout.strip()
+                       "-of", "csv=p=0", cfg["video"]], capture_output=True, text=True).stdout.strip().strip(",")
 HDR = "zscale=t=linear:npl=203:tin=arib-std-b67:pin=bt2020:min=bt2020nc,format=gbrpf32le,zscale=p=bt709," \
       "tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p," if _trc in ("arib-std-b67", "smpte2084") else ""
 GRADE = "," + cfg["grade"] if cfg.get("grade") else (",eq=brightness=0.05:contrast=1.05" if HDR else "")
