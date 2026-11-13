@@ -103,11 +103,20 @@ json.dump(segs, open(f"{work}/segs.json", "w"))
 if cfg.get("dry"):  # só calcula os cortes (pra conferir), sem renderizar
     print("segs:", [(round(a, 2), round(b, 2)) for a, b in segs]); sys.exit(0)
 
+# "segura imagem": {"v0": t} / {"v1": t} — o áudio fica inteiro, mas a imagem segura o 1º/último quadro
+# com ele de frente (esconde o giro de cabeça de 0,2–0,3s no começo/fim da fala sem cortar palavra)
+congela = cfg.get("segura_imagem", [])
 parts = []
 for i, (a, b) in enumerate(segs):
     p = f"{work}/p{i:03d}.mp4"
+    vs = next((c["v0"] - a for c in congela if "v0" in c and a <= c["v0"] < min(b, a + 0.6)), 0)
+    ve = next((b - c["v1"] for c in congela if "v1" in c and max(a, b - 0.6) < c["v1"] <= b), 0)
+    hold = ""
+    if vs > 0 or ve > 0:
+        hold = (f"trim=start={vs:.3f}:end={b - a - ve:.3f},setpts=PTS-STARTPTS,"
+                f"tpad=start_duration={vs:.3f}:start_mode=clone:stop_duration={ve:.3f}:stop_mode=clone,")
     run(["ffmpeg", "-v", "error", "-y", "-ss", f"{a:.3f}", "-i", cfg["video"], "-t", f"{b - a:.3f}",
-         "-vf", f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS},setsar=1{TAG}",
+         "-vf", f"{hold}scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS},setsar=1{TAG}",
          "-af", f"afade=t=in:d=0.012,afade=t=out:st={max(0, b - a - 0.012):.3f}:d=0.012",
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "15", *ENC, "-c:a", "pcm_s16le", "-ar", "48000", p.replace(".mp4", ".mov")])
     parts.append(p.replace(".mp4", ".mov"))
