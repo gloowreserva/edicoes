@@ -25,8 +25,10 @@ base = os.path.join(outdir, "_base.mkv")
 sel = "".join(f"*not(between(t,{a},{b}))" for a, b in falhas)
 vf = (f"{'select=' + repr('1' + sel) + ',' if falhas else ''}fps=30,"
       "hqdn3d=1.5:1.5:3:3,scale=1080:1920:flags=lanczos,cas=0.6,eq=contrast=1.04:saturation=1.08,setsar=1,format=yuv420p")
-subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", video, "-t", f"{corte:.3f}", "-vf", vf,
-                "-c:v", "libx264", "-preset", "medium", "-crf", "12", "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", base], check=True)
+if not os.path.exists(base):  # reaproveita a base se um render anterior foi interrompido
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", video, "-t", f"{corte:.3f}", "-vf", vf,
+                    "-c:v", "libx264", "-preset", "medium", "-crf", "12", "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", base + ".tmp.mkv"], check=True)
+    os.replace(base + ".tmp.mkv", base)
 
 for c in ctas:
     path, *tr = c.split(":")
