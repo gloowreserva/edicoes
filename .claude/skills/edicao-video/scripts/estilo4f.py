@@ -148,11 +148,30 @@ if cfg.get("segura_auto", True):
                 while t < a + 0.3 and not firme(t): t += 1 / 15
                 if t > a + 0.05 and firme(t): congela.append({"v0": round(t, 3)})
     json.dump(congela, open(f"{work}/segura.json", "w"))
+# SEM TRAVADA: onde ele vira o rosto, CORTA em vez de congelar. Se ele já terminou de falar quando vira, o trecho
+# acaba no último quadro de frente (sem congelar). Se ainda está terminando a palavra, congela no máx. 0,1s.
+MAXC = cfg.get("congela_max", 0.1)
+def _fala_fim(a, b): return max([min(e, b) for s, e in fala if s < b and e > a] or [b])
+def _fala_ini(a, b): return min([max(s, a) for s, e in fala if s < b and e > a] or [a])
+_novos, _holds = [], []
+for a, b in segs:
+    vs = next((c["v0"] - a for c in congela if "v0" in c and a <= c["v0"] < min(b, a + 0.6)), 0)
+    ve = next((b - c["v1"] for c in congela if "v1" in c and max(a, b - 0.6) < c["v1"] <= b), 0)
+    if ve > 0:
+        v1, fe = b - ve, _fala_fim(a, b) + 0.04
+        if v1 >= fe: b, ve = v1, 0                       # já tinha parado de falar: só corta antes
+        else: b, ve = fe, min(fe - v1, MAXC)             # ainda falando: corta no fim da fala, congela ≤ 0,1s
+    if vs > 0:
+        v0, fi = a + vs, _fala_ini(a, b) - 0.04
+        if v0 <= fi: a, vs = v0, 0                       # ainda não tinha começado a falar: só começa depois
+        else: a, vs = fi, min(v0 - fi, MAXC)
+    _novos.append((round(a, 3), round(b, 3))); _holds.append((vs, ve))
+segs = _novos
+json.dump(segs, open(f"{work}/segs_final.json", "w"))
 parts = []
 for i, (a, b) in enumerate(segs):
     p = f"{work}/p{i:03d}.mp4"
-    vs = next((c["v0"] - a for c in congela if "v0" in c and a <= c["v0"] < min(b, a + 0.6)), 0)
-    ve = next((b - c["v1"] for c in congela if "v1" in c and max(a, b - 0.6) < c["v1"] <= b), 0)
+    vs, ve = _holds[i]
     hold = ""
     if vs > 0 or ve > 0:
         hold = (f"trim=start={vs:.3f}:end={b - a - ve:.3f},setpts=PTS-STARTPTS,"
