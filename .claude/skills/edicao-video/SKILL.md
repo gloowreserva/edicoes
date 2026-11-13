@@ -1,9 +1,11 @@
 ---
 name: edicao-video
-description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1, 2 e 3 (1 e 2 para vídeos falados: hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; 1 com legenda e zoom, 2 limpo e sem legenda; 3 para B-roll sem fala: texto na tela e música do início ao fim). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
+description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1, 2, 3 e 4 (4 para vídeos de tráfego já postados: não mexe em nada, só melhora a qualidade e coloca CTA para o grupo com uma sobreposição no final; 1 e 2 para vídeos falados: hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; 1 com legenda e zoom, 2 limpo e sem legenda; 3 para B-roll sem fala: texto na tela e música do início ao fim). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
 ---
 
-# Edição de vídeo — Estilos de edição 1, 2 e 3
+# Edição de vídeo — Estilos de edição 1, 2, 3 e 4
+
+> **Quem conduz:** o Vitor conduz este chat. Ele pode adicionar novos estilos e/ou alterar qualquer um dos estilos daqui; a última instrução dele vale e deve ser registrada neste arquivo.
 
 ## Regras que valem para os dois estilos
 
@@ -54,6 +56,30 @@ Para vídeos **sem fala** (a pessoa só aparece fazendo algo, posando etc.). Nã
   - "Enquanto você tá aí só assistindo a vida dos outros, tem gente com menos de 100 seguidores fazendo venda todo dia no app rosa só de copiar e colar vídeos prontos com 1 clique e postar. Pra entender como, entra no meu perfil."
   - "Antes de ficar esperando o Shop pra começar de verdade no ttk, entra no meu perfil pra entender uma coisa: enquanto você tá aí parada achando que depende de 2000 seguidores pra vender, tem gente começando no app rosa com menos de 100 seguidores fazendo venda sem esperar liberar nada."
 
+## Estilo de edição 4 (tráfego)
+
+Para vídeos **que já foram postados e já estão editados** (geralmente salvos do TikTok), usados em tráfego pago. Não seguem os padrões dos estilos 1, 2 e 3.
+
+- **Não mexer em nada do vídeo**: sem cortes, sem hook, sem legenda, sem zoom, sem selo, sem música. Só o que está listado aqui.
+- **Melhora de qualidade**: vídeo salvo do TikTok vem em baixa resolução (ex.: 576x1024). Ampliar para 1080x1920 com limpeza de ruído leve, nitidez e leve ajuste de contraste e cor, exportando com qualidade alta. Não recupera o que já está borrado no original.
+- **CTA perto do fim, direcionando para o grupo** (texto exato, em 3 linhas):
+  > Toca em “saiba mais” para entender de graça o que muitos te cobrariam caro pra ensinar!
+  - **Não esticar o vídeo.** O CTA entra **6s antes do fim** e fica **5s na tela** (ex.: vídeo de 58,5s → 52,5s a 57,5s).
+  - Posição: **em cima da cabeça, centralizado**, dentro da área segura do TikTok (abaixo de "Seguindo | Para você"), branco com contorno preto.
+- **Uma sobreposição só, junto com o CTA** (mesmo tempo), tirada da pasta `Sobreposição/` do Drive, em cartão com borda branca, abaixo do rosto. Nunca as três no mesmo vídeo: **ordem 1, 2, 3** pela ordem dos vídeos (1º vídeo → 1ª sobreposição, 2º → 2ª, 3º → 3ª, depois recomeça).
+  - Sobreposições atuais: 1) perfil do grupo "Aulão 15/11 - 19:00" (IMG_7558); 2) conversa do grupo com print de vendas (IMG_7561); 3) conversa do grupo com print da B4you (IMG_7562).
+- Script: `python3 -I scripts/trafego.py VIDEO SOBREPOSICAO SAIDA "LINHA1\nLINHA2\nLINHA3"` (~3,5 min por vídeo de 1 min).
+- **CTA em vídeo (novo CTA gravado)**: quando houver a pasta `Cta Vídeos/` no Drive, cada CTA vira **uma versão nova** do vídeo.
+  - **Corrigir falhas** do vídeo (quadros pretos/escuros de outra gravação, piscadas): tirar os quadros com defeito sem perder contexto nem fala (`--falha INI-FIM`; o quadro anterior segura o lugar e o áudio fica intacto). Se o corte tirar contexto demais, avisar o Vitor antes.
+  - **Cortar o CTA antigo do fim** (ex.: "se você quer entender como eu faço isso, comenta...") e emendar o CTA novo, aparado do começo ao fim da fala. O CTA fica no mesmo volume do vídeo original.
+  - **Mesma paleta de cor do começo ao fim**: CTA gravado no iPhone vem em HDR e fica com cor lavada ("fantasma") se não for convertido. O script converte para cor normal (tone mapping) e aplica o mesmo ajuste de cor do vídeo principal.
+  - Sinalizar CTA com promessa de ganho (ex.: "300 reais em menos de 10 dias").
+  - Script: `python3 -I scripts/cta_video.py VIDEO CORTE_FIM PASTA_SAIDA CTA1.mov:INI:FIM CTA2.mov:INI:FIM ... --falha INI-FIM`.
+- **Seta para baixo** (branca com contorno preto, pulando) abaixo da sobreposição, junto com o CTA: os vídeos de tráfego rodam em **anúncio do Facebook**, e o botão "Saiba mais" fica embaixo.
+- **Vídeo com CTA em vídeo + CTA escrito**: depois do `cta_video.py`, aplicar o CTA escrito + sobreposição + seta por cima, sem refazer a qualidade:
+  `python3 -I scripts/trafego.py VIDEO_CTA.mp4 SOBREPOSICAO SAIDA "LINHA1\nLINHA2\nLINHA3" --sem-qualidade --seta --y 1290 --maxh 360 --maxw 520`
+  (cartão menor e mais baixo para não cobrir o rosto e deixar espaço para a seta).
+
 ## Alternância nos lotes
 
 Num lote, alternar na ordem dos arquivos do Drive: 1º estilo 1, 2º estilo 2, 3º estilo 1, 4º estilo 2...
@@ -88,15 +114,3 @@ Continuar a alternância de onde o lote anterior parou.
 - `Provas Sociais/`: prints do Telegram ("primeira venda").
 - `Sobreposições/`: ícones com o Gloow App circulado, perfil "Samuca Sem Dores", vídeo do perfil, gravação de tela do app.
 - Gravação de tela do app (`copy_3AAD4AD4-...mov`, 94s) — bons quadros parados: 6,5s "Marcas Virais"; 9s página da Nulle (com "Vídeos Prontos"); 11s links de afiliação com comissão; 23s site da Nulle ("regular seu cortisol").
-
-## Entrega no Google Drive
-
-- Subir os vídeos editados com a ferramenta `create_file` do conector Google Drive (`base64Content` = referência `sha256:<hash>:<caminho absoluto>`, `contentMimeType` `video/mp4`, `disableConversionToGoogleType: true`).
-- **Regra do Vitor: não mexer em nada no Drive** (não mover, renomear, apagar nem editar). Só **subir** os vídeos editados na pasta certa.
-- Destino: pasta **"00 - ⏯️ POSTAGEM STAND BY (AGUARDANDO)"** (id `1Cx4WfPwmhR2UsuNGzEoPPcBaroDLofm4`, dentro da pasta raiz `1BEtIt9SzaappmPbInoOwEcDdHEVJ568n`), na subpasta da pessoa do vídeo:
-  - Matheus (Mat): `14uHGLQTCvyS5E96B3aqG3u_zRXVVDabt`
-  - Samuel (Samuca): `1fAuehTadroP1ovpUnmM9PaVB5a9fDvf8`
-  - Claudio: `1Rv8F_dwkssWDNYMhzY2aL9DiYNGHHxh8`
-  - Eliton: `1_vve7NIW_zznkj_r__lf6UgkVlZrU4v_`
-  - Universo.glow: `1BhfIYAN-fU8NSddeFWwwYT7Z54_Oh75d`
-- As outras pastas da raiz ("00 - Gravação Bruta", "00 - ▶️ POSTAGEM ON", "00 - Frases prontas", "Referências App rosa") não são tocadas.
