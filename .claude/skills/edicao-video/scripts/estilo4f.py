@@ -127,6 +127,14 @@ real = [float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format
         capture_output=True, text=True).stdout) for p in parts]
 total = sum(real)
 
+def remap_fim(t):  # fim de um bloco: vai até o fim do trecho onde ele cai (sem sobrar quadro solto)
+    acc = 0.0
+    for (a, b), d in zip(segs, real):
+        if t < a: return acc
+        if t <= b + 0.3: return acc + d
+        acc += d
+    return acc
+
 def remap(t):
     acc = 0.0
     for (a, b), d in zip(segs, real):
@@ -221,7 +229,7 @@ for k in cfg.get("keywords", []):  # palavras-chave soltas (ref. 08)
     ass.append(f"Dialogue: 2,{ts(a)},{ts(e)},Chave,,0,0,0,," + r"{\pos(540," + str(k.get("y", 1150)) + r")\fscx40\fscy40\t(0,120,\fscx110\fscy110)\t(120,200,\fscx100\fscy100)}" + k["text"].replace("\n", r"\N"))
 for sp in cfg.get("split", []):  # rótulo grande (ex.: 30%) na parte de cima
     if sp.get("label"):
-        ass.append(f"Dialogue: 2,{ts(remap(sp['at']))},{ts(remap(sp['until']))},Pct,,0,0,0,," + r"{\pos(70," + str(cfg.get("split_h", 640) // 2) + r")}" + sp["label"])
+        ass.append(f"Dialogue: 2,{ts(remap(sp['at']))},{ts(remap_fim(sp['until']))},Pct,,0,0,0,," + r"{\pos(70," + str(cfg.get("split_h", 640) // 2) + r")}" + sp["label"])
 assf = f"{work}/leg.ass"; open(assf, "w").write("\n".join(ass) + "\n")
 
 # ---------- 3. hook (caixa branca estilo TikTok) e cartões ----------
@@ -240,7 +248,7 @@ if sps:
     fc.append(f"[0:v]split=2[base][sb];[sb]crop={W}:{bh}:0:{int((H - bh) * 0.3)},split={len(sps)}" + "".join(f"[bot{i}]" for i in range(len(sps))))
     last = "[base]"
     for i, sp in enumerate(sps):
-        a, b = remap(sp["at"]), remap(sp["until"])
+        a, b = remap(sp["at"]), remap_fim(sp["until"])
         inputs += ["-loop", "1", "-framerate", str(FPS), "-t", f"{total:.3f}", "-i", sp["file"]]
         fc.append(f"[{n}:v]scale={W}:{th}:force_original_aspect_ratio=increase,crop={W}:{th},setsar=1,format=rgba,"
                   f"scale=out_color_matrix=bt709:out_range=tv,format=yuv420p[top{i}];[top{i}][bot{i}]vstack[sp{i}]")
