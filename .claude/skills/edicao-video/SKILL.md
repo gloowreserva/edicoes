@@ -68,7 +68,7 @@ Vídeos que vão para donos de marca. Cada bruto segue o roteiro de um dos víde
    - Música baixinha só quando a referência tem (08: lo-fi do Mixkit a −26 dB).
    - Trechos mal transcritos: `fix.py` (retranscreve com o modelo medium e junta no json) e `word_fix` no config.
 4. **Sobreposições obrigatórias**, em lugares parecidos com a referência, com leve mudança; nunca em cima do rosto nem do produto.
-5. **Cor**: brutos de iPhone são HDR (HLG). Os scripts já saem em BT.709; não tirar isso (senão as fotos ficam avermelhadas).
+5. **Cor**: brutos de iPhone são HDR (HLG/BT.2020). O `estilo4f.py` detecta e faz **conversão de verdade (tone mapping hable) pra BT.709** + toque leve de luz (`eq=brightness=0.05:contrast=1.05`). Sem isso a pele fica pálida/acinzentada ("ar de fantasma", feedback do Samuel) ou estourada. Não usar mais ajuste de gamma/brilho por cima. Conferir com `signalstats` (saturação média ~11–12 no 7537; antes 7,5).
 6. **Padrão de qualidade (feedback do Vitor): zero erro.**
    - **Presença**: só entra take com ele firme, olhando pra câmera, com energia. Nada de mexer no cabelo, balançar a cabeça, olhar pro roteiro/pacote, cara de "pensando" — nem no começo/fim do trecho. Se a frase tem uma tomada melhor (mais presença), usar ela.
    - **Corte nunca no meio da palavra.** O corte é feito pelo detector de voz (Silero VAD) dentro dos trechos marcados; emenda entre palavras coladas usa borda exata `[ini, fim, "x"]` no ponto de menor volume.
