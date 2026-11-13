@@ -72,6 +72,7 @@ Para vídeos **que já foram postados e já estão editados** (geralmente salvos
 - **CTA em vídeo (novo CTA gravado)**: quando houver a pasta `Cta Vídeos/` no Drive, cada CTA vira **uma versão nova** do vídeo.
   - **Corrigir falhas** do vídeo (quadros pretos/escuros de outra gravação, piscadas): tirar os quadros com defeito sem perder contexto nem fala (`--falha INI-FIM`; o quadro anterior segura o lugar e o áudio fica intacto). Se o corte tirar contexto demais, avisar o Vitor antes.
   - **Cortar o CTA antigo do fim** (ex.: "se você quer entender como eu faço isso, comenta...") e emendar o CTA novo, aparado do começo ao fim da fala. O CTA fica no mesmo volume do vídeo original.
+  - **Mesma paleta de cor do começo ao fim**: CTA gravado no iPhone vem em HDR e fica com cor lavada ("fantasma") se não for convertido. O script converte para cor normal (tone mapping) e aplica o mesmo ajuste de cor do vídeo principal.
   - Sinalizar CTA com promessa de ganho (ex.: "300 reais em menos de 10 dias").
   - Script: `python3 -I scripts/cta_video.py VIDEO CORTE_FIM PASTA_SAIDA CTA1.mov:INI:FIM CTA2.mov:INI:FIM ... --falha INI-FIM`.
 - **Seta para baixo** (branca com contorno preto, pulando) abaixo da sobreposição, junto com o CTA: os vídeos de tráfego rodam em **anúncio do Facebook**, e o botão "Saiba mais" fica embaixo.
