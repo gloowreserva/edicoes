@@ -78,6 +78,8 @@ Vídeos que vão para donos de marca. Cada bruto segue o roteiro de um dos víde
    - Depois de renderizar: retranscrever o final (frase repetida/cortada) e ver um quadro de cada cena.
    - Giro de cabeça de 0,2–0,3s no começo/fim da fala (começa a falar ainda virando pra câmera): não cortar a palavra — usar `"segura_imagem": [{"v0": t}]` / `[{"v1": t}]` (áudio inteiro, imagem segura o 1º/último quadro de frente).
    - `scripts/previa.py BRUTO work/segs.json saida.jpg` = mosaico de tudo que vai entrar (3 quadros/s) pra revisão visual.
+   - Feedback 7537 (v3): imagem do iPhone fica **estourada/branca** → o script aplica por padrão `eq=gamma=0.8:contrast=1.12:brightness=-0.05:saturation=1.15` (`"grade"` troca, `"nenhum"` desliga). **Cortar colado no fim da fala**; o script segura a imagem sozinho (≤0,3s) onde ele já vira o rosto no começo/fim do trecho. Tela dividida **sem número de %** (foto cortada pela base com `"crop_y": "base"` pra esconder o selinho).
+   - Conferir sempre que **áudio e vídeo têm a mesma duração** (`ffprobe`): música + voz em taxas diferentes encurtava o áudio e o final "travava".
 7. Rodar UMA análise/render por vez (4 em paralelo estoura a memória da máquina).
 
 ## Alternância nos lotes

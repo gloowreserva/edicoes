@@ -115,25 +115,25 @@
    "at": 10.15,
    "until": 14.4,
    "file": "PASTA_DRIVE/Sobreposicoes/745662C4.png",
-   "label": "30%"
+   "crop_y": "base"
   },
   {
    "at": 27.65,
    "until": 32.5,
    "file": "PASTA_DRIVE/Sobreposicoes/6120FB2C.png",
-   "label": "25%"
+   "crop_y": "base"
   },
   {
    "at": 35.95,
    "until": 40.1,
    "file": "PASTA_DRIVE/Sobreposicoes/0AE01E61.png",
-   "label": "20%"
+   "crop_y": "base"
   },
   {
    "at": 43.6,
    "until": 48.4,
    "file": "PASTA_DRIVE/Sobreposicoes/0EFE80F7.png",
-   "label": "15%"
+   "crop_y": "base"
   }
  ],
  "keywords": [
