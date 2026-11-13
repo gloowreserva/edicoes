@@ -88,3 +88,15 @@ Continuar a alternância de onde o lote anterior parou.
 - `Provas Sociais/`: prints do Telegram ("primeira venda").
 - `Sobreposições/`: ícones com o Gloow App circulado, perfil "Samuca Sem Dores", vídeo do perfil, gravação de tela do app.
 - Gravação de tela do app (`copy_3AAD4AD4-...mov`, 94s) — bons quadros parados: 6,5s "Marcas Virais"; 9s página da Nulle (com "Vídeos Prontos"); 11s links de afiliação com comissão; 23s site da Nulle ("regular seu cortisol").
+
+## Entrega no Google Drive
+
+- Subir os vídeos editados com a ferramenta `create_file` do conector Google Drive (`base64Content` = referência `sha256:<hash>:<caminho absoluto>`, `contentMimeType` `video/mp4`, `disableConversionToGoogleType: true`).
+- **Regra do Vitor: não mexer em nada no Drive** (não mover, renomear, apagar nem editar). Só **subir** os vídeos editados na pasta certa.
+- Destino: pasta **"00 - ⏯️ POSTAGEM STAND BY (AGUARDANDO)"** (id `1Cx4WfPwmhR2UsuNGzEoPPcBaroDLofm4`, dentro da pasta raiz `1BEtIt9SzaappmPbInoOwEcDdHEVJ568n`), na subpasta da pessoa do vídeo:
+  - Matheus (Mat): `14uHGLQTCvyS5E96B3aqG3u_zRXVVDabt`
+  - Samuel (Samuca): `1fAuehTadroP1ovpUnmM9PaVB5a9fDvf8`
+  - Claudio: `1Rv8F_dwkssWDNYMhzY2aL9DiYNGHHxh8`
+  - Eliton: `1_vve7NIW_zznkj_r__lf6UgkVlZrU4v_`
+  - Universo.glow: `1BhfIYAN-fU8NSddeFWwwYT7Z54_Oh75d`
+- As outras pastas da raiz ("00 - Gravação Bruta", "00 - ▶️ POSTAGEM ON", "00 - Frases prontas", "Referências App rosa") não são tocadas.
