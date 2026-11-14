@@ -340,7 +340,10 @@ for k, ov in enumerate(cfg.get("overlays", [])):
         s, e = a + j * step, a + (j + 1) * step
         inputs += ["-loop", "1", "-framerate", str(FPS), "-t", f"{total:.3f}", "-i", png]
         fi = "" if (j or ov.get("cheia")) else f",fade=in:st={s:.3f}:d=0.15:alpha=1"
-        fc.append(f"[{n}:v]format=rgba{fi},scale=out_color_matrix=bt709:out_range=tv,format=yuva420p[o{k}_{j}]")
+        # tela cheia com zoom lento (foto parada lê como "travada" no freezedetect e pro olho)
+        zm = (f",scale=w='2*trunc({W}*(1+0.12*clip((t-{s:.3f})/{max(e - s, 0.1):.3f},0,1))/2)':h=-2:eval=frame,"
+              f"crop={W}:{H}") if ov.get("cheia") else ""
+        fc.append(f"[{n}:v]format=rgba{fi}{zm},scale=out_color_matrix=bt709:out_range=tv,format=yuva420p[o{k}_{j}]")
         fc.append(f"{last}[o{k}_{j}]overlay={ov['x'] - off}:{ov['y'] - off}:enable='between(t,{s:.3f},{e - 0.001:.3f})'[v{k}_{j}]")
         last = f"[v{k}_{j}]"; n += 1
 fc.append(f"{last}ass={assf}[vout]")
