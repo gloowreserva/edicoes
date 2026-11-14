@@ -1,6 +1,6 @@
 ---
 name: edicao-video
-description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1, 2 e 3 (1 e 2 para vídeos falados: hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; 1 com legenda e zoom, 2 limpo e sem legenda; 3 para B-roll sem fala: texto na tela e música do início ao fim). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
+description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1, 2, 3 e 4 (4 = anúncio UGC de marca copiando a edição de uma referência da marca) (1 e 2 para vídeos falados: hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; 1 com legenda e zoom, 2 limpo e sem legenda; 3 para B-roll sem fala: texto na tela e música do início ao fim). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
 ---
 
 # Edição de vídeo — Estilos de edição 1, 2 e 3
@@ -53,6 +53,37 @@ Para vídeos **sem fala** (a pessoa só aparece fazendo algo, posando etc.). Nã
 - Exemplos de frases base do Vitor:
   - "Enquanto você tá aí só assistindo a vida dos outros, tem gente com menos de 100 seguidores fazendo venda todo dia no app rosa só de copiar e colar vídeos prontos com 1 clique e postar. Pra entender como, entra no meu perfil."
   - "Antes de ficar esperando o Shop pra começar de verdade no ttk, entra no meu perfil pra entender uma coisa: enquanto você tá aí parada achando que depende de 2000 seguidores pra vender, tem gente começando no app rosa com menos de 100 seguidores fazendo venda sem esperar liberar nada."
+
+## Estilo de edição 4 (UGC para marcas — copia a referência)
+
+Vídeos que vão para donos de marca. Cada bruto segue o roteiro de um dos vídeos de referência da marca e a edição **copia o modelo daquela referência**. Material bruto e análise: `referencias/estilo4/ANALISE.md` (referências da Nulle: pasta do 1º Drive do Vitor, só leitura; sobreposições na subpasta `Sobreposições`).
+
+1. **Casar bruto ↔ referência** pelo roteiro (transcrição) e pelos gestos. Ex.: "Como o CORTISOL mudou sua aparência" = 05/07; "Será que isso aqui funciona mesmo?" = 06; "O que acontece se você tomar magnésio" = 01; "O impacto real do cortisol… 30%" = 08; "Cortisol alto, cortisol regulado" = 03.
+2. **Sem fala → 4C** (`scripts/estilo4c.py`): cenas no pico do gesto, cortes na batida da música (BPM detectado), texto estilo TikTok clássico com emoji, música da referência, sobreposições em cartão.
+3. **Com fala → 4 falado** (`scripts/estilo4f.py`):
+   - Brutos têm muitas tomadas repetidas e trechos lidos olhando pro lado. **Só entra tomada olhando pra câmera**: rodar `scripts/olhar.py VIDEO olhar.json` e `scripts/frases.py` (OpenCV, detector frontal a 5 fps; precisa `opencv-python-headless<5`) e conferir ≥85% de frente em cada trecho.
+   - Melhor tomada de cada frase (normalmente a última e mais firme); respiros > 0,28s cortados automaticamente.
+   - Legenda conforme a referência: `palavra` (1 palavra, caixa alta, ref. 01/06/09), `destaque` (2–4 palavras com palavra-chave amarela, ref. 02/03), `nenhuma` + `keywords` verdes (ref. 08). Tela dividida com foto em cima e % grande (`split`, ref. 08).
+   - Hook em caixa branca estilo TikTok + imagem de antes/depois quando a referência tem (01/06).
+   - Música baixinha só quando a referência tem (08: lo-fi do Mixkit a −26 dB).
+   - Trechos mal transcritos: `fix.py` (retranscreve com o modelo medium e junta no json) e `word_fix` no config.
+4. **Sobreposições obrigatórias**, em lugares parecidos com a referência, com leve mudança; nunca em cima do rosto nem do produto.
+5. **Cor**: brutos de iPhone são HDR (HLG/BT.2020). O `estilo4f.py` detecta e faz **conversão de verdade (tone mapping hable) pra BT.709** + toque leve de luz (`eq=brightness=0.05:contrast=1.05`). Sem isso a pele fica pálida/acinzentada ("ar de fantasma", feedback do Samuel) ou estourada. Não usar mais ajuste de gamma/brilho por cima. Conferir com `signalstats` (saturação média ~11–12 no 7537; antes 7,5).
+6. **Padrão de qualidade (feedback do Vitor): zero erro.**
+   - **Presença**: só entra take com ele firme, olhando pra câmera, com energia. Nada de mexer no cabelo, balançar a cabeça, olhar pro roteiro/pacote, cara de "pensando" — nem no começo/fim do trecho. Se a frase tem uma tomada melhor (mais presença), usar ela.
+   - **Corte nunca no meio da palavra.** O corte é feito pelo detector de voz (Silero VAD) dentro dos trechos marcados; emenda entre palavras coladas usa borda exata `[ini, fim, "x"]` no ponto de menor volume.
+   - Antes de renderizar, rodar o config com `"dry": true` e os dois verificadores, e corrigir até zerar:
+     - `scripts/checa_cortes.py BRUTO.wav work/segs.json transcricao.json` → 0 cortes com voz no ponto.
+     - `scripts/checa_presenca.py BRUTO work/segs.json` → olhar cada quadro suspeito (`previa`/quadro avulso): gesto de fala fica; olhar pra baixo/lado, cabelo, balanço sai (borda exata ou outra tomada).
+   - Depois de renderizar: retranscrever o final (frase repetida/cortada) e ver um quadro de cada cena.
+   - Giro de cabeça de 0,2–0,3s no começo/fim da fala (começa a falar ainda virando pra câmera): não cortar a palavra — usar `"segura_imagem": [{"v0": t}]` / `[{"v1": t}]` (áudio inteiro, imagem segura o 1º/último quadro de frente).
+   - `scripts/previa.py BRUTO work/segs.json saida.jpg` = mosaico de tudo que vai entrar (3 quadros/s) pra revisão visual.
+   - Feedback 7537 (v3): imagem do iPhone fica **estourada/branca** → o script aplica por padrão `eq=gamma=0.8:contrast=1.12:brightness=-0.05:saturation=1.15` (`"grade"` troca, `"nenhum"` desliga). **Cortar colado no fim da fala**; o script segura a imagem sozinho (≤0,3s) onde ele já vira o rosto no começo/fim do trecho. Tela dividida **sem número de %** (foto cortada pela base com `"crop_y": "base"` pra esconder o selinho).
+   - Conferir sempre que **áudio e vídeo têm a mesma duração** (`ffprobe`): música + voz em taxas diferentes encurtava o áudio e o final "travava".
+   - Feedback 7538: corte **nem colado nem largo** — respiro natural de ~0,15s depois da última palavra (`respiro_fim`). O Samuel vira o rosto pro roteiro em quase todo fim de frase e o detector automático NÃO pega giro de olhar: revisar **toda ponta** com `scripts/pontas.py BRUTO work/segs.json folha.jpg` (fazer em folhas de 7 trechos pra enxergar) e marcar `segura_imagem` `{"v1": último quadro de frente}`. Se ele fala uma palavra inteira já virado (>0,4s), usar **corte pro produto** em tela cheia: overlay `{"at": t, "ate_fim": true, "cheia": true, "file": foto do produto}`.
+   - Depois de renderizar: `scripts/fins.py FINAL work/segs.json saida` (últimos 0,6s de cada trecho, no vídeo final) e ler o texto da legenda inteiro procurando frase repetida/tropeço ("Ele já vem com… e ele já vem com") — o VAD junta o tropeço com a tomada boa se estiverem no mesmo trecho marcado.
+   - **Fluxo sem travada (feedback do Vitor: "tem que deslizar como água")**: nunca congelar a imagem pra esconder giro de rosto. Onde ele vira depois de falar, o trecho termina no último quadro de frente e o próximo take entra direto; se ainda está terminando a palavra, congela no máx. 0,1s (`congela_max`). Conferir com `freezedetect=n=0.002:d=0.15` → tem que dar **0 congelamentos**.
+7. Rodar UMA análise/render por vez (4 em paralelo estoura a memória da máquina).
 
 ## Alternância nos lotes
 
