@@ -1,4 +1,4 @@
-"""Edição Gloow (estilos 1 e 2): começa na fala, corta respiros, hook, legenda animada (opcional), zoom alternado (opcional), sobreposições em cartão, janela no topo ou tela cheia, selo de comentário.
+"""Edição Gloow (estilos 1 e 2): começa na fala, cortes em fala corrida (guiados pelas palavras, sem respiro entre takes), hook, legenda animada (opcional), zoom alternado (opcional), sobreposições em cartão, janela no topo ou tela cheia, selo de comentário.
 Uso: python3 -I edit.py config.json
 """
 import json, os, re, subprocess, sys
@@ -13,34 +13,60 @@ def run(cmd):
     print(">>", " ".join(cmd)[:300], flush=True)
     subprocess.run(cmd, check=True)
 
-# ---------- 1. silêncios -> segmentos mantidos ----------
-out = subprocess.run(["ffmpeg", "-nostats", "-i", src, "-vn", "-af",
-                      f"silencedetect=n={cfg.get('silence_db', -32)}dB:d={cfg.get('silence_min', 0.18)}",
-                      "-f", "null", "-"], capture_output=True, text=True).stderr
+# ---------- 1. fala corrida: segmentos a partir das palavras ----------
+# Os cortes seguem as palavras da transcrição (não o silêncio): entre um take e outro sobra
+# só uma folga mínima (lead/tail), então a emenda soa como fala contínua, sem respiro nem
+# "olhada pra baixo". Pausas internas maiores que gap_max também são cortadas.
+import numpy as np
+SR = 48000
 dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", src],
                            capture_output=True, text=True).stdout)
-starts = [float(x) for x in re.findall(r"silence_start: ([\d.]+)", out)]
-ends = [float(x) for x in re.findall(r"silence_end: ([\d.]+)", out)]
-pad = cfg.get("pad", 0.07)
-sil = list(zip(starts, ends + [dur] * (len(starts) - len(ends)))) + [tuple(x) for x in cfg.get("remove", [])]
-# regra: o vídeo sempre começa na primeira palavra falada
-_first = min(w["start"] for seg in json.load(open(cfg["transcript"])) for w in seg["words"])
-if _first > 0.15:
-    sil.append((0.0, _first - 0.08 + pad))
-sil.sort()
-merged = []
-for a, b in sil:
-    if merged and a <= merged[-1][1]: merged[-1] = (merged[-1][0], max(merged[-1][1], b))
-    else: merged.append((a, b))
-sil = merged
-segs, cur = [], 0.0
-for s, e in sil:
-    if s - cur > 0.05:
-        segs.append((max(0, cur), min(dur, s + pad)))
-    cur = e - pad
-if dur - cur > 0.1:
-    segs.append((cur, dur))
-segs = [(a, b) for a, b in segs if b - a > 0.12]
+wav = f"{work}/audio_src.wav"
+run(["ffmpeg", "-v", "error", "-y", "-i", src, "-vn", "-ac", "2", "-ar", str(SR), "-c:a", "pcm_s16le", wav])
+import wave as _wave
+with _wave.open(wav) as _wf:
+    AUD = np.frombuffer(_wf.readframes(_wf.getnframes()), np.int16).reshape(-1, 2)
+_mono = AUD.astype(np.float32).mean(axis=1) / 32768
+HOP = SR // 100  # janelas de 10 ms
+_n = len(_mono) // HOP
+ENV = 20 * np.log10(np.sqrt((_mono[:_n * HOP].reshape(_n, HOP) ** 2).mean(axis=1)) + 1e-9)
+THR = cfg.get("speech_db", max(-48.0, float(np.percentile(ENV, 95)) - 28))  # nível que conta como "voz"
+
+def loud(t):
+    i = int(t * 100)
+    return 0 <= i < _n and ENV[i] > THR
+
+removes = [tuple(x) for x in cfg.get("remove", [])]
+def in_remove(t): return any(a <= t <= b for a, b in removes)
+def remove_between(t0, t1): return any(a < t1 and b > t0 for a, b in removes)
+
+gap_max = cfg.get("gap_max", 0.25)   # pausa máxima mantida dentro de uma frase
+lead = cfg.get("lead", 0.03)         # folga antes da 1ª palavra do take
+tail = cfg.get("tail", 0.06)         # folga depois da última palavra do take
+words_all = [(w["start"], w["end"]) for seg in json.load(open(cfg["transcript"])) for w in seg["words"]]
+words_all = [(a, b) for a, b in words_all if not in_remove((a + b) / 2)]
+blocks = []
+for a, b in words_all:
+    if blocks and a - blocks[-1][1] <= gap_max and not remove_between(blocks[-1][1], a):
+        blocks[-1][1] = max(blocks[-1][1], b)
+    else:
+        blocks.append([a, b])
+
+segs = []
+for i, (a, b) in enumerate(blocks):
+    # ajusta a borda pelo áudio real (o Whisper costuma errar o fim/início da palavra por alguns ms)
+    lo = max([0.0] + [rb for ra, rb in removes if rb <= a + 0.05] + ([blocks[i - 1][1]] if i else []))
+    hi = min([dur] + [ra for ra, rb in removes if ra >= b - 0.05] + ([blocks[i + 1][0]] if i + 1 < len(blocks) else []))
+    s0 = a
+    while s0 - 0.01 > max(lo, a - 0.15) and loud(s0 - 0.01): s0 -= 0.01
+    e0 = b
+    while e0 + 0.01 < min(hi, b + 0.20) and loud(e0): e0 += 0.01
+    s0, e0 = max(lo, s0 - lead), min(hi, e0 + tail)
+    if segs and s0 - segs[-1][1] < 0.02: segs[-1] = (segs[-1][0], e0)
+    else: segs.append((s0, e0))
+# alinha tudo ao quadro, pra áudio e vídeo terem exatamente a mesma duração
+segs = [(round(a * FPS) / FPS, round(b * FPS) / FPS) for a, b in segs]
+segs = [(a, b) for a, b in segs if b - a >= 3 / FPS]
 print("segmentos:", [(round(a, 2), round(b, 2)) for a, b in segs])
 
 def remap(t):
@@ -52,7 +78,7 @@ def remap(t):
     return acc
 total = sum(b - a for a, b in segs)
 
-# ---------- 2. cortes + zoom alternado (trecho por trecho, pra não estourar memória) ----------
+# ---------- 2. cortes + zoom alternado (vídeo trecho por trecho; áudio montado de uma vez) ----------
 z = cfg.get("zoom", 1.10)
 parts = []
 for i, (a, b) in enumerate(segs):
@@ -61,20 +87,32 @@ for i, (a, b) in enumerate(segs):
         zw, zh = int(W * z) // 2 * 2, int(H * z) // 2 * 2
         v += f",scale={zw}:{zh},crop={W}:{H}:{(zw-W)//2}:{int((zh-H)*0.35)}"
     v += f",fps={FPS},setsar=1"
-    d = b - a
+    nf = round((b - a) * FPS)
     part = f"{work}/part{i:03d}.mp4"
-    run(["ffmpeg", "-v", "error", "-y", "-ss", f"{a:.3f}", "-i", src, "-t", f"{d:.3f}", "-vf", v,
-         "-af", f"afade=t=in:d=0.015,afade=t=out:st={max(0,d-0.015):.3f}:d=0.015",
-         "-map", "0:v:0", "-map", "0:a:0", "-c:v", "libx264", "-preset", "veryfast", "-crf", "16",
-         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-threads", "2", part])
+    run(["ffmpeg", "-v", "error", "-y", "-ss", f"{a:.4f}", "-i", src, "-vf", v, "-frames:v", str(nf), "-an",
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "16", "-pix_fmt", "yuv420p", "-threads", "2", part])
     parts.append(part)
 lst = f"{work}/parts.txt"
 open(lst, "w").write("".join(f"file '{p}'\n" for p in parts))
+cutv = f"{work}/cut_v.mp4"
+run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-c", "copy", cutv])
+# áudio: junta as amostras exatas de cada trecho, com micro-fade de 4 ms em cada emenda (sem estalo, sem vão)
+FADE = int(SR * 0.004)
+pieces = []
+for a, b in segs:
+    i0 = int(round(a * SR)); n = int(round((b - a) * FPS)) * (SR // FPS)
+    p = AUD[i0:i0 + n].astype(np.float32)
+    if len(p) < n: p = np.vstack([p, np.zeros((n - len(p), 2), np.float32)])
+    ramp = np.linspace(0, 1, FADE, dtype=np.float32)[:, None]
+    p[:FADE] *= ramp; p[-FADE:] *= ramp[::-1]
+    pieces.append(p)
+cuta = f"{work}/cut_a.wav"
+with _wave.open(cuta, "wb") as _wo:
+    _wo.setnchannels(2); _wo.setsampwidth(2); _wo.setframerate(SR)
+    _wo.writeframes(np.clip(np.vstack(pieces), -32768, 32767).astype(np.int16).tobytes())
 cut = f"{work}/cut.mp4"
-run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-c", "copy", cut])
-# duração real de cada trecho (ajusta o remap ao que foi codificado)
-real = [float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", p],
-        capture_output=True, text=True).stdout) for p in parts]
+run(["ffmpeg", "-v", "error", "-y", "-i", cutv, "-i", cuta, "-map", "0:v", "-map", "1:a", "-c:v", "copy",
+     "-c:a", "aac", "-b:a", "192k", "-shortest", cut])
 
 # ---------- 3. legendas (ASS) ----------
 def ts(t):
@@ -87,7 +125,7 @@ def clean(txt):
     return txt
 
 words = [{"w": w["word"], "s": w["start"], "e": w["end"]} for s in json.load(open(cfg["transcript"])) for w in s["words"]]
-def kept(t): return any(a - 0.05 <= t <= b + 0.05 for a, b in segs)
+def kept(t): return any(a - 0.02 <= t <= b + 0.02 for a, b in segs)
 words = [w for w in words if kept((w["s"] + w["e"]) / 2)]
 groups, g = [], []
 for w in words:

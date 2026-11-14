@@ -12,6 +12,8 @@ description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos esti
    - Usar algo que a pessoa fala no vídeo como gancho. Escrever "ttk" no lugar de "TikTok".
 2. **Começa sempre na fala.** Nada de trecho parado no início (o script corta até a primeira palavra).
 3. **Corta respiros e pausas**, e também frases repetidas, tentativas refeitas e tropeços (via `remove` no config).
+   - **Fala corrida entre takes:** os cortes seguem as palavras da transcrição, não o silêncio. Entre um take e outro sobra só uma folga mínima (`tail` 0,06s depois da última palavra + `lead` 0,03s antes da próxima), então a emenda soa como a pessoa falando sem parar, sem respiro nem olhada pra baixo. Pausas dentro da frase maiores que `gap_max` (0,25s) também são cortadas. Ajustáveis no config: `gap_max`, `lead`, `tail` (e `speech_db` para o nível de voz, se o áudio for muito baixo ou ruidoso).
+   - O áudio é montado de uma vez, amostra por amostra, alinhado ao quadro, com micro-fade de 4 ms em cada emenda: sem soluço, sem estalo e sem dessincronizar.
    - **Repetição/travada (estilos 1 e 2):** quando a pessoa trava e repete a palavra ou a frase, fica **só a última tentativa** (a mais firme) e o corte liga direto nela. Margem mínima de erro.
    - A transcrição (`scripts/transcribe.py`) é literal, mantém repetições; rodar `python3 -I scripts/dedupe.py transcricao.json` para listar as repetições e colocar cada uma em `remove`.
    - O transcritor às vezes ainda junta duas tentativas numa só: onde houver vão estranho entre palavras, retranscrever o trecho com `python3 -I scripts/trecho.py audio.wav INICIO FIM` antes de decidir o corte.
