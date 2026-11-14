@@ -102,9 +102,41 @@ for i, ((a, b), (ea, eb)) in enumerate(zip(segs, exato_final)):
         while b < alvo and _db(b, b + 0.02) <= _lim - 25: b += 0.02
     _s2.append((round(a, 3), round(b, 3)))
 segs = _s2
+# FALA CORRIDA (padrão): as bordas seguem a voz real, não o silêncio. Cada take começa `lead` antes da 1ª sílaba
+# e termina `tail` depois da última — sem respiro, pausa nem olhada pra baixo entre um take e outro. Pausas dentro
+# do take maiores que `gap_max` também saem. Respiração (puxada de ar) não conta como voz.
+if cfg.get("fala_corrida", True):
+    LEAD, TAIL, GMAX = cfg.get("lead", 0.03), cfg.get("tail", 0.06), cfg.get("gap_max", 0.25)
+    _hop = 160; _nn = len(_au) // _hop
+    _env = 20 * np.log10(np.sqrt((_au[:_nn * _hop].reshape(_nn, _hop) ** 2).mean(axis=1)) + 1e-9)
+    _thr = cfg.get("speech_db", max(-48.0, float(np.percentile(_env, 95)) - 28))
+    # voz FIRME (até ~22 dB abaixo do pico): respiração/puxada de ar fica abaixo disso e não conta como fala
+    _forte = cfg.get("voz_db", float(np.percentile(_env, 95)) - 22)
+    def _e(t): i = int(t * 100); return _env[i] if 0 <= i < _nn else -99
+    _fc = []
+    for (a, b), (ea, eb) in zip(segs, exato_final):
+        on = [t for t in np.arange(a, b, 0.01) if _e(t) > _forte]
+        if not on: continue
+        runs = [[on[0], on[0] + 0.01]]
+        for t in on[1:]:
+            if t - runs[-1][1] <= GMAX: runs[-1][1] = t + 0.01
+            else: runs.append([t, t + 0.01])
+        runs = [r for r in runs if r[1] - r[0] >= 0.05]  # estalo/barulho isolado não conta como fala
+        if not runs: continue
+        for j, (x, y) in enumerate(runs):
+            x0 = x  # ataque da consoante (k, t, s, f...) fica mais baixo: recua no máx. 60 ms
+            while x - 0.01 > max(a, x0 - 0.06) and _e(x - 0.01) > _thr - 12: x -= 0.01
+            y0 = y  # decaimento natural do fim da palavra: no máx. 0,12s
+            while y < min(b, y0 + 0.12) and _e(y) > _thr: y += 0.01
+            # borda exata também é apertada pra dentro até a voz (nunca passa do ponto marcado)
+            x = max(a, x - LEAD)
+            y = min(b, y + TAIL)
+            if _fc and x - _fc[-1][1] < 0.02: _fc[-1] = (_fc[-1][0], y)
+            else: _fc.append((x, y))
+    import math
+    segs = [(math.floor(a * FPS + 1e-6) / FPS, math.ceil(b * FPS - 1e-6) / FPS) for a, b in _fc]  # nunca come sílaba
+    segs = [(a, b) for a, b in segs if b - a >= 3 / FPS]
 json.dump(segs, open(f"{work}/segs.json", "w"))
-if cfg.get("dry"):  # só calcula os cortes (pra conferir), sem renderizar
-    print("segs:", [(round(a, 2), round(b, 2)) for a, b in segs]); sys.exit(0)
 
 # "segura imagem": {"v0": t} / {"v1": t} — o áudio fica inteiro, mas a imagem segura o 1º/último quadro
 # com ele de frente (esconde o giro de cabeça de 0,2–0,3s no começo/fim da fala sem cortar palavra)
@@ -162,15 +194,19 @@ for a, b in segs:
         v1, fe = b - ve, _fala_fim(a, b) + 0.04
         while fe < b0 and _db(fe, fe + 0.02) > _lim - 25: fe += 0.02   # fim real da voz (o detector erra um pouco)
         if v1 >= fe: b, ve = v1, 0                       # já tinha parado de falar: só corta antes
-        else: b, ve = fe, min(fe - v1, MAXC)             # ainda falando: corta no fim da fala, congela ≤ 0,1s
+        else: b, ve = min(fe, b0), min(min(fe, b0) - v1, MAXC)  # ainda falando: corta no fim da fala (nunca alarga)
     if vs > 0:
         v0, fi = a + vs, _fala_ini(a, b) - 0.04
         while fi > a0 and _db(fi - 0.02, fi) > _lim - 25: fi -= 0.02   # começo real da voz
         if v0 <= fi: a, vs = v0, 0                       # ainda não tinha começado a falar: só começa depois
-        else: a, vs = fi, min(v0 - fi, MAXC)
+        else: a, vs = max(fi, a0), min(v0 - max(fi, a0), MAXC)
     _novos.append((round(a, 3), round(b, 3))); _holds.append((vs, ve))
-segs = _novos
+import math
+# alinha ao quadro (áudio e vídeo com a mesma duração, sem dessincronizar) — o início arredonda pra trás, o fim pra frente
+segs = [(math.floor(a * FPS + 1e-6) / FPS, math.ceil(b * FPS - 1e-6) / FPS) for a, b in _novos]
 json.dump(segs, open(f"{work}/segs_final.json", "w"))
+if cfg.get("dry"):  # só calcula os cortes (segs.json e segs_final.json, pra conferir), sem renderizar
+    print("segs:", [(round(a, 2), round(b, 2)) for a, b in segs]); sys.exit(0)
 parts = []
 for i, (a, b) in enumerate(segs):
     p = f"{work}/p{i:03d}.mp4"
@@ -179,16 +215,33 @@ for i, (a, b) in enumerate(segs):
     if vs > 0 or ve > 0:
         hold = (f"trim=start={vs:.3f}:end={b - a - ve:.3f},setpts=PTS-STARTPTS,"
                 f"tpad=start_duration={vs:.3f}:start_mode=clone:stop_duration={ve:.3f}:stop_mode=clone,")
-    run(["ffmpeg", "-v", "error", "-y", "-ss", f"{a:.3f}", "-i", cfg["video"], "-t", f"{b - a:.3f}",
+    nf = round((b - a) * FPS)
+    run(["ffmpeg", "-v", "error", "-y", "-ss", f"{a:.4f}", "-i", cfg["video"], "-t", f"{b - a + 0.5:.3f}",
          "-vf", f"{hold}{HDR}scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS},setsar=1{TAG}{GRADE}",
-         "-af", f"afade=t=in:d=0.012,afade=t=out:st={max(0, b - a - 0.012):.3f}:d=0.012",
-         "-c:v", "libx264", "-preset", "veryfast", "-crf", "15", *ENC, "-c:a", "pcm_s16le", "-ar", "48000", p.replace(".mp4", ".mov")])
+         "-frames:v", str(nf), "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "15", *ENC, p.replace(".mp4", ".mov")])
     parts.append(p.replace(".mp4", ".mov"))
 open(f"{work}/list.txt", "w").write("".join(f"file '{p}'\n" for p in parts))
+cutv = f"{work}/cut_v.mov"
+run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", f"{work}/list.txt", "-c", "copy", cutv])
+# áudio montado de uma vez, amostra por amostra, alinhado ao quadro, micro-fade de 4 ms em cada emenda
+import wave as _wave
+SR = 48000; _wav = f"{work}/audio_src.wav"
+run(["ffmpeg", "-v", "error", "-y", "-i", cfg["video"], "-vn", "-ac", "2", "-ar", str(SR), "-c:a", "pcm_s16le", _wav])
+with _wave.open(_wav) as _wf: _AUD = np.frombuffer(_wf.readframes(_wf.getnframes()), np.int16).reshape(-1, 2)
+_F = int(SR * 0.004); _ramp = np.linspace(0, 1, _F, dtype=np.float32)[:, None]; _pcs = []
+for a, b in segs:
+    i0 = int(round(a * SR)); nn = round((b - a) * FPS) * (SR // FPS)
+    pc = _AUD[i0:i0 + nn].astype(np.float32)
+    if len(pc) < nn: pc = np.vstack([pc, np.zeros((nn - len(pc), 2), np.float32)])
+    pc[:_F] *= _ramp; pc[-_F:] *= _ramp[::-1]; _pcs.append(pc)
+cuta = f"{work}/cut_a.wav"
+with _wave.open(cuta, "wb") as _wo:
+    _wo.setnchannels(2); _wo.setsampwidth(2); _wo.setframerate(SR)
+    _wo.writeframes(np.clip(np.vstack(_pcs), -32768, 32767).astype(np.int16).tobytes())
 cut = f"{work}/cut.mov"
-run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", f"{work}/list.txt", "-c", "copy", cut])
-real = [float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", p],
-        capture_output=True, text=True).stdout) for p in parts]
+run(["ffmpeg", "-v", "error", "-y", "-i", cutv, "-i", cuta, "-map", "0:v", "-map", "1:a", "-c:v", "copy",
+     "-c:a", "pcm_s16le", cut])
+real = [round((b - a) * FPS) / FPS for a, b in segs]
 total = sum(real)
 
 def remap_fim(t):  # fim de um bloco: vai até o fim do trecho onde ele cai (sem sobrar quadro solto)

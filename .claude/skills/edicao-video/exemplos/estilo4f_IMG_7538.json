@@ -203,5 +203,7 @@
    "v1": 211.7
   }
  ],
- "congela_max": 0
+ "congela_max": 0,
+ "tail": 0.04,
+ "lead": 0.02
 }

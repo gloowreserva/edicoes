@@ -183,5 +183,7 @@
    "v1": 198.25
   }
  ],
- "congela_max": 0
+ "congela_max": 0,
+ "tail": 0.04,
+ "lead": 0.02
 }
