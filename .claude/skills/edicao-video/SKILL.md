@@ -58,6 +58,17 @@ Para vídeos **sem fala** (a pessoa só aparece fazendo algo, posando etc.). Nã
 
 ## Estilo de edição 4 (tráfego)
 
+> **Padrão aprovado pelo Vitor (vídeo 2 + CTA IMG_7569, 14/11/2026) — seguir sempre:**
+> 1. Baixar vídeo, `Cta Vídeos/` e `Sobreposição/`; transcrever o vídeo e os CTAs (`transcribe.py`, medium).
+> 2. Vídeo principal: mexer **só** no pedido — travada de tomada repetida (`--corta`), CTA antigo do fim ("se você quer entender… comenta glow") cortado no silêncio antes dele, e quadros parados/escuros de emenda (`--desliza`). Achar com `freezedetect` e `signalstats` (YAVG < 60).
+> 3. CTA: o **mais curto** da pasta, sem pausas, erros e repetições (vários pares `:INI:FIM`). Cor = só a conversão HDR→SDR, sem ajuste nenhum.
+> 4. Texto do hook/CTA em 3 linhas, **6s na tela** (`6.5 6`), sobreposição em cartão abaixo do rosto + seta pulando (`--seta --y 1390 --maxh 250 --maxw 440` com CTA de rosto fechado). Conferir que o cartão não cobre boca/queixo.
+> 5. Conferência final: 0 congelamentos, 0 quadros escuros, áudio = vídeo em duração, retranscrever as emendas, pele do CTA ≈ pele do principal (SATAVG/YAVG no centro do rosto).
+> 6. Comando de referência:
+>    `python3 -I scripts/cta_video.py 2.mp4 55.95 out cta_IMG_7569.MOV:0.92:6.40:6.60:9.17 --corta 32.30-33.40 --desliza 23.867-24.034:23.67 --desliza 50.567-50.767:50.40`
+>    `python3 -I scripts/trafego.py out/2_cta_cta_IMG_7569.mp4 IMG_7558.jpg final.mp4 "Toca em “saiba mais” para entender\nde graça o que muitos te\ncobrariam caro pra ensinar!" 6.5 6 --sem-qualidade --seta --y 1390 --maxh 250 --maxw 440`
+
+
 Para vídeos **que já foram postados e já estão editados** (geralmente salvos do TikTok), usados em tráfego pago. Não seguem os padrões dos estilos 1, 2 e 3.
 
 - **Não mexer em nada do vídeo**: sem cortes, sem hook, sem legenda, sem zoom, sem selo, sem música. Só o que está listado aqui.
