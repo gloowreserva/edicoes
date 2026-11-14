@@ -46,6 +46,13 @@ sel = "".join(f"*not(between(t,{a},{b}))" for a, b in falhas)
 q = "hqdn3d=1.5:1.5:3:3,scale=1080:1920:flags=lanczos,cas=0.6,eq=contrast=1.04:saturation=1.08,setsar=1,format=yuv420p"
 # trechos mantidos: vídeo e áudio separados (o --desliza tira quadros parados do vídeo e o mesmo tempo
 # de silêncio do áudio logo antes, mantendo a fala sincronizada depois da emenda)
+# todo corte alinhado na grade de quadros (1/30 s): vídeo e áudio perdem exatamente o mesmo tempo (sem
+# isso a sincronia da boca escorregava 1–2 quadros depois de cada emenda)
+def q30(t): return round(t * 30) / 30
+cortes = [(q30(a), q30(b)) for a, b in cortes]
+desliza = [(q30(a), q30(b), q30(c)) for a, b, c in desliza]
+estica = [(q30(x), q30(y), q30(z)) for x, y, z in estica]
+corte = q30(corte)
 vcut = sorted(cortes + [(a, b) for a, b, _ in desliza])
 acut = sorted(cortes + [(c, c + (b - a)) for a, b, c in desliza])
 def mantidos(cs):
@@ -64,7 +71,8 @@ fc = []
 for k, (a, b) in enumerate(kv):
     f = fator.get((a, b))
     lento = f"setpts=(PTS-STARTPTS)*{f:.5f},minterpolate=fps=30:mi_mode=mci:mc_mode=aobmc:vsbmc=1," if f else ""
-    fc.append(f"[0:v]trim={a}:{b},{'select=' + repr('1' + sel) + ',' if falhas else ''}fps=30,setpts=PTS-STARTPTS,{lento}fps=30,{q}[v{k}]")
+    # 1 ms antes do quadro: o trim pega exatamente os quadros [a, b) sem erro de ponto flutuante
+    fc.append(f"[0:v]trim={max(0, a - 0.001):.4f}:{b - 0.001:.4f},{'select=' + repr('1' + sel) + ',' if falhas else ''}fps=30,setpts=PTS-STARTPTS,{lento}fps=30,{q}[v{k}]")
 for k, (a, b) in enumerate(ka):
     fc.append(f"[0:a]atrim={a}:{b},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo[a{k}]")
 fc.append("".join(f"[v{k}]" for k in range(len(kv))) + f"concat=n={len(kv)}:v=1:a=0[{'vc' if trocas else 'v'}]")
