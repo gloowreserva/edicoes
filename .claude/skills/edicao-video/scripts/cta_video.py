@@ -11,8 +11,7 @@ uso: python3 -I cta_video.py VIDEO CORTE_FIM SAIDA_DIR CTA1.mov[:INI:FIM[:INI:FI
               viram o primeiro quadro bom da cena seguinte (sem congelar a cena anterior; áudio intacto)
   --desliza VINI-VFIM:AINI : quadros parados/escuros numa emenda: tira VINI-VFIM do vídeo e o mesmo tempo
               do áudio a partir de AINI (um silêncio logo antes); a fala segue sincronizada depois da emenda
-  --cor-cta FILTRO : ajuste de cor extra só no CTA, pra pele bater com o vídeo principal (medir com signalstats
-              no centro do rosto: YAVG, SATAVG, UAVG, VAVG). Usar hue=h=..:s=.. (não mexe no branco), não lutyuv.
+  --cor-cta FILTRO : ajuste de cor extra só no CTA. Padrão: nenhum (o CTA fica como o arquivo original).
   --corta   : trecho do original a remover (vídeo e áudio), ex.: travada/pausa em que a mesma cena aparece duas vezes
 """
 import json, os, subprocess, sys
@@ -76,14 +75,14 @@ for c in ctas:
     nome = os.path.splitext(os.path.basename(path))[0]
     saida = os.path.join(outdir, f"{os.path.splitext(os.path.basename(video))[0]}_cta_{nome}.mp4")
     ganho = alvo - loud(path)
-    # iPhone grava em HDR (HLG/PQ): sem tone mapping a cor fica lavada ("fantasma"); converte para SDR
-    # e aplica o mesmo ajuste de cor do vídeo principal, para a paleta ficar igual do começo ao fim
+    # iPhone grava em HDR (HLG/PQ): sem tone mapping a cor fica lavada ("fantasma"); converte para SDR.
+    # Só a conversão, sem ajuste de cor por cima (pedido do Vitor: CTA igual ao arquivo do Drive)
     trc = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=color_transfer",
-                          "-of", "csv=p=0", path], capture_output=True, text=True).stdout.strip()
+                          "-of", "csv=p=0", path], capture_output=True, text=True).stdout.strip().rstrip(",")  # ffprobe devolve "arib-std-b67,"
     hdr = (f"zscale=tin={trc}:min=bt2020nc:pin=bt2020:rin=tv:t=linear:npl=203,format=gbrpf32le,zscale=p=bt709,"
            "tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,") if trc in ("arib-std-b67", "smpte2084") else ""
     cut = []
-    fc = f"[1:v]{hdr}scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=30,eq=contrast=1.04:saturation=1.08,{cor_cta}setsar=1,format=yuv420p,split={len(trechos)}" \
+    fc = f"[1:v]{hdr}scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=30,{cor_cta}setsar=1,format=yuv420p,split={len(trechos)}" \
          + "".join(f"[cs{k}]" for k in range(len(trechos))) + f";[1:a]aresample=48000,aformat=channel_layouts=stereo,volume={ganho:.2f}dB,asplit={len(trechos)}" \
          + "".join(f"[as{k}]" for k in range(len(trechos))) + ";"
     for k, (ini, fim) in enumerate(trechos):
