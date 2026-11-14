@@ -12,6 +12,9 @@ uso: python3 -I cta_video.py VIDEO CORTE_FIM SAIDA_DIR CTA1.mov[:INI:FIM[:INI:FI
   --desliza VINI-VFIM:AINI : quadros parados/escuros numa emenda: tira VINI-VFIM do vídeo e o mesmo tempo
               do áudio a partir de AINI (um silêncio logo antes); a fala segue sincronizada depois da emenda
   --cor-cta FILTRO : ajuste de cor extra só no CTA. Padrão: nenhum (o CTA fica como o arquivo original).
+  --estica INI-FIM-ATE : quadros parados NO MEIO DA FALA (sem silêncio pro --desliza), em cena sem boca (tela,
+              b-roll): a cena INI-FIM é desacelerada com interpolação de movimento (minterpolate) e cobre até ATE;
+              os quadros FIM-ATE saem. Áudio intacto. Manter a velocidade >= ~80%.
   --corta   : trecho do original a remover (vídeo e áudio), ex.: travada/pausa em que a mesma cena aparece duas vezes
 """
 import json, os, subprocess, sys
@@ -19,6 +22,9 @@ import json, os, subprocess, sys
 args = sys.argv[1:]
 falhas, cortes, trocas, desliza = [], [], [], []
 cor_cta = ""
+estica = []  # (ini, fim, ate): a cena [ini, fim] fica mais lenta e cobre até "ate" (some com fim..ate)
+while "--estica" in args:
+    i = args.index("--estica"); x, y, z = map(float, args[i + 1].split("-")); estica.append((x, y, z)); del args[i:i + 2]
 if "--cor-cta" in args:
     i = args.index("--cor-cta"); cor_cta = args[i + 1] + ","; del args[i:i + 2]
 while "--desliza" in args:
@@ -47,16 +53,24 @@ def mantidos(cs):
     for a, b in cs:
         keep.append((t0, a)); t0 = b
     keep.append((t0, corte)); return keep
-kv, ka = mantidos(vcut), mantidos(acut)
+kv, ka = mantidos(sorted(vcut + [(y, z) for _, y, z in estica])), mantidos(acut)
+for x, y, z in estica:  # separa a cena a esticar num pedaço próprio
+    novo = []
+    for a, b in kv:
+        novo += [(a, x), (x, b)] if a < x < b else [(a, b)]
+    kv = novo
+fator = {(x, y): (z - x) / (y - x) for x, y, z in estica}
 fc = []
 for k, (a, b) in enumerate(kv):
-    fc.append(f"[0:v]trim={a}:{b},{'select=' + repr('1' + sel) + ',' if falhas else ''}fps=30,setpts=PTS-STARTPTS,{q}[v{k}]")
+    f = fator.get((a, b))
+    lento = f"setpts=(PTS-STARTPTS)*{f:.5f},minterpolate=fps=30:mi_mode=mci:mc_mode=aobmc:vsbmc=1," if f else ""
+    fc.append(f"[0:v]trim={a}:{b},{'select=' + repr('1' + sel) + ',' if falhas else ''}fps=30,setpts=PTS-STARTPTS,{lento}fps=30,{q}[v{k}]")
 for k, (a, b) in enumerate(ka):
     fc.append(f"[0:a]atrim={a}:{b},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo[a{k}]")
 fc.append("".join(f"[v{k}]" for k in range(len(kv))) + f"concat=n={len(kv)}:v=1:a=0[{'vc' if trocas else 'v'}]")
 fc.append("".join(f"[a{k}]" for k in range(len(ka))) + f"concat=n={len(ka)}:v=0:a=1[a]")
 def novo_t(t):  # tempo do original -> tempo na base (descontando os cortes de vídeo antes dele)
-    return t - sum(b - a for a, b in vcut if b <= t)
+    return t - sum(b - a for a, b in vcut if b <= t)  # o --estica não muda o tempo (o que sai é coberto pela cena mais lenta)
 extra = []
 ult = "vc"
 for k, (a, b) in enumerate(trocas):
