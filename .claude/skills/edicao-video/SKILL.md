@@ -75,6 +75,10 @@ Para vídeos **que já foram postados e já estão editados** (geralmente salvos
   - **Mesma paleta de cor do começo ao fim**: CTA gravado no iPhone vem em HDR e fica com cor lavada ("fantasma") se não for convertido. O script converte para cor normal (tone mapping) e aplica o mesmo ajuste de cor do vídeo principal.
   - Sinalizar CTA com promessa de ganho (ex.: "300 reais em menos de 10 dias").
   - Script: `python3 -I scripts/cta_video.py VIDEO CORTE_FIM PASTA_SAIDA CTA1.mov:INI:FIM CTA2.mov:INI:FIM ... --falha INI-FIM`.
+  - **Pausas e repetições do CTA**: vários pares no mesmo CTA (`CTA.mov:0.92:6.40:6.60:9.17`) emendam só a fala boa. Usar o CTA mais curto que tiver (pedido do Vitor: nada de CTA grande).
+  - **Travada de tomada repetida** (ex.: vídeo 2, 32–33s: ele diz que vai mostrar o app, a tela aparece muda e depois aparece de novo com ele falando): `--corta INI-FIM` do fim da fala até a 2ª tomada, pra já cair nele falando e mostrando.
+  - **Zero travada (regra do Vitor: "fluxo de água")**: o vídeo salvo do TikTok pode ter 5 quadros parados + quadro escuro numa emenda. Usar `--desliza VINI-VFIM:AINI`: tira os quadros parados/escuros do vídeo e o mesmo tempo de um silêncio logo antes no áudio, então a fala segue sincronizada. Conferir no final: `freezedetect=n=0.002:d=0.15` = 0 e nenhum quadro com YAVG < 60 (`signalstats`).
+  - Sobreposição no CTA com enquadramento fechado no rosto: `--y 1390 --maxh 250 --maxw 440` (o cartão de 1290 cobria boca e queixo).
 - **Seta para baixo** (branca com contorno preto, pulando) abaixo da sobreposição, junto com o CTA: os vídeos de tráfego rodam em **anúncio do Facebook**, e o botão "Saiba mais" fica embaixo.
 - **Vídeo com CTA em vídeo + CTA escrito**: depois do `cta_video.py`, aplicar o CTA escrito + sobreposição + seta por cima, sem refazer a qualidade:
   `python3 -I scripts/trafego.py VIDEO_CTA.mp4 SOBREPOSICAO SAIDA "LINHA1\nLINHA2\nLINHA3" --sem-qualidade --seta --y 1290 --maxh 360 --maxw 520`
