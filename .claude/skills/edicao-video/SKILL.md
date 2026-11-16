@@ -66,8 +66,13 @@ Continuar a alternância de onde o lote anterior parou.
 
 ## Pessoas
 
-- **Mat (Matheus)**: barbudo, olhos claros.
+- **Wellington**: barbudo, de óculos.
+- **Mat (Matheus)**: sem óculos.
 - **Samuca**: cara limpa, cabelo grande.
+
+## Nome dos arquivos
+
+Salvar cada vídeo editado com o nome da pessoa na frente, pra facilitar subir no Drive: `Pessoa_NUMERO_estiloN.mp4` (ex.: `Wellington_1628_estilo1.mp4`, `Samuca_7617_estilo3_v2.mp4`).
 
 ## Passo a passo
 
