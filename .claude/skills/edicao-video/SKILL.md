@@ -53,6 +53,7 @@ Para vídeos falados mais longos. Mesma linha dos estilos 1 e 2 (começa na fala
 - **Zoom só nas falas importantes** (`"zoom_at": [[ini, fim], ...]` em tempo do original, `"zoom": 1.15`): a frase-chave, o número, a virada, a chamada. Fora disso, sem zoom.
 - **Sem legenda** (`"captions": false`).
 - **Sobreposições só o suficiente**: 1 a 3, em janela no topo (`"type": "pip"`).
+- Legenda (estilo 1): erro de palavra que o `replace` não pega (frase quebrada entre blocos) corrige com `"word_fix": {"inicio_da_palavra": "texto"}` ("" apaga).
 
 ## Lotes com vários estilos do mesmo bruto
 

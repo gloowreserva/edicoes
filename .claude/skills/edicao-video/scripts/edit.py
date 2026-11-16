@@ -136,7 +136,11 @@ def clean(txt):
 
 words = [{"w": w["word"], "s": w["start"], "e": w["end"]} for s in json.load(open(cfg["transcript"])) for w in s["words"]]
 def kept(t): return any(a - 0.02 <= t <= b + 0.02 for a, b in segs)
-words = [w for w in words if kept((w["s"] + w["e"]) / 2)]
+# "word_fix": {"inicio_da_palavra": "texto novo"} corrige palavra a palavra na legenda ("" apaga a palavra)
+for w in words:
+    k = f'{w["s"]:.2f}'
+    if k in cfg.get("word_fix", {}): w["w"] = cfg["word_fix"][k]
+words = [w for w in words if kept((w["s"] + w["e"]) / 2) and w["w"].strip()]
 groups, g = [], []
 for w in words:
     g.append(w)
