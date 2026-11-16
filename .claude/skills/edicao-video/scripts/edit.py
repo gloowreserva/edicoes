@@ -1,4 +1,4 @@
-"""Edição Gloow (estilos 1 e 2): começa na fala, cortes em fala corrida (guiados pelas palavras, sem respiro entre takes), hook, legenda animada (opcional), zoom alternado (opcional), sobreposições em cartão, janela no topo ou tela cheia, selo de comentário.
+"""Edição Gloow (estilos 1, 2 e 4): começa na fala, cortes em fala corrida (guiados pelas palavras, sem respiro entre takes), hook, legenda animada (opcional), zoom alternado (opcional), sobreposições em cartão, janela no topo ou tela cheia, selo de comentário.
 Uso: python3 -I edit.py config.json
 """
 import json, os, re, subprocess, sys
@@ -80,10 +80,20 @@ total = sum(b - a for a, b in segs)
 
 # ---------- 2. cortes + zoom alternado (vídeo trecho por trecho; áudio montado de uma vez) ----------
 z = cfg.get("zoom", 1.10)
+# estilo 4: "zoom_at" = trechos [ini, fim] (tempo do original) com zoom só nas falas importantes.
+# Os trechos de vídeo são divididos nas bordas desses intervalos (o áudio não muda).
+zoom_at = [tuple(x) for x in cfg.get("zoom_at", [])]
+vsegs = []
+for a, b in segs:
+    cuts = sorted({a, b, *[t for r in zoom_at for t in r if a < t < b]})
+    cuts = [round(t * FPS) / FPS for t in cuts]
+    for x, y in zip(cuts, cuts[1:]):
+        if y - x >= 1 / FPS: vsegs.append((x, y, any(r0 <= (x + y) / 2 <= r1 for r0, r1 in zoom_at)))
+if not zoom_at: vsegs = [(a, b, i % 2 == 1) for i, (a, b) in enumerate(segs)]
 parts = []
-for i, (a, b) in enumerate(segs):
+for i, (a, b, zoomed) in enumerate(vsegs):
     v = f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H}"
-    if i % 2 == 1 and z > 1.001:
+    if zoomed and z > 1.001:
         zw, zh = int(W * z) // 2 * 2, int(H * z) // 2 * 2
         v += f",scale={zw}:{zh},crop={W}:{H}:{(zw-W)//2}:{int((zh-H)*0.35)}"
     v += f",fps={FPS},setsar=1"
@@ -145,6 +155,7 @@ WrapStyle: 0
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Cap,Inter,80,&H00FFFFFF,&H00FFFFFF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,6,2,2,60,60,560,1
 Style: Hook,Inter SemiBold,68,&H00FFFFFF,&H00FFFFFF,&H00000000,&H78000000,-1,0,0,0,100,100,0,0,1,5,2,8,90,90,300,1
+Style: HookBox,Inter,64,&H00000000,&H00000000,&H00FFFFFF,&H00FFFFFF,-1,0,0,0,100,100,0,0,3,18,0,8,110,110,300,1
 Style: Sticker,Inter,70,&H00FFFFFF,&H00FFFFFF,&H00B469FF,&H00000000,-1,0,0,0,100,100,0,0,3,22,0,5,60,60,0,1
 
 [Events]
@@ -156,7 +167,7 @@ for i, g in enumerate(groups if cfg.get("captions", True) else []):
     ass.append(f"Dialogue: 1,{ts(a)},{ts(b)},Cap,,0,0,0,,{pop}{txt}")
 
 hook = cfg["hook"]
-ass.append(f"Dialogue: 2,{ts(0)},{ts(hook['dur'])},Hook,,0,0,0,,"
+ass.append(f"Dialogue: 2,{ts(0)},{ts(hook['dur'])},{'HookBox' if hook.get('style') == 'box' else 'Hook'},,0,0,0,,"
            r"{\fad(120,200)\fscx85\fscy85\t(0,180,\fscx103\fscy103)\t(180,280,\fscx100\fscy100)}" + hook["text"].replace("\n", r"\N"))
 for st in cfg.get("stickers", []):
     a, b = remap(st["start"]), remap(st["end"])

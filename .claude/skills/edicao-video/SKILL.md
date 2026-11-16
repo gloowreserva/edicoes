@@ -1,9 +1,9 @@
 ---
 name: edicao-video
-description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1, 2 e 3 (1 e 2 para vídeos falados: hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; 1 com legenda e zoom, 2 limpo e sem legenda; 3 para B-roll sem fala: texto na tela e música do início ao fim). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
+description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1, 2, 3 e 4 (1, 2 e 4 para vídeos falados; 4 = vídeo longo, hook em caixa, zoom só nas falas importantes, sem legenda: hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; 1 com legenda e zoom, 2 limpo e sem legenda; 3 para B-roll sem fala: texto na tela e música do início ao fim). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
 ---
 
-# Edição de vídeo — Estilos de edição 1, 2 e 3
+# Edição de vídeo — Estilos de edição 1, 2, 3 e 4
 
 ## Regras que valem para os dois estilos
 
@@ -44,6 +44,19 @@ description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos esti
 - **Menos informação**: 2 a 3 sobreposições, só as realmente necessárias, todas em janela no topo (`"type": "pip"`).
 - Hook e selo de comentário iguais ao estilo 1.
 - Exemplo: `exemplos/estilo2_IMG_7486.json`.
+
+## Estilo de edição 4 (vídeo longo)
+
+Para vídeos falados mais longos. Mesma linha dos estilos 1 e 2 (começa na fala, cortes de respiro/repetição, selo de comentário), com estas diferenças:
+
+- **Hook diferente**: caixa branca com texto preto no topo (`"hook": {"style": "box", ...}`), frase em formato de pergunta/curiosidade, 2–3 linhas curtas.
+- **Zoom só nas falas importantes** (`"zoom_at": [[ini, fim], ...]` em tempo do original, `"zoom": 1.15`): a frase-chave, o número, a virada, a chamada. Fora disso, sem zoom.
+- **Sem legenda** (`"captions": false`).
+- **Sobreposições só o suficiente**: 1 a 3, em janela no topo (`"type": "pip"`).
+
+## Lotes com vários estilos do mesmo bruto
+
+Quando o Vitor pedir, cada bruto é editado nos estilos 1, 2 e 4 (3 versões do mesmo vídeo, com hooks diferentes). Lotes grandes vão em remessas de 6 brutos (18 vídeos).
 
 ## Estilo de edição 3 (B-roll)
 
