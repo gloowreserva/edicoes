@@ -34,4 +34,7 @@
 11. Enquanto você ainda acha que precisa aparecer pra vender, tem gente curtindo a noite com vídeo pronto postado de manhã no app rosa. Quer entender como? Comenta "app rosa".
 12. Tem gente com poucos seguidores postando 1 vídeo pronto por dia no app rosa e vendendo de onde estiver. Quer começar do zero também? Entra no meu perfil.
 
-Variantes já usadas em vídeos: 1–12 (criar novas para os próximos B-rolls).
+13. Enquanto você espera ter muitos seguidores pra começar, tem gente com conta nova postando vídeo pronto de marca famosa no app rosa e fazendo a primeira venda. Entra no meu perfil pra entender.
+14. Passei meses quebrando a cabeça no ttk sem vender nada. Aí descobri o app rosa: a marca entrega o vídeo pronto e eu só posto. Quer entender como? Comenta "app rosa".
+
+Variantes já usadas em vídeos: 1–14 (criar novas para os próximos B-rolls).

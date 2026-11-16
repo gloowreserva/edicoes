@@ -21,7 +21,8 @@ description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos esti
 4. **Selo rosa** "comenta PALAVRA" quando a pessoa pede o comentário.
 5. **Sobreposições no momento da fala que combina** (quando fala do app, das marcas, da comunidade).
    - Vídeo de tela do app → **janela no topo** (`"type": "pip"`), nunca tela cheia. Gravação de tela que muda rápido vira quadro parado da tela certa.
-   - Janela: borda arredondada + sombra, no topo, do lado da cabeça (pode pegar no rosto), bem visível, dentro da área segura do TikTok (abaixo de "Seguindo | Para você", longe dos botões da direita). Padrão: `"size": [560, 600], "y": 220`. Pessoa muito perto da câmera: janela menor no canto (`"size": [420, 450], "x": 50, "y": 200`).
+   - Janela: borda arredondada + sombra, no topo, do lado da cabeça (pode pegar no rosto), bem visível, dentro da área segura do TikTok (abaixo de "Seguindo | Para você", longe dos botões da direita). Padrão: `"size": [560, 600], "y": 220`. Pessoa muito perto da câmera: janela menor no canto (`"size": [420, 450], "x": 50, "y": 200`) — é o caso do Mat.
+   - Cartão de imagem larga (ícones, print baixo): `"maxw": 760, "y": 130`, pra ficar acima dos olhos.
    - Se no vídeo bruto a pessoa já mostra o app no celular, deixar rodar sem cobrir.
    - Não colocar print de prova social de outra pessoa logo depois de alguém falar do próprio faturamento (parece que é dele).
    - Perfil só da própria pessoa do vídeo (perfil "Samuca Sem Dores" só em vídeo do Samuca).
@@ -47,6 +48,7 @@ description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos esti
 ## Estilo de edição 3 (B-roll)
 
 Para vídeos **sem fala** (a pessoa só aparece fazendo algo, posando etc.). Não precisa transcrever nem analisar o áudio.
+- Num lote misturado, B-roll sai no estilo 3 e não conta na alternância 1/2. Sinal de B-roll na transcrição: o Whisper devolve só o próprio prompt ("Transcreva literalmente...") ou "É, é, eu, eu".
 
 - **Texto na tela do primeiro ao último quadro**, sem fade: variante nova a partir do banco `hooks.md` (não reutilizar os de referência; não mencionar "2 mil seguidores") (formato viral, 2–3 frases, terminando com chamada tipo "Entra no meu perfil"). **No topo, dentro da área segura do TikTok**: começa ~300px abaixo do topo (abaixo de "Seguindo | Para você"), margem esquerda 90px e direita 150px (longe da foto de perfil, curtir, comentar), branco com contorno preto, mesmo tamanho. Nem colado no topo, nem no meio da tela. Sem emoji (a fonte não desenha). "ttk" no lugar de TikTok quando aparecer.
 - **Música embutida no arquivo, do primeiro ao último segundo**, já no volume cheio (pular silêncio/introdução da faixa). Os vídeos vão para uma pasta de postagem automática, então a música tem que estar no arquivo.
