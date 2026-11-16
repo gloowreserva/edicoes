@@ -1,0 +1,41 @@
+{
+ "video": "PASTA_TRABALHO/v.mov",
+ "transcript": "PASTA_TRABALHO/v.json",
+ "work": "PASTA_TRABALHO/w",
+ "output": "PASTA_TRABALHO/Nulle_Mat_sobreposicoes.mp4",
+ "keep": [
+  [
+   0,
+   999
+  ]
+ ],
+ "sem_cortes": true,
+ "captions": "nenhuma",
+ "recaption": false,
+ "overlays": [
+  {
+   "at": 0.4,
+   "dur": 3.4,
+   "file": "PASTA_DRIVE/Sobreposicoes/IMG_6286.PNG",
+   "w": 380,
+   "x": 350,
+   "y": 190
+  },
+  {
+   "at": 47.2,
+   "dur": 3.7,
+   "file": "PASTA_DRIVE/Sobreposicoes/IMG_6298.jpg",
+   "w": 330,
+   "x": 60,
+   "y": 250
+  },
+  {
+   "at": 61.2,
+   "dur": 3.6,
+   "file": "PASTA_DRIVE/Sobreposicoes/IMG_6292.PNG",
+   "w": 300,
+   "x": 390,
+   "y": 190
+  }
+ ]
+}
