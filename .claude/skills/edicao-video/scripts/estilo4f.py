@@ -105,6 +105,12 @@ segs = _s2
 # FALA CORRIDA (padrão): as bordas seguem a voz real, não o silêncio. Cada take começa `lead` antes da 1ª sílaba
 # e termina `tail` depois da última — sem respiro, pausa nem olhada pra baixo entre um take e outro. Pausas dentro
 # do take maiores que `gap_max` também saem. Respiração (puxada de ar) não conta como voz.
+import math
+def _q(t, fim=0):  # alinha ao quadro. "junto" (padrão): quadro mais próximo (desloca ≤ 16 ms, menos que lead/tail);
+    # "largo": começo pra trás e fim pra frente (até 66 ms a mais de silêncio por emenda)
+    if cfg.get("alinha", "junto") == "largo":
+        return (math.ceil(t * FPS - 1e-6) if fim else math.floor(t * FPS + 1e-6)) / FPS
+    return round(t * FPS) / FPS
 if cfg.get("fala_corrida", True):
     LEAD, TAIL, GMAX = cfg.get("lead", 0.03), cfg.get("tail", 0.06), cfg.get("gap_max", 0.25)
     _hop = 160; _nn = len(_au) // _hop
@@ -134,7 +140,7 @@ if cfg.get("fala_corrida", True):
             if _fc and x - _fc[-1][1] < 0.02: _fc[-1] = (_fc[-1][0], y)
             else: _fc.append((x, y))
     import math
-    segs = [(math.floor(a * FPS + 1e-6) / FPS, math.ceil(b * FPS - 1e-6) / FPS) for a, b in _fc]  # nunca come sílaba
+    segs = [(_q(a), _q(b, 1)) for a, b in _fc]
     segs = [(a, b) for a, b in segs if b - a >= 3 / FPS]
 json.dump(segs, open(f"{work}/segs.json", "w"))
 
@@ -203,7 +209,7 @@ for a, b in segs:
     _novos.append((round(a, 3), round(b, 3))); _holds.append((vs, ve))
 import math
 # alinha ao quadro (áudio e vídeo com a mesma duração, sem dessincronizar) — o início arredonda pra trás, o fim pra frente
-segs = [(math.floor(a * FPS + 1e-6) / FPS, math.ceil(b * FPS - 1e-6) / FPS) for a, b in _novos]
+segs = [(_q(a), _q(b, 1)) for a, b in _novos]
 json.dump(segs, open(f"{work}/segs_final.json", "w"))
 if cfg.get("dry"):  # só calcula os cortes (segs.json e segs_final.json, pra conferir), sem renderizar
     print("segs:", [(round(a, 2), round(b, 2)) for a, b in segs]); sys.exit(0)
