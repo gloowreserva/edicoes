@@ -87,6 +87,8 @@ Continuar a alternância de onde o lote anterior parou.
 
 ## Material de apoio no Drive (pasta do Vitor)
 
+- Link da pasta (compartilhada por link): https://drive.google.com/drive/folders/1F5pPZWobbu1MBXVk02zgwwoMP2AhnKVS — os brutos novos também chegam aqui.
+
 - `Provas Sociais/`: prints do Telegram ("primeira venda").
 - `Sobreposições/`: ícones com o Gloow App circulado, perfil "Samuca Sem Dores", vídeo do perfil, gravação de tela do app.
 - Gravação de tela do app (`copy_3AAD4AD4-...mov`, 94s) — bons quadros parados: 6,5s "Marcas Virais"; 9s página da Nulle (com "Vídeos Prontos"); 11s links de afiliação com comissão; 23s site da Nulle ("regular seu cortisol").
