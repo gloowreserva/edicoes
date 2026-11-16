@@ -4,6 +4,7 @@ Uso: python3 -I estilo4f.py config.json
 config:
   video, transcript (json do transcribe.py), work, output
   keep: [[ini, fim], ...]   trechos do BRUTO que ficam (a melhor tomada de cada frase), em ordem
+  sem_cortes: true          vídeo já editado ("edição simples"): não corta nada, só legenda + sobreposição
   gap: 0.28                 pausa entre palavras acima disso é cortada (respiro)
   captions: "palavra"       1 palavra por vez, CAIXA ALTA branca com contorno (ref. 01/06/09)
             "destaque"      2-4 palavras, caixa alta, palavra-chave amarela (ref. 02)
@@ -67,7 +68,7 @@ def _db(t0, t1):
     x = _au[max(0, int(t0 * 16000)):int(t1 * 16000)]
     return 20 * np.log10(np.sqrt(np.mean(x ** 2)) + 1e-9) if len(x) else -99
 _lim = np.percentile([_db(t, t + 0.05) for t in np.arange(0, len(_au) / 16000 - 0.05, 0.05)], 90) - 16
-if cfg.get("apara_olhar", True):
+if cfg.get("apara_olhar", True) and not cfg.get("sem_cortes"):
     # presença: apara as pontas do trecho onde ele já desviou o olhar (pro roteiro/pacote) — no máx. 0,35s
     import cv2
     _fd = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
@@ -142,6 +143,8 @@ if cfg.get("fala_corrida", True):
     import math
     segs = [(_q(a), _q(b, 1)) for a, b in _fc]
     segs = [(a, b) for a, b in segs if b - a >= 3 / FPS]
+if cfg.get("sem_cortes"):  # vídeo JÁ editado (edição simples): não corta nada, só legenda + sobreposição
+    segs = [(0.0, round(len(_au) / 16000 * FPS) / FPS)]
 json.dump(segs, open(f"{work}/segs.json", "w"))
 
 # "segura imagem": {"v0": t} / {"v1": t} — o áudio fica inteiro, mas a imagem segura o 1º/último quadro
@@ -157,7 +160,7 @@ GRADE = "," + cfg["grade"] if cfg.get("grade") else (",eq=brightness=0.05:contra
 if cfg.get("grade") == "nenhum": GRADE = ""
 # segura imagem AUTOMÁTICO: em todo começo/fim de trecho, se ele já está virando o rosto, a imagem segura
 # o quadro firme mais próximo (máx. 0,5s) e o áudio segue inteiro
-if cfg.get("segura_auto", True):
+if cfg.get("segura_auto", True) and not cfg.get("sem_cortes"):
     import cv2
     _fd2 = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
     _cp = cv2.VideoCapture(cfg["video"])

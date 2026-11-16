@@ -1,0 +1,105 @@
+{
+ "video": "PASTA_TRABALHO/simples_3.mov",
+ "transcript": "PASTA_TRABALHO/simples_3.json",
+ "work": "PASTA_TRABALHO/ws3",
+ "output": "PASTA_TRABALHO/Nulle_simples_3_leg_sobre.mp4",
+ "keep": [
+  [
+   0,
+   999
+  ]
+ ],
+ "sem_cortes": true,
+ "captions": "palavra",
+ "cap_y": 1480,
+ "replace": {
+  "\\bnull?[iy]\\b": "Nulle",
+  "\\banule\\b": "a Nulle",
+  "^enxada$": "inchada",
+  "melotonina": "melatonina",
+  "^nule$": "Nulle",
+  "\\bdilua\\b": "de lua",
+  "seratonina": "serotonina"
+ },
+ "congela_max": 0,
+ "overlays": [
+  {
+   "at": 0.45,
+   "dur": 1.75,
+   "file": "PASTA_DRIVE/Sobreposicoes/c_baixo.png",
+   "w": 360,
+   "x": 360,
+   "y": 190
+  },
+  {
+   "at": 2.2,
+   "dur": 2.5,
+   "file": "PASTA_DRIVE/Sobreposicoes/c_medio.png",
+   "w": 360,
+   "x": 360,
+   "y": 190
+  },
+  {
+   "at": 4.7,
+   "dur": 1.3,
+   "file": "PASTA_DRIVE/Sobreposicoes/c_alto.png",
+   "w": 360,
+   "x": 360,
+   "y": 190
+  },
+  {
+   "at": 30.3,
+   "dur": 3.4,
+   "file": "PASTA_DRIVE/Sobreposicoes/a92333fc.jpg",
+   "w": 260,
+   "x": 770,
+   "y": 190
+  },
+  {
+   "at": 41.0,
+   "dur": 4.2,
+   "file": "PASTA_DRIVE/Sobreposicoes/IMG_6721.PNG",
+   "w": 480,
+   "x": 300,
+   "y": 190
+  },
+  {
+   "at": 64.8,
+   "dur": 3.4,
+   "file": "PASTA_DRIVE/Sobreposicoes/IMG_6152.PNG",
+   "w": 440,
+   "x": 320,
+   "y": 190
+  },
+  {
+   "at": 113.4,
+   "dur": 3.4,
+   "file": "PASTA_DRIVE/Sobreposicoes/IMG_6292.PNG",
+   "w": 280,
+   "x": 740,
+   "y": 190
+  },
+  {
+   "at": 134.7,
+   "dur": 4.0,
+   "file": "PASTA_DRIVE/Sobreposicoes/IMG_7025.PNG",
+   "w": 400,
+   "x": 340,
+   "y": 190
+  }
+ ],
+ "phrase_fix": [
+  [
+   "l treonina",
+   "L-treonina"
+  ],
+  [
+   "l triptofano",
+   "L-triptofano"
+  ],
+  [
+   "bem estar",
+   "bem-estar"
+  ]
+ ]
+}

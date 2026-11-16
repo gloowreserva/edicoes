@@ -2,7 +2,7 @@
 (caixa branca arredondada por linha, letra preta, com emoji) e música do início ao fim.
 Uso: python3 -I estilo4c.py config.json
 
-config: {"video", "work", "output", "music", "music_start", "grade": true,
+config: {"video", "work", "output", "music", "music_start", "grade": true, "beat": s (opcional, duração da batida),
          "shots": [{"from": s, "to": s, "text": "...", "y": centro_vertical_px}]}
 Cenas seguidas com o mesmo texto mantêm o texto parado (sem piscar).
 """
@@ -77,18 +77,30 @@ grade = ",eq=contrast=1.04:saturation=1.12" if cfg.get("grade", True) else ""
 # senão o celular/TikTok lê como HDR e puxa as cores (as fotos sobrepostas ficam avermelhadas).
 TAG = ",setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv"
 ENC = ["-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709", "-color_range", "tv"]
-parts = []
+# COR: bruto de iPhone é HDR (HLG/BT.2020) -> conversão de verdade (tone mapping) pra SDR BT.709, senão a pele fica
+# pálida/acinzentada ("ar de fantasma"). Depois só um toque leve de luz/cor.
+_trc = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=color_transfer",
+                       "-of", "csv=p=0", cfg["video"]], capture_output=True, text=True).stdout.strip().strip(",")
+HDR = "zscale=t=linear:npl=203:tin=arib-std-b67:pin=bt2020:min=bt2020nc,format=gbrpf32le,zscale=p=bt709," \
+      "tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p," if _trc in ("arib-std-b67", "smpte2084") else ""
+if HDR and cfg.get("grade", True): grade = ",eq=brightness=0.05:contrast=1.05:saturation=1.08"
+# BATIDA: "beat": s (ex.: 0.5108 = 117,5 BPM) -> cada cena vira um número inteiro de batidas (corte cai na batida)
+BEAT = cfg.get("beat")
+parts, nfs = [], []
 for i, s in enumerate(cfg["shots"]):
     p = f"{work}/shot{i:02d}.mp4"
-    run(["ffmpeg", "-v", "error", "-y", "-ss", str(s["from"]), "-i", cfg["video"], "-t", f"{s['to'] - s['from']:.3f}",
-         "-vf", f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS},setsar=1{grade}{TAG}",
-         "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "15", *ENC, p])
+    d = s["to"] - s["from"]
+    if BEAT: d = max(1, round(d / BEAT)) * BEAT
+    # quadro exato acumulado (sem deriva em relação à música)
+    t0 = sum(nfs) / FPS; nf = round((t0 + d) * FPS) - sum(nfs); nfs.append(nf)
+    run(["ffmpeg", "-v", "error", "-y", "-ss", str(s["from"]), "-i", cfg["video"], "-t", f"{d + 0.5:.3f}",
+         "-vf", f"{HDR}scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS},setsar=1{grade}{TAG}",
+         "-frames:v", str(nf), "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "15", *ENC, p])
     parts.append(p)
 open(f"{work}/list.txt", "w").write("".join(f"file '{p}'\n" for p in parts))
 cut = f"{work}/cut.mp4"
 run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", f"{work}/list.txt", "-c", "copy", cut])
-durs = [float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", p],
-        capture_output=True, text=True).stdout) for p in parts]
+durs = [nf / FPS for nf in nfs]
 total = sum(durs)
 
 # 2. blocos de texto (junta cenas seguidas com o mesmo texto)
