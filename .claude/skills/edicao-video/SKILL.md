@@ -56,6 +56,11 @@ Para vídeos **sem fala** (a pessoa só aparece fazendo algo, posando etc.). Nã
   - "Enquanto você tá aí só assistindo a vida dos outros, tem gente com menos de 100 seguidores fazendo venda todo dia no app rosa só de copiar e colar vídeos prontos com 1 clique e postar. Pra entender como, entra no meu perfil."
   - "Antes de ficar esperando o Shop pra começar de verdade no ttk, entra no meu perfil pra entender uma coisa: enquanto você tá aí parada achando que depende de 2000 seguidores pra vender, tem gente começando no app rosa com menos de 100 seguidores fazendo venda sem esperar liberar nada."
 
+## Estilo de edição 4 (cortes de mentoria / podcast)
+
+Para tirar **10 cortes virais de uma mentoria longa**. Regras completas, análise das referências e checklist em `cortes-mentoria.md`.
+Resumo: 15–45s, abre na frase mais forte (cold open), uma ideia só, legenda CAIXA ALTA com 1 palavra-chave em amarelo, punch-in na frase de impacto, trilha de fundo baixa, final em loop ou chamada.
+
 ## Alternância nos lotes
 
 Num lote, alternar na ordem dos arquivos do Drive: 1º estilo 1, 2º estilo 2, 3º estilo 1, 4º estilo 2...
