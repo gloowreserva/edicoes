@@ -79,12 +79,16 @@ for corte_em in [x for x, _, _ in estica] + [z for _, _, z in antes]:  # separa 
     kv = novo
 fator = {(x, y): (z - x) / (y - x) for x, y, z in estica}
 fator.update({(y, z): (z - x) / (z - y) for x, y, z in antes})
+quadros = {(x, y): round((z - x) * 30) for x, y, z in estica}  # nº exato de quadros da cena esticada
+quadros.update({(y, z): round((z - x) * 30) for x, y, z in antes})
 fc = []
 for k, (a, b) in enumerate(kv):
     f = fator.get((a, b))
+    # o minterpolate pode sair 1 quadro curto: completa e corta no nº exato (senão a boca escorrega 33 ms)
     lento = f"setpts=(PTS-STARTPTS)*{f:.5f},minterpolate=fps=30:mi_mode=mci:mc_mode=aobmc:vsbmc=1," if f else ""
+    exato = f"tpad=stop_mode=clone:stop=3,trim=end_frame={quadros[(a, b)]},setpts=PTS-STARTPTS," if f else ""
     # 1 ms antes do quadro: o trim pega exatamente os quadros [a, b) sem erro de ponto flutuante
-    fc.append(f"[0:v]trim={max(0, a - 0.001):.4f}:{b - 0.001:.4f},{'select=' + repr('1' + sel) + ',' if falhas else ''}fps=30,setpts=PTS-STARTPTS,{lento}fps=30,{q}[v{k}]")
+    fc.append(f"[0:v]trim={max(0, a - 0.001):.4f}:{b - 0.001:.4f},{'select=' + repr('1' + sel) + ',' if falhas else ''}fps=30,setpts=PTS-STARTPTS,{lento}fps=30,{exato}{q}[v{k}]")
 for k, (a, b) in enumerate(ka):
     fc.append(f"[0:a]atrim={a}:{b},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo[a{k}]")
 fc.append("".join(f"[v{k}]" for k in range(len(kv))) + f"concat=n={len(kv)}:v=1:a=0[{'vc' if trocas else 'v'}]")
