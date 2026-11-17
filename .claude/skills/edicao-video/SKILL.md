@@ -24,6 +24,7 @@ description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos esti
    - Janela: borda arredondada + sombra, no topo, do lado da cabeça (pode pegar no rosto), bem visível, dentro da área segura do TikTok (abaixo de "Seguindo | Para você", longe dos botões da direita). Padrão: `"size": [560, 600], "y": 220`; com o Samuca (rosto mais alto no quadro) usar `"size": [520, 540], "y": 200` pra não pegar nos óculos. Pessoa muito perto da câmera: janela menor no canto (`"size": [420, 450], "x": 50, "y": 200`) — é o caso do Mat.
    - Cartão de imagem larga (ícones, print baixo): `"maxw": 760, "y": 130`, pra ficar acima dos olhos.
    - Se no vídeo bruto a pessoa já mostra o app no celular, deixar rodar sem cobrir.
+   - Nenhuma sobreposição durante o hook (primeiros ~4,5 s do vídeo editado): lembrar que o vídeo começa na 1ª palavra, então somar o início da fala ao tempo do original.
    - Não colocar print de prova social de outra pessoa logo depois de alguém falar do próprio faturamento (parece que é dele).
    - Perfil só da própria pessoa do vídeo (perfil "Samuca Sem Dores" só em vídeo do Samuca).
 6. Sinalizar ao Vitor promessas de ganho ou de saúde que estejam na fala (ex.: "300 reais em 10 dias") — podem dar restrição.
