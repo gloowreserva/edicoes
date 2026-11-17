@@ -172,7 +172,7 @@ for i, g in enumerate(groups if cfg.get("captions", True) else []):
 
 hook = cfg["hook"]
 ass.append(f"Dialogue: 2,{ts(0)},{ts(hook['dur'])},{'HookBox' if hook.get('style') == 'box' else 'Hook'},,0,0,0,,"
-           r"{\fad(120,200)\fscx85\fscy85\t(0,180,\fscx103\fscy103)\t(180,280,\fscx100\fscy100)}" + hook["text"].replace("\n", r"\N"))
+           r"{\fad(0,200)}" + hook["text"].replace("\n", r"\N"))
 for st in cfg.get("stickers", []):
     a, b = remap(st["start"]), remap(st["end"])
     ass.append(f"Dialogue: 3,{ts(a)},{ts(b)},Sticker,,0,0,0,,"

@@ -8,6 +8,7 @@ description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos esti
 ## Regras que valem para os dois estilos
 
 1. **Hook obrigatório.** Nenhum vídeo sai sem hook. Topo, primeiros ~4s, texto branco com contorno preto grosso, 3 linhas curtas.
+   - **Instantâneo**: o hook já aparece inteiro e no tamanho final no primeiro quadro (sem fade nem animação de entrada); só some com fade no fim.
    - Polêmico, mas sem restrição: não promete ganho, não parece venda.
    - Usar algo que a pessoa fala no vídeo como gancho. Escrever "ttk" no lugar de "TikTok".
 2. **Começa sempre na fala.** Nada de trecho parado no início (o script corta até a primeira palavra).
