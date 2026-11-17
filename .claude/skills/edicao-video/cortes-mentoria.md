@@ -3,6 +3,8 @@
 Formato para tirar **cortes virais de uma mentoria longa** (gravação horizontal ou vertical, uma ou mais pessoas falando).
 Base: 8 referências do TikTok enviadas pelo Eliton (nov/2026) — Kiwify (Kiwicast), Perfect Pay, PodCats (Rodrigo Faro, 9,4 mi views), Primo Pobre (960 mil), Ruyter/clipadas (13,5 mi), Caio Martins (158 mil).
 
+Quadros salvos de cada referência: `exemplos/mentoria_refs/refN_quadros.jpg` (vídeo inteiro) e `refN_abertura.jpg` (primeiros 4s). Links: ref1 vt.tiktok.com/ZSpPbwxyD, ref2 ZSpPbcMbP, ref3 ZSpPbsUHP, ref4 ZSpPbbA9r, ref5 ZSpPbQoja, ref6 ZSpPb3QWw, ref7 ZSpPbvYWP, ref8 ZSpPbpr9s.
+
 ## O que os vídeos que viralizaram têm em comum
 
 | Ref | Views | Duração | O que faz |
@@ -34,7 +36,10 @@ Base: 8 referências do TikTok enviadas pelo Eliton (nov/2026) — Kiwify (Kiwic
 ## Visual
 
 - **Formato 1080x1920.** Se a mentoria for horizontal: recortar vertical no rosto de quem fala (crop 9:16 acompanhando o orador; se forem 2 pessoas, alternar o recorte em quem fala).
-- **Hook na tela** nos 3–4s iniciais (regra Gloow): branco com contorno preto, topo, 2–3 linhas, tirado da própria fala.
+- **Hook na tela** nos 3–4s iniciais (regra Gloow): branco com contorno preto, topo, 2–3 linhas.
+  - **O hook nasce do contexto do trecho escolhido**: resume ou provoca exatamente o que a pessoa fala naquele corte (de preferência a própria frase dela, enxugada). Cada um dos 10 cortes tem hook próprio.
+  - **Não usar o banco `hooks.md`** (aquele é só do estilo 3/B-roll) nem hook genérico de "app rosa" se o trecho não fala disso.
+  - Escrever 2–3 opções por corte e escolher a mais polêmica/curiosa, sem prometer ganho e sem parecer venda. "ttk" no lugar de TikTok.
 - **Legenda da fala** (diferente do estilo 1):
   - 2–4 palavras por vez, **CAIXA ALTA**, fonte grossa, branca com contorno/sombra preta, um pouco abaixo do meio da tela (acima da área dos botões e da descrição).
   - **1 palavra-chave por bloco em destaque** (amarelo `#FFD400`; alternativa rosa do app). Palavras de destaque: números, verbos de ação, "dinheiro", "venda", "seguidores", "app rosa", "ttk".
