@@ -148,7 +148,9 @@ bf.paste((255, 255, 255, 255), (48, 48), b8); bf.save(f"{work}/bigframe.png")
 files = []
 for i, (a, b, l) in enumerate(parts):
     nf = round((b - a) * FPS)
-    out = f"{work}/part{i:03d}.mp4"
+    out = f"{work}/part{i:03d}_{a:.2f}_{b:.2f}_{l}.mp4"
+    files.append(out)
+    if os.path.exists(out) and os.path.getsize(out) > 0: continue  # reaproveita parte já renderizada
     mid = (a + b) / 2
     z = 1.15 if any(x <= mid <= y for x, y in punch) else 1.0
     if l == "S" and cfg.get("screen_mode", "blur") == "show":
@@ -170,12 +172,12 @@ for i, (a, b, l) in enumerate(parts):
         # padrão: tela desfocada ao fundo (protege perfis de alunos) + orador grande no centro
         x, y, w, h = SC
         fx, fy, fw = cfg.get("thumb_face", [1560, 408, 228])
-        BW = 820
+        BW, BY = 820, 560  # janela abaixo do hook
         fc = (f"[0:v]split=2[a][c];"
               f"[a]crop={w}:{h}:{x}:{y},scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},boxblur=40:4,eq=brightness=-0.35:saturation=0.6[bg];"
               f"[c]crop={fw}:{fw}:{fx}:{fy},scale={BW}:{BW}:flags=lanczos,unsharp=7:7:1.0,eq=contrast=1.05[th];"
               f"movie={work}/bigmask.png,format=gray[tm];[th][tm]alphamerge[thr];movie={work}/bigframe.png[tf];"
-              f"[bg][tf]overlay={(W - BW) // 2 - 56}:{330 - 56}[v2];[v2][thr]overlay={(W - BW) // 2}:{330},fps={FPS},setsar=1[v]")
+              f"[bg][tf]overlay={(W - BW) // 2 - 56}:{BY - 56}[v2];[v2][thr]overlay={(W - BW) // 2}:{BY},fps={FPS},setsar=1[v]")
         run(["ffmpeg", "-v", "error", "-y", "-ss", f"{a:.4f}", "-i", src, "-filter_complex", fc, "-map", "[v]",
              "-frames:v", str(nf), "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "17", "-pix_fmt", "yuv420p",
              "-threads", "3", out])
@@ -187,7 +189,6 @@ for i, (a, b, l) in enumerate(parts):
         v = f"crop={cw}:{chh}:{x0}:{y0},scale={W}:{H}:flags=lanczos,unsharp=5:5:0.6,fps={FPS},setsar=1"
         run(["ffmpeg", "-v", "error", "-y", "-ss", f"{a:.4f}", "-i", src, "-vf", v, "-frames:v", str(nf), "-an",
              "-c:v", "libx264", "-preset", "veryfast", "-crf", "17", "-pix_fmt", "yuv420p", "-threads", "3", out])
-    files.append(out)
 open(f"{work}/parts.txt", "w").write("".join(f"file '{p}'\n" for p in files))
 cutv = f"{work}/cut_v.mp4"
 run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", f"{work}/parts.txt", "-c", "copy", cutv])
@@ -264,10 +265,12 @@ for i, g in enumerate(groups):
     a = g[0]["s"]; b = groups[i + 1][0]["s"] if i + 1 < len(groups) else min(total, g[-1]["e"] + 0.3)
     ws = [clean(x["w"]).rstrip(".,!;:").upper() for x in g]
     ws = [x for x in ws if x]
+    for j in range(len(ws) - 1, 0, -1):  # "MEIO -DIA" -> "MEIO-DIA"
+        if ws[j].startswith("-"): ws[j - 1] += ws.pop(j)
     if not ws: continue
     k = pick(ws)
     txt = " ".join((r"{\c&H0000D4FF&}" + x + r"{\c&H00FFFFFF&}") if j == k else x for j, x in enumerate(ws))
-    y = (1320 if cfg.get("screen_mode", "blur") == "blur" else 1500) if layout_at_out(a) == "S" else 1230
+    y = 1500 if layout_at_out(a) == "S" else 1230
     ass.append(f"Dialogue: 1,{ts(a)},{ts(b)},Cap,,0,0,0,,{{\\pos(540,{y})}}{pop}{txt}")
 ass.append(f"Dialogue: 2,{ts(0)},{ts(hook['dur'])},Hook,,0,0,0,,"
            r"{\fad(100,200)\fscx85\fscy85\t(0,180,\fscx103\fscy103)\t(180,280,\fscx100\fscy100)}" + hook["text"].replace("\n", r"\N"))
@@ -282,7 +285,7 @@ assf = f"{work}/legendas.ass"; open(assf, "w").write("\n".join(ass) + "\n")
 
 # ---------- mix: voz normalizada + trilha baixa ----------
 inputs = ["-i", cutv, "-i", cuta]
-af = "[1:a]highpass=f=80,loudnorm=I=-14:TP=-1.5:LRA=9[voz]"
+af = f"[1:a]apad=pad_dur=5,highpass=f=80,loudnorm=I=-14:TP=-1.5:LRA=9,atrim=0:{total:.3f},asetpts=PTS-STARTPTS[voz]"  # apad: o loudnorm come o fim sem folga
 if cfg.get("music"):
     inputs += ["-ss", str(cfg.get("music_start", 0)), "-stream_loop", "-1", "-i", cfg["music"]]
     gdb = cfg.get("music_gain_db", -25)
