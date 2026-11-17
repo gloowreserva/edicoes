@@ -62,3 +62,21 @@ Quadros salvos de cada referência: `exemplos/mentoria_refs/refN_quadros.jpg` (v
 ## Entrega
 
 - 10 cortes por mentoria, numerados por ordem de potencial (1 = mais forte), com: trecho original (início–fim), hook, duração, motivo da escolha e alerta de promessa de ganho/saúde se houver.
+
+## Privacidade dos alunos (mentoria gravada no Meet)
+
+- Corte vai pro perfil público: **não mostrar rosto, nome, @ ou perfil de aluno**. Trechos de tela compartilhada usam `screen_mode: "blur"` (tela desfocada ao fundo + Samuel grande no centro).
+- `screen_mode: "show"` só quando a tela não expõe ninguém (ex.: anotação de horários, página genérica de produto).
+- Não usar trecho em que o Samuel cita aluno pelo nome logo de cara; se o nome aparecer no meio, cortar a palavra (`remove`).
+- Prioridade: trechos com o Samuel em câmera cheia (enquadramento vertical no rosto, melhor qualidade).
+
+## Passo a passo técnico (estilo 4)
+
+1. Baixar a mentoria (só a pasta indicada; cortes soltos antigos ficam de fora).
+2. Áudio 16 kHz e transcrição completa rápida: `transcribe.py audio.wav full.json small` (66 min ≈ 55 min de CPU).
+3. Layout por segundo: `ffmpeg -i VIDEO -vf fps=1,scale=96:54 -f rawvideo -pix_fmt rgb24 PASTA/tiny.rgb` e `classifica_layout.py PASTA [segundo_com_orador]` → `layout.json` (M câmera / S tela).
+4. Ler a transcrição, escolher 10 trechos pela regra acima, escrever hook de cada um pelo contexto.
+5. Retranscrever só os trechos com `transcribe_ranges.py audio.wav trechos.json medium INI-FIM ...` (palavras mais precisas para legenda e cortes).
+6. Config por corte e `mentoria.py config.json` (cold open = 1º item de `ranges`; `punch`, `highlight`, `stickers`, `music`). Requer `opencv-python-headless<5` (o 5.x não tem o detector de rosto Haar).
+7. Conferir quadros (hook, legenda, enquadramento, nenhum aluno visível) e reler a fala do corte final.
+8. Subir na pasta da pessoa em "00 - POSTAGEM STAND BY" (Samuel = Samuca).
