@@ -4,6 +4,8 @@ CTA + uma sobreposição perto do fim.
 uso: python3 -I trafego.py VIDEO SOBREPOSICAO SAIDA "TEXTO DO CTA" [ANTES_DO_FIM=6] [DURACAO=5] [opções]
   --sem-qualidade : não refaz a melhora de qualidade (vídeo já passou pelo cta_video.py)
   --seta          : seta para baixo pulando, abaixo da sobreposição (botão "Saiba mais" do anúncio)
+  --seta-estilo N : 1 branca/contorno preto, 2 amarela/contorno preto, 3 vermelha/contorno branco, 4 dois chevrons
+  --seta-tam N    : tamanho da seta em px (padrão 150; com cartão grande usar ~120)
   --y N --maxh N --maxw N : posição/tamanho do cartão da sobreposição (padrão 1110, 470, 600)
 """
 import json, os, subprocess, sys, tempfile
@@ -18,6 +20,7 @@ def flag(nome):
     if nome in argv: argv.remove(nome); return True
     return False
 qualidade, seta = not flag("--sem-qualidade"), flag("--seta")
+ESTILO, SETA_TAM = opt("--seta-estilo", 1), opt("--seta-tam", 150)
 Y, MAXH, MAXW = opt("--y", 1110), opt("--maxh", 470), opt("--maxw", 600)
 video, sob, saida, texto = argv[:4]
 antes = float(argv[4]) if len(argv) > 4 else 6.0
@@ -63,11 +66,21 @@ png = f"{work}/sob.png"; card.save(png)
 
 d = b - a
 extra_in, extra_fc, fim_card = [], "", Y - sh + card.height - sh
-if seta:  # seta branca com contorno preto, pulando para baixo
-    S = 150; ar = Image.new("RGBA", (S + 40, S + 60), (0, 0, 0, 0)); dr = ImageDraw.Draw(ar)
-    pts = [(20 + S * .32, 20), (20 + S * .68, 20), (20 + S * .68, 20 + S * .5), (20 + S * .95, 20 + S * .5),
-           (20 + S / 2, 20 + S), (20 + S * .05, 20 + S * .5), (20 + S * .32, 20 + S * .5)]
-    dr.polygon(pts, fill=(255, 255, 255, 255), outline=(0, 0, 0, 255), width=9)
+if seta:  # seta para baixo, pulando; --seta-estilo varia o desenho de um vídeo pro outro
+    S = SETA_TAM; ar = Image.new("RGBA", (S + 40, S + 60), (0, 0, 0, 0)); dr = ImageDraw.Draw(ar)
+    bloco = [(20 + S * .32, 20), (20 + S * .68, 20), (20 + S * .68, 20 + S * .5), (20 + S * .95, 20 + S * .5),
+             (20 + S / 2, 20 + S), (20 + S * .05, 20 + S * .5), (20 + S * .32, 20 + S * .5)]
+    if ESTILO == 1:    # branca com contorno preto (padrão aprovado)
+        dr.polygon(bloco, fill=(255, 255, 255, 255), outline=(0, 0, 0, 255), width=9)
+    elif ESTILO == 2:  # amarela com contorno preto
+        dr.polygon(bloco, fill=(255, 214, 0, 255), outline=(0, 0, 0, 255), width=9)
+    elif ESTILO == 3:  # vermelha com contorno branco
+        dr.polygon(bloco, fill=(235, 30, 45, 255), outline=(255, 255, 255, 255), width=9)
+    else:              # 4: dois chevrons brancos com contorno preto
+        for k, y0 in enumerate((20 + S * .08, 20 + S * .48)):
+            pv = [(20 + S * .1, y0), (20 + S / 2, y0 + S * .38), (20 + S * .9, y0)]
+            dr.line(pv, fill=(0, 0, 0, 255), width=int(S * .2) + 12, joint="curve")
+            dr.line(pv, fill=(255, 255, 255, 255), width=int(S * .2), joint="curve")
     sombra = Image.new("RGBA", ar.size, (0, 0, 0, 0)); sombra.paste((0, 0, 0, 120), (0, 8), ar.split()[3])
     ar = Image.alpha_composite(sombra.filter(ImageFilter.GaussianBlur(8)), ar)
     arpng = f"{work}/seta.png"; ar.save(arpng)

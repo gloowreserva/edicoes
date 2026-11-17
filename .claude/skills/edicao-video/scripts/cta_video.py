@@ -15,6 +15,8 @@ uso: python3 -I cta_video.py VIDEO CORTE_FIM SAIDA_DIR CTA1.mov[:INI:FIM[:INI:FI
   --estica INI-FIM-ATE : quadros parados NO MEIO DA FALA (sem silêncio pro --desliza), em cena sem boca (tela,
               b-roll): a cena INI-FIM é desacelerada com interpolação de movimento (minterpolate) e cobre até ATE;
               os quadros FIM-ATE saem. Áudio intacto. Manter a velocidade >= ~80%.
+  --estica-antes A-B-C : igual ao --estica, mas o trecho travado vem ANTES da cena boa: tira o vídeo A-B e a cena
+              B-C (tela/b-roll, sem boca) desacelera cobrindo A-C. Ex.: vídeo 10: 4.733-5.9-10.3
   --corta   : trecho do original a remover (vídeo e áudio), ex.: travada/pausa em que a mesma cena aparece duas vezes
 """
 import json, os, subprocess, sys
@@ -23,6 +25,9 @@ args = sys.argv[1:]
 falhas, cortes, trocas, desliza = [], [], [], []
 cor_cta = ""
 estica = []  # (ini, fim, ate): a cena [ini, fim] fica mais lenta e cobre até "ate" (some com fim..ate)
+antes = []  # (a, b, c): tira o vídeo [a, b] e a cena seguinte [b, c] fica mais lenta cobrindo [a, c]
+while "--estica-antes" in args:
+    i = args.index("--estica-antes"); x, y, z = map(float, args[i + 1].split("-")); antes.append((x, y, z)); del args[i:i + 2]
 while "--estica" in args:
     i = args.index("--estica"); x, y, z = map(float, args[i + 1].split("-")); estica.append((x, y, z)); del args[i:i + 2]
 if "--cor-cta" in args:
@@ -43,7 +48,12 @@ def loud(path):
 alvo = loud(video)  # o CTA fica no mesmo volume do vídeo original
 base = os.path.join(outdir, "_base.mkv")
 sel = "".join(f"*not(between(t,{a},{b}))" for a, b in falhas)
-q = "hqdn3d=1.5:1.5:3:3,scale=1080:1920:flags=lanczos,cas=0.6,eq=contrast=1.04:saturation=1.08,setsar=1,format=yuv420p"
+trc_v = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=color_transfer",
+                        "-of", "csv=p=0", video], capture_output=True, text=True).stdout.strip().rstrip(",")
+# vídeo principal bruto do iPhone (HDR): mesma conversão do CTA, senão sai lavado
+hdr_v = (f"zscale=tin={trc_v}:min=bt2020nc:pin=bt2020:rin=tv:t=linear:npl=203,format=gbrpf32le,zscale=p=bt709,"
+         "tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p,") if trc_v in ("arib-std-b67", "smpte2084") else ""
+q = hdr_v + "hqdn3d=1.5:1.5:3:3,scale=1080:1920:flags=lanczos,cas=0.6,eq=contrast=1.04:saturation=1.08,setsar=1,format=yuv420p"
 # trechos mantidos: vídeo e áudio separados (o --desliza tira quadros parados do vídeo e o mesmo tempo
 # de silêncio do áudio logo antes, mantendo a fala sincronizada depois da emenda)
 # todo corte alinhado na grade de quadros (1/30 s): vídeo e áudio perdem exatamente o mesmo tempo (sem
@@ -52,6 +62,7 @@ def q30(t): return round(t * 30) / 30
 cortes = [(q30(a), q30(b)) for a, b in cortes]
 desliza = [(q30(a), q30(b), q30(c)) for a, b, c in desliza]
 estica = [(q30(x), q30(y), q30(z)) for x, y, z in estica]
+antes = [(q30(x), q30(y), q30(z)) for x, y, z in antes]
 corte = q30(corte)
 vcut = sorted(cortes + [(a, b) for a, b, _ in desliza])
 acut = sorted(cortes + [(c, c + (b - a)) for a, b, c in desliza])
@@ -60,13 +71,14 @@ def mantidos(cs):
     for a, b in cs:
         keep.append((t0, a)); t0 = b
     keep.append((t0, corte)); return keep
-kv, ka = mantidos(sorted(vcut + [(y, z) for _, y, z in estica])), mantidos(acut)
-for x, y, z in estica:  # separa a cena a esticar num pedaço próprio
+kv, ka = mantidos(sorted(vcut + [(y, z) for _, y, z in estica] + [(x, y) for x, y, _ in antes])), mantidos(acut)
+for corte_em in [x for x, _, _ in estica] + [z for _, _, z in antes]:  # separa a cena a esticar num pedaço próprio
     novo = []
     for a, b in kv:
-        novo += [(a, x), (x, b)] if a < x < b else [(a, b)]
+        novo += [(a, corte_em), (corte_em, b)] if a < corte_em < b else [(a, b)]
     kv = novo
 fator = {(x, y): (z - x) / (y - x) for x, y, z in estica}
+fator.update({(y, z): (z - x) / (z - y) for x, y, z in antes})
 fc = []
 for k, (a, b) in enumerate(kv):
     f = fator.get((a, b))
