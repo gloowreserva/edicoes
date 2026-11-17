@@ -68,7 +68,9 @@ Para vídeos **sem fala** (a pessoa só aparece fazendo algo, posando etc.). Nã
 - **Música embutida no arquivo, do primeiro ao último segundo**, já no volume cheio (pular silêncio/introdução da faixa). Os vídeos vão para uma pasta de postagem automática, então a música tem que estar no arquivo.
 - **Música**: não só inglesa — priorizar música brasileira que combine com o contexto (sertanejo, sons virais do TikTok). Se o Vitor subir MP3s numa pasta `Músicas` no Drive, usar esses. Sem isso, usar faixa livre de direitos do Mixkit (`mixkit.co`, licença livre para redes sociais; hosts `mixkit.co` e `assets.mixkit.co` liberados no ambiente).
 - **Reaproveitar B-roll:** o Vitor pode pedir nova versão do mesmo B-roll com texto novo + música nova (salvar como `_v2`). Não repetir faixa nem texto da versão anterior.
-- Script: `python3 -I scripts/broll.py VIDEO MUSICA SAIDA "TEXTO" INICIO_MUSICA`.
+- **Selo final chamativo**: no último ~1 s o texto sai e entra "GRUPO GRÁTIS / NA BIO" grande, amarelo em caixa rosa, com pop e tremida (6º argumento do script).
+- Clipes curtos de B-roll (5–10 s) que vierem no meio de um lote de vídeos falados também saem no estilo 3, com texto curto (1–2 frases).
+- Script: `python3 -I scripts/broll.py VIDEO MUSICA SAIDA "TEXTO" INICIO_MUSICA $'GRUPO GRÁTIS\nNA BIO'`.
 - Exemplos de frases base do Vitor:
   - "Enquanto você tá aí só assistindo a vida dos outros, tem gente com menos de 100 seguidores fazendo venda todo dia no app rosa só de copiar e colar vídeos prontos com 1 clique e postar. Pra entender como, entra no meu perfil."
   - "Antes de ficar esperando o Shop pra começar de verdade no ttk, entra no meu perfil pra entender uma coisa: enquanto você tá aí parada achando que depende de 2000 seguidores pra vender, tem gente começando no app rosa com menos de 100 seguidores fazendo venda sem esperar liberar nada."

@@ -38,5 +38,8 @@
 14. Passei meses quebrando a cabeça no ttk sem vender nada. Aí descobri o app rosa: a marca entrega o vídeo pronto e eu só posto. Quer entender como? Comenta "app rosa".
 15. Todo mundo falando que o ttk tá saturado, enquanto isso tem gente com menos de 100 seguidores postando 1 vídeo pronto por dia no app rosa e vendendo. Quer entender como? Comenta "app rosa".
 16. Se você ainda acha que precisa dançar, aparecer ou ter muito seguidor pra vender no ttk, para tudo. Tem gente postando vídeo pronto de marca no app rosa e vendendo com conta nova. Entra no meu perfil.
+17. Enquanto o café fica pronto, meu vídeo pronto já tá postado no app rosa.
+18. Quem posta vídeo pronto todo dia no app rosa já tá olhando pra outros sonhos.
+19. Ninguém te conta, mas dá pra vender no ttk sem aparecer: é só postar o vídeo pronto que a marca entrega no app rosa.
 
-Variantes já usadas em vídeos: 1–16 (criar novas para os próximos B-rolls).
+Variantes já usadas em vídeos: 1–19 (criar novas para os próximos B-rolls).
