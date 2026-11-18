@@ -70,7 +70,7 @@ Continuar a alternância de onde o lote anterior parou.
 
 - **Mat (Matheus)**: barbudo, olhos claros.
 - **Samuca**: cara limpa, cabelo grande.
-- **Thaís (Thais Souza)**: dá a "Mentoria Mastermind". Mentoria gravada de 13/11/2026 na pasta `Vídeo mentoria` (id do arquivo `1ra0GIS4i824_loBIeIxGSF3YigE73dM_`, 1,46 GB). Ainda sem subpasta própria no Stand By: perguntar ao Eliton onde subir.
+- **Thaís (Thais Souza)**: dá a "Mentoria Mastermind". Mentoria gravada de 13/11/2026 na pasta `Vídeo mentoria` (id do arquivo `1ra0GIS4i824_loBIeIxGSF3YigE73dM_`, 1,46 GB). Cortes dela sobem soltos na raiz da pasta das mentorias (ver "Mentorias").
 
 ## Passo a passo
 
@@ -95,7 +95,7 @@ Continuar a alternância de onde o lote anterior parou.
 
 - Pasta das mentorias: `1a7MhpnudoBzknesDUhDrQrUtO44QB9c2` → subpasta **`Vídeo mentoria`** (`1lk-ZJxMWpdbJotmvJy87rmFiIIB_dY_A`). Só usar o que está nessa subpasta; os cortes soltos (c1–c8 etc.) na raiz não entram.
 - Samuel: mentoria de 16/11/2026 já cortada (10 cortes, lote 1).
-- Thaís: mentoria Mastermind de 13/11/2026, a cortar.
+- Thaís: mentoria Mastermind de 13/11/2026. Cortes da Thaís sobem **soltos na raiz da pasta das mentorias** (`1a7MhpnudoBzknesDUhDrQrUtO44QB9c2`, onde ficam os "cortes mentoria"), não numa subpasta (confirmado pelo Eliton em 18/11).
 
 ## Material de apoio no Drive (pasta do Vitor)
 
@@ -106,7 +106,8 @@ Continuar a alternância de onde o lote anterior parou.
 ## Entrega no Google Drive
 
 - Subir os vídeos editados com a ferramenta `create_file` do conector Google Drive (`base64Content` = referência `sha256:<hash>:<caminho absoluto>`, `contentMimeType` `video/mp4`, `disableConversionToGoogleType: true`).
-- **Regra do Vitor: não mexer em nada no Drive** (não mover, renomear, apagar nem editar). Só **subir** os vídeos editados na pasta certa.
+- **REGRA GERAL (Eliton, 18/11/2026): nada no Drive sem confirmação.** Antes de subir qualquer arquivo ou criar/mexer em qualquer coisa no Drive, pedir a confirmação do Eliton na conversa e esperar o "pode". Sem confirmação, só o padrão: listar e baixar (ler). Isso vale para toda sessão, mesmo que a pasta de destino já seja conhecida.
+- **Regra do Vitor: não mexer em nada no Drive** (não mover, renomear, apagar nem editar). Só **subir** os vídeos editados na pasta certa, e só depois da confirmação acima.
 - Destino: pasta **"00 - ⏯️ POSTAGEM STAND BY (AGUARDANDO)"** (id `1Cx4WfPwmhR2UsuNGzEoPPcBaroDLofm4`, dentro da pasta raiz `1BEtIt9SzaappmPbInoOwEcDdHEVJ568n`), na subpasta da pessoa do vídeo:
   - Matheus (Mat): `14uHGLQTCvyS5E96B3aqG3u_zRXVVDabt`
   - Samuel (Samuca): `1fAuehTadroP1ovpUnmM9PaVB5a9fDvf8`
