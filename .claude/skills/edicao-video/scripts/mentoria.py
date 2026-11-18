@@ -245,6 +245,8 @@ def layout_at_out(t):
         acc += b - a
     return parts[-1][2]
 
+CS = cfg.get("caption_style", "amarelo")  # amarelo | ruyter | kiwify
+COR = {"amarelo": r"&H0000D4FF&", "ruyter": r"&H0000A5FF&", "kiwify": r"&H00932EFF&"}[CS]
 ass = [f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: {W}
@@ -254,6 +256,8 @@ WrapStyle: 0
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Cap,Inter ExtraBold,76,&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,7,3,5,70,70,0,1
+Style: CapR,Inter ExtraBold,76,&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,-1,-1,0,0,100,100,0,0,1,7,3,5,70,70,0,1
+Style: CapK,Inter SemiBold,70,&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,4,2,5,70,70,0,1
 Style: Hook,Inter SemiBold,68,&H00FFFFFF,&H00FFFFFF,&H00000000,&H78000000,-1,0,0,0,100,100,0,0,1,5,2,8,90,150,300,1
 Style: Sticker,Inter,70,&H00FFFFFF,&H00FFFFFF,&H00B469FF,&H00000000,-1,0,0,0,100,100,0,0,3,22,0,5,60,60,0,1
 
@@ -261,17 +265,27 @@ Style: Sticker,Inter,70,&H00FFFFFF,&H00FFFFFF,&H00B469FF,&H00000000,-1,0,0,0,100
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"""]
 pop = r"{\fscx80\fscy80\t(0,80,\fscx106\fscy106)\t(80,150,\fscx100\fscy100)}"
 hook = cfg["hook"]
+FRAME = cfg.get("frame", False)
+def cap_y(t):
+    if layout_at_out(t) == "S": return 1500
+    if cfg.get("emoji"): return 1400  # emoji vai embaixo, longe da boca
+    return 1290 if FRAME else 1230
 for i, g in enumerate(groups):
     a = g[0]["s"]; b = groups[i + 1][0]["s"] if i + 1 < len(groups) else min(total, g[-1]["e"] + 0.3)
-    ws = [clean(x["w"]).rstrip(".,!;:").upper() for x in g]
+    ws = [clean(x["w"]).rstrip(".,!;:") for x in g]
+    if CS != "kiwify": ws = [x.upper() for x in ws]
     ws = [x for x in ws if x]
     for j in range(len(ws) - 1, 0, -1):  # "MEIO -DIA" -> "MEIO-DIA"
         if ws[j].startswith("-"): ws[j - 1] += ws.pop(j)
     if not ws: continue
     k = pick(ws)
-    txt = " ".join((r"{\c&H0000D4FF&}" + x + r"{\c&H00FFFFFF&}") if j == k else x for j, x in enumerate(ws))
-    y = 1500 if layout_at_out(a) == "S" else 1230
-    ass.append(f"Dialogue: 1,{ts(a)},{ts(b)},Cap,,0,0,0,,{{\\pos(540,{y})}}{pop}{txt}")
+    if CS == "kiwify":  # palavra-chave em serifa itálica, maior, rosa Gloow
+        txt = " ".join((r"{\fnLiberation Serif\i1\fs108\c" + COR + "}" + x + r"{\fnInter SemiBold\i0\fs70\c&H00FFFFFF&}") if j == k else x for j, x in enumerate(ws))
+        sty = "CapK"
+    else:
+        txt = " ".join((r"{\c" + COR + "}" + x + r"{\c&H00FFFFFF&}") if j == k else x for j, x in enumerate(ws))
+        sty = "CapR" if CS == "ruyter" else "Cap"
+    ass.append(f"Dialogue: 1,{ts(a)},{ts(b)},{sty},,0,0,0,,{{\\pos(540,{cap_y(a)})}}{pop}{txt}")
 ass.append(f"Dialogue: 2,{ts(0)},{ts(hook['dur'])},Hook,,0,0,0,,"
            r"{\fad(100,200)\fscx85\fscy85\t(0,180,\fscx103\fscy103)\t(180,280,\fscx100\fscy100)}" + hook["text"].replace("\n", r"\N"))
 for st in cfg.get("stickers", []):
@@ -283,19 +297,75 @@ for st in cfg.get("stickers", []):
                + st["text"].replace("\n", r"\N"))
 assf = f"{work}/legendas.ass"; open(assf, "w").write("\n".join(ass) + "\n")
 
-# ---------- mix: voz normalizada + trilha baixa ----------
+# ---------- camadas extras: imagens de apoio (B-roll), moldura com partículas, emoji fixo ----------
 inputs = ["-i", cutv, "-i", cuta]
-af = f"[1:a]apad=pad_dur=5,highpass=f=80,loudnorm=I=-14:TP=-1.5:LRA=9,atrim=0:{total:.3f},asetpts=PTS-STARTPTS[voz]"  # apad: o loudnorm come o fim sem folga
+nin = 2
 if cfg.get("music"):
-    inputs += ["-ss", str(cfg.get("music_start", 0)), "-stream_loop", "-1", "-i", cfg["music"]]
+    inputs += ["-ss", str(cfg.get("music_start", 0)), "-stream_loop", "-1", "-i", cfg["music"]]; mus_i = nin; nin += 1
+vf, last = [], "[0:v]"
+if FRAME:  # estilo Caio Martins: vídeo em cartão arredondado sobre fundo escuro + partículas
+    fw_, fh_ = 960, 1706
+    fm = Image.new("L", (fw_, fh_), 0); ImageDraw.Draw(fm).rounded_rectangle([0, 0, fw_ - 1, fh_ - 1], 48, fill=255)
+    fm.save(f"{work}/framemask.png")
+    pfile = cfg.get("particles_file", f"{work}/particulas.mp4")
+    if not os.path.exists(pfile):
+        rng = np.random.default_rng(7); N = 70; NF = 150
+        xs, ys = rng.uniform(0, W, N), rng.uniform(0, H, N); vy = rng.uniform(-60, -15, N) / FPS; rs = rng.uniform(1.5, 4.5, N)
+        al = rng.uniform(0.25, 0.8, N); ph = rng.uniform(0, 6.28, N)
+        pr = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "gray", "-s", f"{W}x{H}", "-r", str(FPS),
+                               "-i", "-", "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p", pfile], stdin=subprocess.PIPE)
+        for f in range(NF):
+            im = Image.new("L", (W, H), 0); d = ImageDraw.Draw(im)
+            for j in range(N):
+                y = (ys[j] + vy[j] * f) % H; x = xs[j] + 8 * np.sin(ph[j] + f / 20)
+                v = int(255 * al[j] * (0.6 + 0.4 * np.sin(ph[j] + f / 9)))
+                d.ellipse([x - rs[j], y - rs[j], x + rs[j], y + rs[j]], fill=v)
+            pr.stdin.write(im.filter(ImageFilter.GaussianBlur(1.2)).tobytes())
+        pr.stdin.close(); pr.wait()
+    inputs += ["-stream_loop", "-1", "-i", pfile]; pi = nin; nin += 1
+    inputs += ["-loop", "1", "-i", f"{work}/framemask.png"]; mi = nin; nin += 1
+    vf.append(f"{last}scale={fw_}:{fh_}[fv];[{mi}:v]format=gray,scale={fw_}:{fh_}[fmk];[fv][fmk]alphamerge[fva];"
+              f"color=c=0x0b0d10:s={W}x{H}:r={FPS}:d={total:.3f}[fbg];[{pi}:v]format=gray,trim=0:{total:.3f},setpts=PTS-STARTPTS[pg];"
+              f"color=c=white:s={W}x{H}:r={FPS}:d={total:.3f}[pw];[pw][pg]alphamerge[pa];"
+              f"[fbg][fva]overlay={(W - fw_) // 2}:{(H - fh_) // 2}:shortest=1[f1];[f1][pa]overlay=0:0:shortest=1[fr]")
+    last = "[fr]"
+sfx_at = [0.0] if cfg.get("sfx", True) else []
+for k, br in enumerate(cfg.get("broll", [])):  # estilo Primo Pobre: imagem de apoio cobrindo a fala
+    occ = remap_all(br["start"])
+    if not occ: continue
+    a = occ[0]; d = br["dur"]
+    inputs += ["-ss", str(br.get("from", 0)), "-t", f"{d + 0.2:.3f}", "-i", br["file"]]; bi = nin; nin += 1
+    vf.append(f"[{bi}:v]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS},eq=brightness=-0.06:saturation=1.05,"
+              f"format=rgba,fade=in:st=0:d=0.12:alpha=1,fade=out:st={d - 0.15:.3f}:d=0.15:alpha=1,setpts=PTS-STARTPTS+{a:.3f}/TB[br{k}];"
+              f"{last}[br{k}]overlay=0:0:eof_action=pass[bo{k}]")
+    last = f"[bo{k}]"
+    if cfg.get("sfx", True): sfx_at.append(a)
+if cfg.get("emoji"):  # estilo Ruyter: emoji fixo embaixo da legenda
+    from PIL import ImageFont
+    fnt = ImageFont.truetype("/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf", 109)
+    em = Image.new("RGBA", (160, 160), (0, 0, 0, 0)); ImageDraw.Draw(em).text((10, 10), cfg["emoji"], font=fnt, embedded_color=True)
+    em = em.crop(em.getbbox()).resize((130, 130), Image.LANCZOS); em.save(f"{work}/emoji.png")
+    inputs += ["-loop", "1", "-i", f"{work}/emoji.png"]; ei = nin; nin += 1
+    ey = 1470
+    vf.append(f"{last}[{ei}:v]overlay=(W-w)/2:{ey}:shortest=1[em]"); last = "[em]"
+vf.append(f"{last}ass={assf}[vout]")
+
+# ---------- mix: voz normalizada + trilha baixa + efeitos (whoosh) ----------
+af = f"[1:a]apad=pad_dur=5,highpass=f=80,loudnorm=I=-14:TP=-1.5:LRA=9,atrim=0:{total:.3f},asetpts=PTS-STARTPTS[voz]"  # apad: o loudnorm come o fim sem folga
+mix = ["[voz]"]
+if cfg.get("music"):
     gdb = cfg.get("music_gain_db", -25)
-    af += (f";[2:a]atrim=0:{total:.3f},asetpts=PTS-STARTPTS,aresample={SR},volume={gdb}dB,"
-           f"afade=t=in:d=0.4,afade=t=out:st={max(0, total - 1.2):.3f}:d=1.2[mus];"
-           f"[voz][mus]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.89[aout]")
-else:
-    af += ";[voz]anull[aout]"
+    af += (f";[{mus_i}:a]atrim=0:{total:.3f},asetpts=PTS-STARTPTS,aresample={SR},volume={gdb}dB,"
+           f"afade=t=in:d=0.4,afade=t=out:st={max(0, total - 1.2):.3f}:d=1.2[mus]"); mix.append("[mus]")
+SFX = cfg.get("sfx_file", "")
+if sfx_at and SFX and os.path.exists(SFX):
+    for k, t in enumerate(sfx_at):
+        inputs += ["-i", SFX]; si = nin; nin += 1
+        af += f";[{si}:a]aresample={SR},aformat=channel_layouts=stereo,volume={cfg.get('sfx_gain_db', -12)}dB,adelay={int(t * 1000)}:all=1[sx{k}]"
+        mix.append(f"[sx{k}]")
+af += f";{''.join(mix)}amix=inputs={len(mix)}:duration=first:normalize=0,alimiter=limit=0.89[aout]"
 final = cfg["output"]
-run(["ffmpeg", "-v", "error", "-y", *inputs, "-filter_complex", f"[0:v]ass={assf}[vout];{af}",
+run(["ffmpeg", "-v", "error", "-y", *inputs, "-filter_complex", ";".join(vf) + ";" + af,
      "-map", "[vout]", "-map", "[aout]", "-c:v", "libx264", "-preset", "medium", "-crf", "19", "-pix_fmt", "yuv420p",
      "-c:a", "aac", "-b:a", "192k", "-ar", str(SR), "-movflags", "+faststart", "-t", f"{total:.3f}", final])
 print(f"OK {final}  duração {total:.1f}s")
