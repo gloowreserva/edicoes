@@ -105,7 +105,8 @@ Continuar a alternância de onde o lote anterior parou.
 
 ## Entrega no Google Drive
 
-- Subir os vídeos editados com a ferramenta `create_file` do conector Google Drive (`base64Content` = referência `sha256:<hash>:<caminho absoluto>`, `contentMimeType` `video/mp4`, `disableConversionToGoogleType: true`).
+- Subir os vídeos editados com a ferramenta `create_file` do conector Google Drive (`contentMimeType` `video/mp4`, `disableConversionToGoogleType: true`).
+  - **Atenção (18/11/2026):** neste conector a referência `sha256:<hash>:<caminho>` foi recusada ("File references can't be used here"); só aceita o base64 inteiro na chamada, o que não dá para vídeos de vários MB. Quando isso acontecer: avisar o Eliton que não subiu e mandar os vídeos pela conversa.
 - **REGRA GERAL (Eliton, 18/11/2026): nada no Drive sem confirmação.** Antes de subir qualquer arquivo ou criar/mexer em qualquer coisa no Drive, pedir a confirmação do Eliton na conversa e esperar o "pode". Sem confirmação, só o padrão: listar e baixar (ler). Isso vale para toda sessão, mesmo que a pasta de destino já seja conhecida.
 - **Regra do Vitor: não mexer em nada no Drive** (não mover, renomear, apagar nem editar). Só **subir** os vídeos editados na pasta certa, e só depois da confirmação acima.
 - Destino: pasta **"00 - ⏯️ POSTAGEM STAND BY (AGUARDANDO)"** (id `1Cx4WfPwmhR2UsuNGzEoPPcBaroDLofm4`, dentro da pasta raiz `1BEtIt9SzaappmPbInoOwEcDdHEVJ568n`), na subpasta da pessoa do vídeo:

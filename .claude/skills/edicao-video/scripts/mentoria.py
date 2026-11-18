@@ -13,6 +13,7 @@ config:
   screen_mode: "blur" (padrão: tela desfocada + orador grande no centro) ou "show" (tela visível + orador no canto)
   screen_crop: [x, y, w, h] em px do quadro original, área da tela compartilhada (padrão [0, 130, 1440, 820])
   thumb_face: [x, y, lado] recorte quadrado do rosto na miniatura (padrão [1560, 408, 228])
+  no_thumb: [[ini, fim], ...] trechos de tela em que outra pessoa aparece na miniatura: mostra só o slide
   thumb: [x, y, w, h] da miniatura do orador durante a tela compartilhada (padrão [1440, 405, 480, 270])
 """
 import json, os, re, subprocess, sys, wave
@@ -82,16 +83,22 @@ segs = [(round(a * FPS) / FPS, round(b * FPS) / FPS) for a, b in segs]
 segs = [(a, b) for a, b in segs if b - a >= 3 / FPS]
 
 # divide cada segmento onde o layout muda (câmera <-> tela)
+NOTHUMB = [tuple(x) for x in cfg.get("no_thumb", [])]
 parts = []
 for a, b in segs:
-    cuts = [a] + [float(s) for s in range(int(a) + 1, int(b) + 1) if lay(s) != lay(s - 1) and a < s < b] + [b]
+    cuts = [a] + [float(s) for s in range(int(a) + 1, int(b) + 1) if lay(s) != lay(s - 1) and a < s < b]
+    cuts += [e for nt in NOTHUMB for e in nt if a < e < b] + [b]
+    cuts = sorted(set(cuts))
     for x, y in zip(cuts, cuts[1:]):
         x, y = round(x * FPS) / FPS, round(y * FPS) / FPS
-        if y - x >= 1 / FPS: parts.append((x, y, lay((x + y) / 2)))
+        if y - x >= 1 / FPS:
+            L = lay((x + y) / 2)
+            if L == "S" and any(p <= (x + y) / 2 <= q for p, q in NOTHUMB): L = "N"  # só o slide, sem miniatura (outra pessoa nela)
+            parts.append((x, y, L))
 # junta pedaços minúsculos ao vizinho (evita piscar de layout)
 fixed = []
 for p in parts:
-    if fixed and p[1] - p[0] < 0.7 and fixed[-1][1] == p[0]:
+    if fixed and p[1] - p[0] < 0.7 and fixed[-1][1] == p[0] and "N" not in (p[2], fixed[-1][2]):
         fixed[-1] = (fixed[-1][0], p[1], fixed[-1][2])
     else:
         fixed.append(p)
@@ -153,7 +160,15 @@ for i, (a, b, l) in enumerate(parts):
     if os.path.exists(out) and os.path.getsize(out) > 0: continue  # reaproveita parte já renderizada
     mid = (a + b) / 2
     z = 1.15 if any(x <= mid <= y for x, y in punch) else 1.0
-    if l == "S" and cfg.get("screen_mode", "blur") == "show":
+    if l == "N":
+        x, y, w, h = SC; sh_ = int(W * h / w) // 2 * 2
+        fc = (f"[0:v]split=2[a][b];"
+              f"[a]crop={w}:{h}:{x}:{y},scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},boxblur=30:3,eq=brightness=-0.25[bg];"
+              f"[b]crop={w}:{h}:{x}:{y},scale={W}:{sh_}[sc];[bg][sc]overlay=0:{560},fps={FPS},setsar=1[v]")
+        run(["ffmpeg", "-v", "error", "-y", "-ss", f"{a:.4f}", "-i", src, "-filter_complex", fc, "-map", "[v]",
+             "-frames:v", str(nf), "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "17", "-pix_fmt", "yuv420p",
+             "-threads", "3", out])
+    elif l == "S" and cfg.get("screen_mode", "blur") == "show":
         # tela visível (só quando não expõe perfil/dados de aluno) + orador em janela no canto
         x, y, w, h = SC; sh_ = int(W * h / w) // 2 * 2
         tx, ty, tw, thh = TH; fw = min(tw, thh); fxc = tx + tw / 2
@@ -225,7 +240,7 @@ for a, b, _ in parts:
 groups, g = [], []
 for w in ow:
     g.append(w); txt = " ".join(x["w"] for x in g)
-    if len(g) >= 4 or len(txt) >= 18 or re.search(r"[.,?!]$", w["w"]):
+    if (len(g) >= 4 or len(txt) >= 18 or re.search(r"[.,?!]$", w["w"])) and not w["w"].endswith("$") and w["w"] not in ("R",):
         groups.append(g); g = []
 if g: groups.append(g)
 
@@ -267,16 +282,16 @@ pop = r"{\fscx80\fscy80\t(0,80,\fscx106\fscy106)\t(80,150,\fscx100\fscy100)}"
 hook = cfg["hook"]
 FRAME = cfg.get("frame", False)
 def cap_y(t):
-    if layout_at_out(t) == "S": return 1500
-    if cfg.get("emoji"): return 1400  # emoji vai embaixo, longe da boca
+    if layout_at_out(t) in "SN": return 1460 if cfg.get("emoji") else 1500
+    if cfg.get("emoji"): return 1460  # emoji vai embaixo, longe da boca
     return 1290 if FRAME else 1230
 for i, g in enumerate(groups):
     a = g[0]["s"]; b = groups[i + 1][0]["s"] if i + 1 < len(groups) else min(total, g[-1]["e"] + 0.3)
     ws = [clean(x["w"]).rstrip(".,!;:") for x in g]
     if CS != "kiwify": ws = [x.upper() for x in ws]
     ws = [x for x in ws if x]
-    for j in range(len(ws) - 1, 0, -1):  # "MEIO -DIA" -> "MEIO-DIA"
-        if ws[j].startswith("-"): ws[j - 1] += ws.pop(j)
+    for j in range(len(ws) - 1, 0, -1):  # "MEIO -DIA" -> "MEIO-DIA", "R $ 147" -> "R$147"
+        if ws[j].startswith("-") or ws[j].startswith("$") or (ws[j - 1].endswith("$") and ws[j][:1].isdigit()): ws[j - 1] += ws.pop(j)
     if not ws: continue
     k = pick(ws)
     if CS == "kiwify":  # palavra-chave em serifa itálica, maior, rosa Gloow
@@ -346,7 +361,7 @@ if cfg.get("emoji"):  # estilo Ruyter: emoji fixo embaixo da legenda
     em = Image.new("RGBA", (160, 160), (0, 0, 0, 0)); ImageDraw.Draw(em).text((10, 10), cfg["emoji"], font=fnt, embedded_color=True)
     em = em.crop(em.getbbox()).resize((130, 130), Image.LANCZOS); em.save(f"{work}/emoji.png")
     inputs += ["-loop", "1", "-i", f"{work}/emoji.png"]; ei = nin; nin += 1
-    ey = 1470
+    ey = 1545  # embaixo da legenda
     vf.append(f"{last}[{ei}:v]overlay=(W-w)/2:{ey}:shortest=1[em]"); last = "[em]"
 vf.append(f"{last}ass={assf}[vout]")
 

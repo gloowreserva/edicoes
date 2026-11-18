@@ -80,3 +80,21 @@ Quadros salvos de cada referência: `exemplos/mentoria_refs/refN_quadros.jpg` (v
 6. Config por corte e `mentoria.py config.json` (cold open = 1º item de `ranges`; `punch`, `highlight`, `stickers`, `music`). Requer `opencv-python-headless<5` (o 5.x não tem o detector de rosto Haar).
 7. Conferir quadros (hook, legenda, enquadramento, nenhum aluno visível) e reler a fala do corte final.
 8. Subir na pasta da pessoa em "00 - POSTAGEM STAND BY" (Samuel = Samuca).
+
+## Variações de estilo (mentoria.py) — lote da Thaís, 18/11/2026
+
+Num lote de 10, variar para testar o que funciona no perfil:
+
+| Estilo | Config | Referência |
+|---|---|---|
+| Amarelo (caixa alta + palavra amarela) | `caption_style: "amarelo"` | Primo Pobre / Hormozi |
+| Imagens de apoio cobrindo a fala | `broll: [{file, start, dur, from}]` (tempo do original) | Primo Pobre |
+| Itálico + palavra laranja + emoji fixo | `caption_style: "ruyter"`, `emoji: "🧠"` | Ruyter |
+| Serifa itálica rosa na palavra-chave | `caption_style: "kiwify"` | Kiwify |
+| Moldura escura + partículas | `frame: true` (`particles_file` reaproveita as partículas) | Caio Martins |
+| Whoosh no hook e nas imagens de apoio | `sfx_file` (padrão ligado; `sfx: false` desliga) | pesquisa de tendências |
+
+- Imagens de apoio: Mixkit (`mixkit.co/free-stock-video/<tema>/`, baixar o `-720.mp4`); efeitos: `mixkit.co/free-sound-effects/whoosh/`.
+- **Slides da própria mentora podem aparecer** (`screen_mode: "show"`): no Meet da Thaís, `screen_crop: [59,169,1322,742]`, `thumb: [1500,406,440,240]` (corta o nome "Ecossistema Rosa").
+- **Aluna na miniatura ou na câmera:** o Meet troca para quem fala. Auditar segundo a segundo (comparar a miniatura com um quadro de referência da mentora) e usar `no_thumb: [[ini, fim]]` (só o slide) ou cobrir com `broll`. Nunca deixar aparecer rosto ou nome de aluna.
+- O transcritor marca o fim das palavras da Thaís cedo: usar `tail: 0.14` e terminar cada trecho ~0,4 s depois da última palavra; sempre retranscrever o corte final com folga (`apad`) para conferir que nenhuma palavra foi cortada.
