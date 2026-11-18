@@ -59,7 +59,7 @@ Para vídeos falados mais longos. Mesma linha dos estilos 1 e 2 (começa na fala
 
 ## Lotes com vários estilos do mesmo bruto
 
-Quando o Vitor pedir, cada bruto é editado nos estilos 1, 2 e 4 (3 versões do mesmo vídeo, com hooks diferentes). Lotes grandes vão em remessas de 6 brutos (18 vídeos).
+Quando o Vitor pedir, cada bruto é editado nos estilos 1, 2 e 4 (3 versões do mesmo vídeo, com hooks diferentes). Lotes grandes vão em remessas de 6 brutos (18 vídeos). Se o Vitor pedir só 2 edições por vídeo sem dizer quais, usar estilos 1 e 4 (os mais diferentes entre si); B-roll sai em 2 versões do estilo 3 (texto e música diferentes, `_v2`). Bruto que já foi editado antes ganha versões novas com hooks diferentes (`_v2`).
 
 ## Estilo de edição 3 (B-roll)
 

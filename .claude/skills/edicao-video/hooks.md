@@ -41,5 +41,9 @@
 17. Enquanto o café fica pronto, meu vídeo pronto já tá postado no app rosa.
 18. Quem posta vídeo pronto todo dia no app rosa já tá olhando pra outros sonhos.
 19. Ninguém te conta, mas dá pra vender no ttk sem aparecer: é só postar o vídeo pronto que a marca entrega no app rosa.
+20. Enquanto uns ainda procuram o que vender, eu só posto o vídeo pronto que a marca entrega no app rosa.
+21. Meu trabalho hoje: abrir o app rosa, pegar o vídeo pronto e postar. Simples assim.
+22. Conta pequena também vende no ttk. O segredo é o vídeo pronto do app rosa.
+23. Não precisa aparecer pra vender no ttk. Só precisa do vídeo pronto certo.
 
-Variantes já usadas em vídeos: 1–19 (criar novas para os próximos B-rolls).
+Variantes já usadas em vídeos: 1–23 (criar novas para os próximos B-rolls).
