@@ -70,6 +70,7 @@ Continuar a alternância de onde o lote anterior parou.
 
 - **Mat (Matheus)**: barbudo, olhos claros.
 - **Samuca**: cara limpa, cabelo grande.
+- **Thaís (Thais Souza)**: dá a "Mentoria Mastermind". Mentoria gravada de 13/11/2026 na pasta `Vídeo mentoria` (id do arquivo `1ra0GIS4i824_loBIeIxGSF3YigE73dM_`, 1,46 GB). Ainda sem subpasta própria no Stand By: perguntar ao Eliton onde subir.
 
 ## Passo a passo
 
@@ -89,6 +90,12 @@ Continuar a alternância de onde o lote anterior parou.
    - `pip`: `file` (imagem ou vídeo), `crop` [x, y, largura, altura] em frações, `size`, `y`, `x` opcional, `from` para vídeo.
 7. **Editar**: `python3 -I scripts/edit.py config.json` (corta trecho por trecho para não estourar memória; ~2–5 min por vídeo; rodar um vídeo por vez).
 8. **Conferir quadros** (hook legível, janela com a tela certa e sem cobrir os olhos, legenda) antes de mandar ao Vitor.
+
+## Mentorias (estilo 4)
+
+- Pasta das mentorias: `1a7MhpnudoBzknesDUhDrQrUtO44QB9c2` → subpasta **`Vídeo mentoria`** (`1lk-ZJxMWpdbJotmvJy87rmFiIIB_dY_A`). Só usar o que está nessa subpasta; os cortes soltos (c1–c8 etc.) na raiz não entram.
+- Samuel: mentoria de 16/11/2026 já cortada (10 cortes, lote 1).
+- Thaís: mentoria Mastermind de 13/11/2026, a cortar.
 
 ## Material de apoio no Drive (pasta do Vitor)
 
