@@ -114,3 +114,5 @@ Referências: `@alfredosoaresoficial` (mais visto: 148 mil, "Perguntei pro Alê,
 - Vertical cheio, tratamento de cor de cinema (contraste, menos saturação, vinheta).
 - Legenda pequena em minúsculas, sem contorno, com sombra, entrando com fade.
 - Hook em serifa itálica, última linha em negrito ("Não tem coisa melhor / do que vender").
+
+- **Junção que come palavra (lição do lote do Eliton):** onde a transcrição por trechos erra o horário da palavra (acontece em pausas longas), o corte pode engolir o "Não" de uma frase e INVERTER o sentido ("Não tenham sonhos rasos"). Sempre retranscrever o corte final; se faltar palavra, conferir o nível do áudio no original, abrir `lead` ou `gap_max` só naquele corte, ou tirar o trecho. Nunca entregar frase com sentido trocado.

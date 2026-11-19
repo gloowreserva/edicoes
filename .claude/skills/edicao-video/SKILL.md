@@ -70,6 +70,7 @@ Continuar a alternância de onde o lote anterior parou.
 
 - **Mat (Matheus)**: barbudo, olhos claros.
 - **Samuca**: cara limpa, cabelo grande.
+- **Eliton (Prof Eliton)**: o próprio Eliton também dá mentoria ("Modelagem de conteúdo", 18/11/2026, `1O6jilpf8y96lxO7NL1igoZGJJIY-E1-0`). Meet: câmera cheia + celular espelhado; miniatura `thumb_face: [1555,408,230]`. Cortes no estilo Alfredo Soares / Kiwify cinema.
 - **Thaís (Thais Souza)**: dá a "Mentoria Mastermind". Mentoria gravada de 13/11/2026 na pasta `Vídeo mentoria` (id do arquivo `1ra0GIS4i824_loBIeIxGSF3YigE73dM_`, 1,46 GB). Cortes dela sobem soltos na raiz da pasta das mentorias (ver "Mentorias").
 
 ## Passo a passo
