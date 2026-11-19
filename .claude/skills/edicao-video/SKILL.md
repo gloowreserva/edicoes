@@ -70,6 +70,7 @@ Para vídeos **sem fala** (a pessoa só aparece fazendo algo, posando etc.). Nã
 - **Música embutida no arquivo, do primeiro ao último segundo**, já no volume cheio (pular silêncio/introdução da faixa). Os vídeos vão para uma pasta de postagem automática, então a música tem que estar no arquivo.
 - **Música**: não só inglesa — priorizar música brasileira que combine com o contexto (sertanejo, sons virais do TikTok). Se o Vitor subir MP3s numa pasta `Músicas` no Drive, usar esses. Sem isso, usar faixa livre de direitos do Mixkit (`mixkit.co`, licença livre para redes sociais; hosts `mixkit.co` e `assets.mixkit.co` liberados no ambiente).
 - **Reaproveitar B-roll:** o Vitor pode pedir nova versão do mesmo B-roll com texto novo + música nova (salvar como `_v2`). Não repetir faixa nem texto da versão anterior.
+- **B-roll com a Nulle (sachê azul)**: quando o produto aparecer, o texto fala da Nulle, misturando os hooks de `hooks_nulle.md` com o app rosa (ver regras lá) e colocando 1 sobreposição da Nulle. Adaptar o gênero ao criador e sinalizar frases de saúde de risco alto. Vídeo falado sobre a Nulle também ganha sobreposição da marca.
 - **Selo final chamativo**: no último ~1 s o texto sai e entra "GRUPO GRÁTIS / NA BIO" grande, amarelo em caixa rosa, com pop e tremida (6º argumento do script).
 - Clipes curtos de B-roll (5–10 s) que vierem no meio de um lote de vídeos falados também saem no estilo 3, com texto curto (1–2 frases).
 - Script: `python3 -I scripts/broll.py VIDEO MUSICA SAIDA "TEXTO" INICIO_MUSICA $'GRUPO GRÁTIS\nNA BIO'`.
