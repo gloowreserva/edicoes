@@ -121,7 +121,7 @@ Salvar cada vídeo editado com o nome da pessoa na frente, pra facilitar subir n
 
 ## Entrega no Google Drive
 
-- Subir os vídeos editados com a ferramenta `create_file` do conector Google Drive (`base64Content` = referência `sha256:<hash>:<caminho absoluto>`, `contentMimeType` `video/mp4`, `disableConversionToGoogleType: true`).
+- ⚠️ Testado em 19/11/2026: o `create_file` do conector Google Drive **não aceita referência de arquivo** (`sha256:...:caminho`) e vídeo de 40–150 MB não cabe em base64 inline. Então o upload pelo conector não funciona para os vídeos; entregar os arquivos ao Vitor na conversa e avisar.
 - **Regra do Vitor: não mexer em nada no Drive** (não mover, renomear, apagar nem editar). Só **subir** os vídeos editados na pasta certa.
 - Destino: pasta **"00 - ⏯️ POSTAGEM STAND BY (AGUARDANDO)"** (id `1Cx4WfPwmhR2UsuNGzEoPPcBaroDLofm4`, dentro da pasta raiz `1BEtIt9SzaappmPbInoOwEcDdHEVJ568n`), na subpasta da pessoa do vídeo:
   - Matheus (Mat): `14uHGLQTCvyS5E96B3aqG3u_zRXVVDabt`
