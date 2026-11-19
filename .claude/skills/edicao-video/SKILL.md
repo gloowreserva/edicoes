@@ -84,9 +84,9 @@ Continuar a alternância de onde o lote anterior parou.
 
 ## Pessoas
 
-- **Eliton**: barbudo, de óculos (subpasta "Eliton" no Stand By).
-- **Mat (Matheus)**: sem óculos.
-- **Samuca**: cara limpa, cabelo grande.
+- **Eliton**: barbudo, de óculos, cabelo raspado (subpasta "Eliton" no Stand By).
+- **Mat (Matheus)**: o "alemão", barbudo, olhos claros, sem óculos (subpasta "Matheus" no Stand By).
+- **Samuca (Samuel)**: cara limpa, cabelo grande (subpasta "Samuel" no Stand By).
 
 ## Nome dos arquivos
 
