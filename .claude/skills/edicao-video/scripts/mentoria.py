@@ -131,6 +131,8 @@ def face_x(a, b):
     return float(np.median(xs)) if xs else cfg.get("face_x", 840)
 
 punch = [tuple(x) for x in cfg.get("punch", [])]
+CANVAS = cfg.get("canvas", "vertical")  # vertical | alfredo (cena quadrada no meio, fundo preto, manchete fixa no topo)
+AY = 560  # topo da cena no modo alfredo
 SC = cfg.get("screen_crop", [0, 130, 1440, 820])
 TH = cfg.get("thumb", [1440, 405, 480, 270])
 
@@ -162,8 +164,9 @@ for i, (a, b, l) in enumerate(parts):
     z = 1.15 if any(x <= mid <= y for x, y in punch) else 1.0
     if l == "N":
         x, y, w, h = SC; sh_ = int(W * h / w) // 2 * 2
-        fc = (f"[0:v]split=2[a][b];"
-              f"[a]crop={w}:{h}:{x}:{y},scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},boxblur=30:3,eq=brightness=-0.25[bg];"
+        bgf = (f"color=c=black:s={W}x{H}:r={FPS}[bg];[a]nullsink;" if CANVAS == "alfredo" else
+               f"[a]crop={w}:{h}:{x}:{y},scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},boxblur=30:3,eq=brightness=-0.25[bg];")
+        fc = (f"[0:v]split=2[a][b];" + bgf +
               f"[b]crop={w}:{h}:{x}:{y},scale={W}:{sh_}[sc];[bg][sc]overlay=0:{560},fps={FPS},setsar=1[v]")
         run(["ffmpeg", "-v", "error", "-y", "-ss", f"{a:.4f}", "-i", src, "-filter_complex", fc, "-map", "[v]",
              "-frames:v", str(nf), "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "17", "-pix_fmt", "yuv420p",
@@ -172,8 +175,9 @@ for i, (a, b, l) in enumerate(parts):
         # tela visível (só quando não expõe perfil/dados de aluno) + orador em janela no canto
         x, y, w, h = SC; sh_ = int(W * h / w) // 2 * 2
         tx, ty, tw, thh = TH; fw = min(tw, thh); fxc = tx + tw / 2
-        fc = (f"[0:v]split=3[a][b][c];"
-              f"[a]crop={w}:{h}:{x}:{y},scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},boxblur=30:3,eq=brightness=-0.25[bg];"
+        bgf = (f"color=c=black:s={W}x{H}:r={FPS}[bg];[a]nullsink;" if CANVAS == "alfredo" else
+               f"[a]crop={w}:{h}:{x}:{y},scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},boxblur=30:3,eq=brightness=-0.25[bg];")
+        fc = (f"[0:v]split=3[a][b][c];" + bgf +
               f"[b]crop={w}:{h}:{x}:{y},scale={W}:{sh_}[sc];"
               f"[c]crop={fw}:{fw}:{int(fxc - fw / 2)}:{ty},scale={TW}:{TW}:flags=lanczos,unsharp=5:5:0.8[th];"
               f"movie={work}/thumbmask.png,format=gray,scale={TW}:{TW}[tm];[th][tm]alphamerge[thr];"
@@ -198,6 +202,13 @@ for i, (a, b, l) in enumerate(parts):
              "-threads", "3", out])
     else:
         cx = face_x(a, b)
+        if CANVAS == "alfredo":  # cena quadrada no meio, fundo preto
+            sq = int(1080 / z) // 2 * 2
+            x0 = int(min(max(cx - sq / 2, 0), 1920 - sq)); y0 = int((1080 - sq) * 0.3)
+            v = f"crop={sq}:{sq}:{x0}:{y0},scale={W}:{W}:flags=lanczos,unsharp=5:5:0.5,pad={W}:{H}:0:{AY}:black,fps={FPS},setsar=1"
+            run(["ffmpeg", "-v", "error", "-y", "-ss", f"{a:.4f}", "-i", src, "-vf", v, "-frames:v", str(nf), "-an",
+                 "-c:v", "libx264", "-preset", "veryfast", "-crf", "17", "-pix_fmt", "yuv420p", "-threads", "3", out])
+            continue
         cw = int(1080 * 9 / 16 / z) // 2 * 2; chh = int(1080 / z) // 2 * 2
         x0 = int(min(max(cx - cw / 2, 0), 1920 - cw))
         y0 = int(min(max(0, (1080 - chh) * 0.25), 1080 - chh))
@@ -261,7 +272,7 @@ def layout_at_out(t):
     return parts[-1][2]
 
 CS = cfg.get("caption_style", "amarelo")  # amarelo | ruyter | kiwify
-COR = {"amarelo": r"&H0000D4FF&", "ruyter": r"&H0000A5FF&", "kiwify": r"&H00932EFF&"}[CS]
+COR = {"amarelo": r"&H0000D4FF&", "ruyter": r"&H0000A5FF&", "kiwify": r"&H00932EFF&", "alfredo": r"&H002B2BE8&", "cinema": r"&H0066D84A&"}[CS]
 ass = [f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: {W}
@@ -273,6 +284,10 @@ Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour,
 Style: Cap,Inter ExtraBold,76,&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,7,3,5,70,70,0,1
 Style: CapR,Inter ExtraBold,76,&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,-1,-1,0,0,100,100,0,0,1,7,3,5,70,70,0,1
 Style: CapK,Inter SemiBold,70,&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,4,2,5,70,70,0,1
+Style: CapA,Inter ExtraBold,46,&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,3,1,5,70,70,0,1
+Style: CapC,Inter SemiBold,50,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,0,3,5,90,90,0,1
+Style: Head,Inter ExtraBold,72,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,88,100,0,0,1,0,0,2,70,70,0,1
+Style: HookSerif,Liberation Serif,78,&H00FFFFFF,&H00FFFFFF,&H00000000,&H78000000,0,-1,0,0,100,100,0,0,1,2,3,8,90,150,300,1
 Style: Hook,Inter SemiBold,68,&H00FFFFFF,&H00FFFFFF,&H00000000,&H78000000,-1,0,0,0,100,100,0,0,1,5,2,8,90,150,300,1
 Style: Sticker,Inter,70,&H00FFFFFF,&H00FFFFFF,&H00B469FF,&H00000000,-1,0,0,0,100,100,0,0,3,22,0,5,60,60,0,1
 
@@ -282,27 +297,48 @@ pop = r"{\fscx80\fscy80\t(0,80,\fscx106\fscy106)\t(80,150,\fscx100\fscy100)}"
 hook = cfg["hook"]
 FRAME = cfg.get("frame", False)
 def cap_y(t):
+    if CANVAS == "alfredo": return AY + 1080 - 110 if layout_at_out(t) not in "SN" else 1380
+    if CS == "cinema" and layout_at_out(t) not in "SN": return 1260
     if layout_at_out(t) in "SN": return 1460 if cfg.get("emoji") else 1500
     if cfg.get("emoji"): return 1460  # emoji vai embaixo, longe da boca
     return 1290 if FRAME else 1230
 for i, g in enumerate(groups):
     a = g[0]["s"]; b = groups[i + 1][0]["s"] if i + 1 < len(groups) else min(total, g[-1]["e"] + 0.3)
     ws = [clean(x["w"]).rstrip(".,!;:") for x in g]
-    if CS != "kiwify": ws = [x.upper() for x in ws]
+    if CS == "cinema": ws = [x.lower() for x in ws]
+    elif CS != "kiwify": ws = [x.upper() for x in ws]
     ws = [x for x in ws if x]
     for j in range(len(ws) - 1, 0, -1):  # "MEIO -DIA" -> "MEIO-DIA", "R $ 147" -> "R$147"
         if ws[j].startswith("-") or ws[j].startswith("$") or (ws[j - 1].endswith("$") and ws[j][:1].isdigit()): ws[j - 1] += ws.pop(j)
     if not ws: continue
     k = pick(ws)
-    if CS == "kiwify":  # palavra-chave em serifa itálica, maior, rosa Gloow
+    if CS == "alfredo":  # legenda pequena; palavra-chave da lista grande e vermelha
+        toks = [re.sub(r"[^\wÀ-ú$%]", "", x).lower() for x in ws]
+        k = next((i for i, t in enumerate(toks) if any(h == t or (len(h) > 3 and h in t) for h in HL)), None)
+        txt = " ".join((r"{\fs84\c" + COR + "}" + x + r"{\fs46\c&H00FFFFFF&}") if j == k else x for j, x in enumerate(ws))
+        sty = "CapA"
+    elif CS == "cinema":  # Kiwify: minúscula, pequena, sem contorno
+        txt = " ".join(ws); sty = "CapC"
+    elif CS == "kiwify":  # palavra-chave em serifa itálica, maior, rosa Gloow
         txt = " ".join((r"{\fnLiberation Serif\i1\fs108\c" + COR + "}" + x + r"{\fnInter SemiBold\i0\fs70\c&H00FFFFFF&}") if j == k else x for j, x in enumerate(ws))
         sty = "CapK"
     else:
         txt = " ".join((r"{\c" + COR + "}" + x + r"{\c&H00FFFFFF&}") if j == k else x for j, x in enumerate(ws))
         sty = "CapR" if CS == "ruyter" else "Cap"
-    ass.append(f"Dialogue: 1,{ts(a)},{ts(b)},{sty},,0,0,0,,{{\\pos(540,{cap_y(a)})}}{pop}{txt}")
-ass.append(f"Dialogue: 2,{ts(0)},{ts(hook['dur'])},Hook,,0,0,0,,"
-           r"{\fad(100,200)\fscx85\fscy85\t(0,180,\fscx103\fscy103)\t(180,280,\fscx100\fscy100)}" + hook["text"].replace("\n", r"\N"))
+    anim = r"{\fad(90,60)}" if CS == "cinema" else pop
+    ass.append(f"Dialogue: 1,{ts(a)},{ts(b)},{sty},,0,0,0,,{{\\pos(540,{cap_y(a)})}}{anim}{txt}")
+HS = cfg.get("hook_style", "padrao")
+def marca(t):  # *palavra* no texto do hook fica vermelha
+    return re.sub(r"\*([^*]+)\*", lambda m: r"{\c&H002B2BE8&}" + m.group(1) + r"{\c&H00FFFFFF&}", t)
+if HS == "manchete":  # Alfredo: manchete fixa o vídeo todo, logo acima da cena
+    ass.append(f"Dialogue: 2,{ts(0)},{ts(total)},Head,,0,0,0,,{{\\pos(540,{AY - 40})\\fad(150,0)}}" + marca(hook["text"].upper()).replace("\n", r"\N"))
+elif HS == "serifa":  # Kiwify: 1ª linha serifa itálica, última em negrito
+    ls = hook["text"].split("\n")
+    txt = r"\N".join(ls[:-1] + [r"{\b1}" + ls[-1] + r"{\b0}"])
+    ass.append(f"Dialogue: 2,{ts(0)},{ts(hook['dur'])},HookSerif,,0,0,0,,{{\\fad(150,250)}}" + txt)
+else:
+    ass.append(f"Dialogue: 2,{ts(0)},{ts(hook['dur'])},Hook,,0,0,0,,"
+               r"{\fad(100,200)\fscx85\fscy85\t(0,180,\fscx103\fscy103)\t(180,280,\fscx100\fscy100)}" + hook["text"].replace("\n", r"\N"))
 for st in cfg.get("stickers", []):
     occ = remap_all(st["start"])
     if not occ: continue
@@ -350,9 +386,10 @@ for k, br in enumerate(cfg.get("broll", [])):  # estilo Primo Pobre: imagem de a
     if not occ: continue
     a = occ[0]; d = br["dur"]
     inputs += ["-ss", str(br.get("from", 0)), "-t", f"{d + 0.2:.3f}", "-i", br["file"]]; bi = nin; nin += 1
-    vf.append(f"[{bi}:v]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={FPS},eq=brightness=-0.06:saturation=1.05,"
+    bh, by = (W, AY) if CANVAS == "alfredo" else (H, 0)
+    vf.append(f"[{bi}:v]scale={W}:{bh}:force_original_aspect_ratio=increase,crop={W}:{bh},fps={FPS},eq=brightness=-0.06:saturation=1.05,"
               f"format=rgba,fade=in:st=0:d=0.12:alpha=1,fade=out:st={d - 0.15:.3f}:d=0.15:alpha=1,setpts=PTS-STARTPTS+{a:.3f}/TB[br{k}];"
-              f"{last}[br{k}]overlay=0:0:eof_action=pass[bo{k}]")
+              f"{last}[br{k}]overlay=0:{by}:eof_action=pass[bo{k}]")
     last = f"[bo{k}]"
     if cfg.get("sfx", True): sfx_at.append(a)
 if cfg.get("emoji"):  # estilo Ruyter: emoji fixo embaixo da legenda
@@ -363,6 +400,8 @@ if cfg.get("emoji"):  # estilo Ruyter: emoji fixo embaixo da legenda
     inputs += ["-loop", "1", "-i", f"{work}/emoji.png"]; ei = nin; nin += 1
     ey = 1545  # embaixo da legenda
     vf.append(f"{last}[{ei}:v]overlay=(W-w)/2:{ey}:shortest=1[em]"); last = "[em]"
+if cfg.get("bw"): vf.append(f"{last}hue=s=0,eq=contrast=1.12[bw]"); last = "[bw]"
+elif cfg.get("grade") == "cinema": vf.append(f"{last}eq=contrast=1.08:saturation=0.82:gamma=0.97,vignette=PI/5[gr]"); last = "[gr]"
 vf.append(f"{last}ass={assf}[vout]")
 
 # ---------- mix: voz normalizada + trilha baixa + efeitos (whoosh) ----------

@@ -98,3 +98,19 @@ Num lote de 10, variar para testar o que funciona no perfil:
 - **Slides da própria mentora podem aparecer** (`screen_mode: "show"`): no Meet da Thaís, `screen_crop: [59,169,1322,742]`, `thumb: [1500,406,440,240]` (corta o nome "Ecossistema Rosa").
 - **Aluna na miniatura ou na câmera:** o Meet troca para quem fala. Auditar segundo a segundo (comparar a miniatura com um quadro de referência da mentora) e usar `no_thumb: [[ini, fim]]` (só o slide) ou cobrir com `broll`. Nunca deixar aparecer rosto ou nome de aluna.
 - O transcritor marca o fim das palavras da Thaís cedo: usar `tail: 0.14` e terminar cada trecho ~0,4 s depois da última palavra; sempre retranscrever o corte final com folga (`apad`) para conferir que nenhuma palavra foi cortada.
+
+## Estilos Alfredo Soares e Kiwify cinema (pedido do Eliton, 19/11/2026)
+
+Referências: `@alfredosoaresoficial` (mais visto: 148 mil, "Perguntei pro Alê, da Cacau Show...") e `@kiwify` (Kiwicast, cortes cinematográficos).
+
+**Alfredo Soares** (`canvas: "alfredo"`, `caption_style: "alfredo"`, `hook_style: "manchete"`):
+- Manchete FIXA o vídeo inteiro, caixa alta branca condensada, logo acima da cena (ex.: "NÃO TERCEIRIZA A TUA VITÓRIA."). `*palavra*` no texto da manchete fica vermelha.
+- Cena quadrada no meio da tela, fundo preto em cima e embaixo.
+- Legenda pequena em caixa alta dentro da cena; palavras da lista `highlight` saltam grandes e vermelhas.
+- Opcional `bw: true` (preto e branco, contraste alto) — ele usa em vídeos de reflexão.
+- Abre com pergunta ou frase de efeito curta.
+
+**Kiwify cinema** (`caption_style: "cinema"`, `hook_style: "serifa"`, `grade: "cinema"` ou `bw: true`):
+- Vertical cheio, tratamento de cor de cinema (contraste, menos saturação, vinheta).
+- Legenda pequena em minúsculas, sem contorno, com sombra, entrando com fade.
+- Hook em serifa itálica, última linha em negrito ("Não tem coisa melhor / do que vender").
