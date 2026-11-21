@@ -45,5 +45,7 @@
 21. Meu trabalho hoje: abrir o app rosa, pegar o vídeo pronto e postar. Simples assim.
 22. Conta pequena também vende no ttk. O segredo é o vídeo pronto do app rosa.
 23. Não precisa aparecer pra vender no ttk. Só precisa do vídeo pronto certo.
+24. Enquanto todo mundo gasta no shopping no fim do ano, tem gente postando vídeo pronto no app rosa e fazendo um extra pro Natal. Entra no meu perfil.
+25. Passeio de hoje: concessionária, cafezinho e balinha. O trabalho? Postar o vídeo pronto que a marca entrega no app rosa. Entra no meu perfil.
 
-Variantes já usadas em vídeos: 1–23 (criar novas para os próximos B-rolls).
+Variantes já usadas em vídeos: 1–25 (criar novas para os próximos B-rolls).
