@@ -1,5 +1,5 @@
 """Estilo de edição 3: vídeo B-roll (sem fala) com texto na tela e música, do primeiro ao último quadro.
-Uso: python3 -I broll.py VIDEO MUSICA SAIDA "TEXTO" [inicio_musica_em_segundos] ["CTA_FINAL"]
+Uso: python3 -I broll.py VIDEO MUSICA SAIDA "TEXTO" [inicio_musica_em_segundos] ["CTA_FINAL"] [cor: rosa|verde|azul|amarelo|roxo|vermelho]
 - CTA_FINAL (opcional, ex.: "GRUPO GRÁTIS\nNA BIO"): no último ~1,2 s o texto sai e entra um selo grande e chamativo
   (rosa com amarelo, entrada com "pop" e leve tremida), no meio da tela.
 - O texto aparece inteiro no primeiro quadro e fica até o fim (sem fade).
@@ -10,6 +10,16 @@ import os, subprocess, sys
 video, musica, saida, texto = sys.argv[1:5]
 inicio = float(sys.argv[5]) if len(sys.argv) > 5 else 0.0
 cta = sys.argv[6] if len(sys.argv) > 6 else ""
+# 7º argumento: cor do selo final (variar entre versões pra não parecer vídeo repetido)
+CORES = {  # (texto, caixa) em &HBBGGRR
+    "rosa": ("&H0000F0FF", "&H00B414FF"),     # amarelo na caixa rosa
+    "verde": ("&H00000000", "&H0039FF14"),    # preto na caixa verde-limão
+    "azul": ("&H00FFFFFF", "&H00FF6A00"),     # branco na caixa azul
+    "amarelo": ("&H00000000", "&H0000E1FF"),  # preto na caixa amarela
+    "roxo": ("&H00FFFFFF", "&H00D4228B"),     # branco na caixa roxa
+    "vermelho": ("&H00FFFFFF", "&H002020E6"), # branco na caixa vermelha
+}
+cor_txt, cor_box = CORES.get(sys.argv[7] if len(sys.argv) > 7 else "rosa", CORES["rosa"])
 dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", video],
                            capture_output=True, text=True).stdout)
 ass = os.path.splitext(saida)[0] + ".ass"
@@ -30,7 +40,7 @@ WrapStyle: 0
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: CTA,Inter,96,&H0000F0FF,&H0000F0FF,&H00B414FF,&H00000000,-1,0,0,0,100,100,0,0,3,34,0,5,80,80,0,1
+Style: CTA,Inter,96,{cor_txt},{cor_txt},{cor_box},&H00000000,-1,0,0,0,100,100,0,0,3,34,0,5,80,80,0,1
 Style: B,Inter SemiBold,50,&H00FFFFFF,&H00FFFFFF,&H00000000,&H78000000,-1,0,0,0,100,100,0,0,1,4.5,2,8,90,150,300,1
 
 [Events]

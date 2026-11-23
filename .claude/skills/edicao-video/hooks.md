@@ -48,5 +48,8 @@
 24. Enquanto todo mundo gasta no shopping no fim do ano, tem gente postando vídeo pronto no app rosa e fazendo um extra pro Natal. Entra no meu perfil.
 25. Passeio de hoje: concessionária, cafezinho e balinha. O trabalho? Postar o vídeo pronto que a marca entrega no app rosa. Entra no meu perfil.
 26. Dia de presente pra mim mesmo: PS5 novo e McFlurry. Tudo vindo de vídeo pronto postado no app rosa.
+27. Enquanto uns reclamam do mês, eu tô aqui de PS5 novo e McFlurry. O segredo? Vídeo pronto do app rosa.
+28. Ninguém acredita quando eu falo que meu PS5 veio de vídeo pronto postado no ttk. Entra no meu perfil.
+29. Comemorando com McFlurry e PS5 novo. Postar vídeo pronto no app rosa mudou minha rotina. Comenta "app rosa".
 
-Variantes já usadas em vídeos: 1–26 (criar novas para os próximos B-rolls).
+Variantes já usadas em vídeos: 1–29 (criar novas para os próximos B-rolls).
