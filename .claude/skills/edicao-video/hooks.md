@@ -51,5 +51,13 @@
 27. Enquanto uns reclamam do mês, eu tô aqui de PS5 novo e McFlurry. O segredo? Vídeo pronto do app rosa.
 28. Ninguém acredita quando eu falo que meu PS5 veio de vídeo pronto postado no ttk. Entra no meu perfil.
 29. Comemorando com McFlurry e PS5 novo. Postar vídeo pronto no app rosa mudou minha rotina. Comenta "app rosa".
+30. Esse é o app rosa por dentro: a marca entrega o vídeo pronto e você só posta. Entra no meu perfil.
+31. Meu escritório hoje: notebook, app rosa aberto e vídeo pronto pra postar. Comenta "app rosa".
+32. Ninguém te mostra por dentro, mas eu mostro: é aqui que eu pego os vídeos prontos das marcas.
+33. Você não precisa gravar nada. As marcas já entregam o vídeo pronto aqui dentro do app rosa.
+34. Enquanto você procura emprego, tem gente trabalhando de casa só postando vídeo pronto no app rosa. Entra no meu perfil.
+35. Rotina de quem posta vídeo pronto: café, notebook e 15 minutos por dia. Comenta "app rosa".
+36. Não é sorte, é constância: 1 vídeo pronto por dia no app rosa já muda o jogo. Entra no meu perfil.
+37. Tem gente com conta nova vendendo todo dia só com vídeo pronto de marca famosa. Quer entender como? Entra no meu perfil.
 
-Variantes já usadas em vídeos: 1–29 (criar novas para os próximos B-rolls).
+Variantes já usadas em vídeos: 1–37 (criar novas para os próximos B-rolls).
