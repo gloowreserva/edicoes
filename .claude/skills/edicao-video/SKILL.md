@@ -20,6 +20,7 @@ description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos esti
    - **Repetição/travada (estilos 1 e 2):** quando a pessoa trava e repete a palavra ou a frase, fica **só a última tentativa** (a mais firme) e o corte liga direto nela. Margem mínima de erro.
    - A transcrição (`scripts/transcribe.py`) é literal, mantém repetições; rodar `python3 -I scripts/dedupe.py transcricao.json` para listar as repetições e colocar cada uma em `remove`.
    - O transcritor às vezes ainda junta duas tentativas numa só: onde houver vão estranho entre palavras, retranscrever o trecho com `python3 -I scripts/trecho.py audio.wav INICIO FIM` antes de decidir o corte.
+   - Se o Whisper **pulou um trecho de fala** (vão grande sem texto) ou errou o tempo das primeiras palavras, corrigir a transcrição com `python3 -I scripts/retrecho.py transcricao.json audio.wav INICIO FIM` (retranscreve e substitui as palavras do intervalo). Sem isso, a fala do trecho é cortada do vídeo. Comum em gravação de teleprompter.
    - Depois de cortar, conferir o trecho no vídeo editado (retranscrever) para garantir que a frase sai uma vez só.
 4. **Selo rosa** "comenta PALAVRA" quando a pessoa pede o comentário.
 5. **Sobreposições no momento da fala que combina** (quando fala do app, das marcas, da comunidade).
