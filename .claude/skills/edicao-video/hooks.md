@@ -47,5 +47,6 @@
 23. Não precisa aparecer pra vender no ttk. Só precisa do vídeo pronto certo.
 24. Enquanto todo mundo gasta no shopping no fim do ano, tem gente postando vídeo pronto no app rosa e fazendo um extra pro Natal. Entra no meu perfil.
 25. Passeio de hoje: concessionária, cafezinho e balinha. O trabalho? Postar o vídeo pronto que a marca entrega no app rosa. Entra no meu perfil.
+26. Dia de presente pra mim mesmo: PS5 novo e McFlurry. Tudo vindo de vídeo pronto postado no app rosa.
 
-Variantes já usadas em vídeos: 1–25 (criar novas para os próximos B-rolls).
+Variantes já usadas em vídeos: 1–26 (criar novas para os próximos B-rolls).
