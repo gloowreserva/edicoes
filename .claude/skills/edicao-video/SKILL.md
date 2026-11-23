@@ -34,6 +34,7 @@ description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos esti
    - Perfil só da própria pessoa do vídeo (perfil "Samuca Sem Dores" só em vídeo do Samuca).
 6. Sinalizar ao Vitor promessas de ganho ou de saúde que estejam na fala (ex.: "300 reais em 10 dias") — podem dar restrição.
 7. Vídeo que não é de venda (conversa solta, sem chamada) fica de fora e é avisado.
+8. **Duração livre**: o importante é não sobrar erro nem repetição. Se depois de todos os cortes o vídeo der 2 min, fica com 2 min (não cortar conteúdo só pra encurtar).
 
 ## Estilo de edição 1
 
