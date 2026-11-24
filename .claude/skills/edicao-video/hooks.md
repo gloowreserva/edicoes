@@ -59,5 +59,13 @@
 35. Rotina de quem posta vídeo pronto: café, notebook e 15 minutos por dia. Comenta "app rosa".
 36. Não é sorte, é constância: 1 vídeo pronto por dia no app rosa já muda o jogo. Entra no meu perfil.
 37. Tem gente com conta nova vendendo todo dia só com vídeo pronto de marca famosa. Quer entender como? Entra no meu perfil.
+38. Enquanto uns sonham com viagem, eu trabalho do avião postando vídeo pronto no app rosa. Entra no meu perfil.
+39. Meu escritório hoje fica a 10 mil metros de altura. É só celular e vídeo pronto. Comenta "app rosa".
+40. Trabalhar de qualquer lugar não é sonho: é postar o vídeo pronto que a marca entrega. Entra no meu perfil.
+41. Viajando e os vídeos que eu postei continuam trabalhando por mim. Quer entender como? Entra no meu perfil.
+42. Quem anda com quem faz aprende mais rápido. Bastidores com a galera que vive de vídeo pronto. Entra no meu perfil.
+43. Evento com quem tá vivendo de postar vídeo pronto no ttk. Você também pode estar aqui. Comenta "app rosa".
+44. Network é tudo: quem tá no app rosa troca estratégia todo dia no grupo grátis. Entra no meu perfil.
+45. Ninguém cresce sozinho no ttk. Aqui a gente compartilha o que tá dando certo com vídeo pronto.
 
-Variantes já usadas em vídeos: 1–37 (criar novas para os próximos B-rolls).
+Variantes já usadas em vídeos: 1–45 (criar novas para os próximos B-rolls).

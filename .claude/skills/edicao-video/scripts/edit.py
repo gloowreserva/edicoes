@@ -159,6 +159,7 @@ WrapStyle: 0
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Cap,Inter,80,&H00FFFFFF,&H00FFFFFF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,6,2,2,60,60,560,1
 Style: Hook,Inter SemiBold,68,&H00FFFFFF,&H00FFFFFF,&H00000000,&H78000000,-1,0,0,0,100,100,0,0,1,5,2,8,90,90,300,1
+Style: HookRosa,Inter,64,&H00FFFFFF,&H00FFFFFF,&H00B414FF,&H00B414FF,-1,0,0,0,100,100,0,0,3,18,0,8,110,110,300,1
 Style: HookBox,Inter,64,&H00000000,&H00000000,&H00FFFFFF,&H00FFFFFF,-1,0,0,0,100,100,0,0,3,18,0,8,110,110,300,1
 Style: Sticker,Inter,70,&H00FFFFFF,&H00FFFFFF,&H00B469FF,&H00000000,-1,0,0,0,100,100,0,0,3,22,0,5,60,60,0,1
 
@@ -171,7 +172,7 @@ for i, g in enumerate(groups if cfg.get("captions", True) else []):
     ass.append(f"Dialogue: 1,{ts(a)},{ts(b)},Cap,,0,0,0,,{pop}{txt}")
 
 hook = cfg["hook"]
-ass.append(f"Dialogue: 2,{ts(0)},{ts(hook['dur'])},{'HookBox' if hook.get('style') == 'box' else 'Hook'},,0,0,0,,"
+ass.append(f"Dialogue: 2,{ts(0)},{ts(hook['dur'])},{ {'box': 'HookBox', 'box_rosa': 'HookRosa'}.get(hook.get('style'), 'Hook') },,0,0,0,,"
            r"{\fad(0,200)}" + hook["text"].replace("\n", r"\N"))
 for st in cfg.get("stickers", []):
     a, b = remap(st["start"]), remap(st["end"])
@@ -258,7 +259,13 @@ for k, ov in enumerate(cfg.get("overlays", [])):
                   f"setpts=PTS-STARTPTS+{a:.3f}/TB{tag}")
         fc.append(f"{last}{tag}overlay=0:0:eof_action=pass[b{k}]")
     last = f"[b{k}]"; idx += 1
-fc.append(f"{last}ass={assf}[vout]")
+# estilo 4: "look" deixa a imagem mais viva e "progress" põe uma barra de progresso fina embaixo
+post = ""
+if cfg.get("look") == "vivo":
+    post += "eq=saturation=1.18:contrast=1.06:brightness=0.01,"
+if cfg.get("progress"):
+    post += f"drawbox=x=0:y=ih-14:w='iw*t/{total:.3f}':h=14:color={cfg['progress']}@1:t=fill,"
+fc.append(f"{last}{post}ass={assf}[vout]")
 final = cfg["output"]
 run(["ffmpeg", "-v", "error", "-y", *inputs, "-filter_complex", ";".join(fc), "-map", "[vout]", "-map", "0:a",
      "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "copy",

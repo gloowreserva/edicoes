@@ -60,6 +60,7 @@ Para vídeos falados mais longos. Mesma linha dos estilos 1 e 2 (começa na fala
 - **Zoom só nas falas importantes** (`"zoom_at": [[ini, fim], ...]` em tempo do original, `"zoom": 1.15`): a frase-chave, o número, a virada, a chamada. Fora disso, sem zoom.
 - **Sem legenda** (`"captions": false`).
 - **Sobreposições só o suficiente**: 1 a 3, em janela no topo (`"type": "pip"`).
+- **Visual diferente dos estilos 1 e 2** (sem mudar a edição): hook na **caixa rosa** com texto branco (`"hook": {"style": "box_rosa"}`), imagem mais viva (`"look": "vivo"`) e **barra de progresso rosa** fina embaixo (`"progress": "0xFF14B4"`).
 - Legenda (estilo 1): erro de palavra que o `replace` não pega (frase quebrada entre blocos) corrige com `"word_fix": {"inicio_da_palavra": "texto"}` ("" apaga).
 
 ## Lotes com vários estilos do mesmo bruto
