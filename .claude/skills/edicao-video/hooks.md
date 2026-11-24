@@ -67,5 +67,9 @@
 43. Evento com quem tá vivendo de postar vídeo pronto no ttk. Você também pode estar aqui. Comenta "app rosa".
 44. Network é tudo: quem tá no app rosa troca estratégia todo dia no grupo grátis. Entra no meu perfil.
 45. Ninguém cresce sozinho no ttk. Aqui a gente compartilha o que tá dando certo com vídeo pronto.
+46. Fim de semana em casa e os vídeos prontos que eu postei continuam trabalhando no app rosa. Entra no meu perfil.
+47. Pensa num trabalho tranquilo: pegar o vídeo pronto da marca e postar. Só isso. Comenta "app rosa".
+48. Antes eu achava que precisava aparecer pra vender no ttk. Hoje eu só posto vídeo pronto. Entra no meu perfil.
+49. Conta parada criando teia de aranha? Dá pra começar com ela postando vídeo pronto no app rosa.
 
-Variantes já usadas em vídeos: 1–45 (criar novas para os próximos B-rolls).
+Variantes já usadas em vídeos: 1–49 (criar novas para os próximos B-rolls).
