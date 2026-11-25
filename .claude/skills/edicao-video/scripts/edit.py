@@ -69,14 +69,24 @@ segs = [(round(a * FPS) / FPS, round(b * FPS) / FPS) for a, b in segs]
 segs = [(a, b) for a, b in segs if b - a >= 3 / FPS]
 print("segmentos:", [(round(a, 2), round(b, 2)) for a, b in segs])
 
+# estilo 4: "teaser" = [ini, fim] (tempo do original) do trecho mais impactante, repetido no começo como gancho (~5 s)
+tsegs = []
+if cfg.get("teaser"):
+    ta, tb = cfg["teaser"]
+    for a, b in segs:
+        x, y = max(a, ta), min(b, tb)
+        if y - x >= 3 / FPS: tsegs.append((round(x * FPS) / FPS, round(y * FPS) / FPS))
+T = sum(b - a for a, b in tsegs)
+print("teaser:", tsegs, f"{T:.2f}s")
+
 def remap(t):
-    acc = 0.0
+    acc = T
     for a, b in segs:
         if t < a: return acc
         if t <= b: return acc + (t - a)
         acc += b - a
     return acc
-total = sum(b - a for a, b in segs)
+total = T + sum(b - a for a, b in segs)
 
 # ---------- 2. cortes + zoom alternado (vídeo trecho por trecho; áudio montado de uma vez) ----------
 z = cfg.get("zoom", 1.10)
@@ -90,6 +100,7 @@ for a, b in segs:
     for x, y in zip(cuts, cuts[1:]):
         if y - x >= 1 / FPS: vsegs.append((x, y, any(r0 <= (x + y) / 2 <= r1 for r0, r1 in zoom_at)))
 if not zoom_at: vsegs = [(a, b, i % 2 == 1) for i, (a, b) in enumerate(segs)]
+vsegs = [(a, b, True) for a, b in tsegs] + vsegs  # o gancho entra com zoom
 parts = []
 for i, (a, b, zoomed) in enumerate(vsegs):
     v = f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H}"
@@ -109,7 +120,7 @@ run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-c
 # áudio: junta as amostras exatas de cada trecho, com micro-fade de 4 ms em cada emenda (sem estalo, sem vão)
 FADE = int(SR * 0.004)
 pieces = []
-for a, b in segs:
+for a, b in tsegs + segs:
     i0 = int(round(a * SR)); n = int(round((b - a) * FPS)) * (SR // FPS)
     p = AUD[i0:i0 + n].astype(np.float32)
     if len(p) < n: p = np.vstack([p, np.zeros((n - len(p), 2), np.float32)])

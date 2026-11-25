@@ -1,6 +1,6 @@
 ---
 name: edicao-video
-description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1, 2, 3 e 4 (1, 2 e 4 para vídeos falados; 4 = vídeo longo, hook em caixa, zoom só nas falas importantes, sem legenda: hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; 1 com legenda e zoom, 2 limpo e sem legenda; 3 para B-roll sem fala: texto na tela e música do início ao fim). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
+description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos estilos de edição 1, 2, 3 e 4 (1, 2 e 4 para vídeos falados; 4 = começa com o trecho mais impactante do vídeo como gancho, hook em caixa rosa, zoom nas falas importantes, sem legenda: hook na tela, cortes de respiro, sobreposições em janela, selo de comentário; 1 com legenda e zoom, 2 limpo e sem legenda; 3 para B-roll sem fala: texto na tela e música do início ao fim). Use quando o Vitor mandar vídeos brutos no Google Drive para editar.
 ---
 
 # Edição de vídeo — Estilos de edição 1, 2, 3 e 4
@@ -52,15 +52,14 @@ description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos esti
 - Hook e selo de comentário iguais ao estilo 1.
 - Exemplo: `exemplos/estilo2_IMG_7486.json`.
 
-## Estilo de edição 4 (vídeo longo)
+## Estilo de edição 4 (gancho com o trecho mais impactante)
 
-Para vídeos falados mais longos. Mesma linha dos estilos 1 e 2 (começa na fala, cortes de respiro/repetição, selo de comentário), com estas diferenças:
+Mesma base dos estilos 1 e 2 (começa na fala, cortes de respiro/repetição, selo de comentário). O que muda:
 
-- **Hook diferente**: caixa branca com texto preto no topo (`"hook": {"style": "box", ...}`), frase em formato de pergunta/curiosidade, 2–3 linhas curtas.
-- **Zoom só nas falas importantes** (`"zoom_at": [[ini, fim], ...]` em tempo do original, `"zoom": 1.15`): a frase-chave, o número, a virada, a chamada. Fora disso, sem zoom.
-- **Sem legenda** (`"captions": false`).
-- **Sobreposições só o suficiente**: 1 a 3, em janela no topo (`"type": "pip"`).
-- **Visual diferente dos estilos 1 e 2** (sem mudar a edição): hook na **caixa rosa** com texto branco (`"hook": {"style": "box_rosa"}`), imagem mais viva (`"look": "vivo"`) e **barra de progresso rosa** fina embaixo (`"progress": "0xFF14B4"`).
+- **Gancho = o trecho mais impactante do próprio vídeo**: ler a transcrição, escolher a frase mais forte (a revelação, o número, a virada, a frase polêmica) e repetir esse trecho (vídeo + áudio, com zoom) nos **primeiros ~5 s**; depois o vídeo começa normalmente do início. Config: `"teaser": [ini, fim]` em tempo do original (3–6 s, frase inteira, sem cortar palavra).
+- **Texto do hook** = essa frase, na **caixa rosa** com texto branco (`"hook": {"style": "box_rosa", "dur": <duração do teaser>}`).
+- Visual próprio: imagem mais viva (`"look": "vivo"`), **barra de progresso rosa** embaixo (`"progress": "0xFF14B4"`), **zoom só nas falas importantes** (`"zoom_at"`, `"zoom": 1.15`).
+- **Sem legenda** (`"captions": false`). Sobreposições só o suficiente (1 a 3, janela no topo), nenhuma durante o gancho.
 - Legenda (estilo 1): erro de palavra que o `replace` não pega (frase quebrada entre blocos) corrige com `"word_fix": {"inicio_da_palavra": "texto"}` ("" apaga).
 
 ## Lotes com vários estilos do mesmo bruto
