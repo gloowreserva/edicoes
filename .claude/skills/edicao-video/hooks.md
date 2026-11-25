@@ -71,5 +71,17 @@
 47. Pensa num trabalho tranquilo: pegar o vídeo pronto da marca e postar. Só isso. Comenta "app rosa".
 48. Antes eu achava que precisava aparecer pra vender no ttk. Hoje eu só posto vídeo pronto. Entra no meu perfil.
 49. Conta parada criando teia de aranha? Dá pra começar com ela postando vídeo pronto no app rosa.
+50. Dia de folga e mesmo assim os vídeos prontos que eu postei seguem vendendo no ttk. Entra no meu perfil.
+51. Ninguém precisa saber que você posta vídeo pronto. Só precisa saber que dá certo. Comenta "app rosa".
+52. Sem câmera ligada, sem roteiro, sem vergonha de aparecer: só vídeo pronto de marca famosa. Entra no meu perfil.
+53. Quem descobriu o app rosa cedo hoje tá tranquilo assim. Ainda dá tempo de começar.
+54. Manhã fria, café quente e vídeo pronto postado no app rosa. Rotina simples. Entra no meu perfil.
+55. Enquanto você decide se começa ou não, tem gente com conta nova vendendo todo dia. Comenta "app rosa".
+56. Você não precisa de mil seguidores. Precisa de 1 vídeo pronto por dia no app rosa. Entra no meu perfil.
+57. O trabalho mais tranquilo que eu já tive: pegar o vídeo pronto da marca e postar no ttk.
+58. Se te falassem que dá pra vender no ttk sem gravar nada, você acreditaria? Entra no meu perfil.
+59. Conta pequena, celular simples e vídeo pronto de marca famosa. É só isso. Comenta "app rosa".
+60. Parei de procurar produto pra vender. A marca já entrega o vídeo pronto no app rosa.
+61. 15 minutos por dia postando vídeo pronto. O resto do dia é seu. Entra no meu perfil.
 
-Variantes já usadas em vídeos: 1–49 (criar novas para os próximos B-rolls).
+Variantes já usadas em vídeos: 1–61 (criar novas para os próximos B-rolls).
