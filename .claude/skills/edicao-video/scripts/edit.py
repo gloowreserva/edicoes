@@ -43,6 +43,7 @@ def remove_between(t0, t1): return any(a < t1 and b > t0 for a, b in removes)
 gap_max = cfg.get("gap_max", 0.25)   # pausa máxima mantida dentro de uma frase
 lead = cfg.get("lead", 0.03)         # folga antes da 1ª palavra do take
 tail = cfg.get("tail", 0.06)         # folga depois da última palavra do take
+ext = cfg.get("ext", 0.20)           # quanto a borda do fim pode avançar pelo áudio (Whisper às vezes marca o fim cedo demais)
 words_all = [(w["start"], w["end"]) for seg in json.load(open(cfg["transcript"])) for w in seg["words"]]
 words_all = [(a, b) for a, b in words_all if not in_remove((a + b) / 2)]
 blocks = []
@@ -60,7 +61,7 @@ for i, (a, b) in enumerate(blocks):
     s0 = a
     while s0 - 0.01 > max(lo, a - 0.15) and loud(s0 - 0.01): s0 -= 0.01
     e0 = b
-    while e0 + 0.01 < min(hi, b + 0.20) and loud(e0): e0 += 0.01
+    while e0 + 0.01 < min(hi, b + ext) and loud(e0): e0 += 0.01
     s0, e0 = max(lo, s0 - lead), min(hi, e0 + tail)
     if segs and s0 - segs[-1][1] < 0.02: segs[-1] = (segs[-1][0], e0)
     else: segs.append((s0, e0))
@@ -72,10 +73,12 @@ print("segmentos:", [(round(a, 2), round(b, 2)) for a, b in segs])
 # estilo 4: "teaser" = [ini, fim] (tempo do original) do trecho mais impactante, repetido no começo como gancho (~5 s)
 tsegs = []
 if cfg.get("teaser"):
-    ta, tb = cfg["teaser"]
-    for a, b in segs:
-        x, y = max(a, ta), min(b, tb)
-        if y - x >= 3 / FPS: tsegs.append((round(x * FPS) / FPS, round(y * FPS) / FPS))
+    # um trecho [ini, fim] ou vários [[ini, fim], ...] (ex.: frase forte + complemento curto, até ~5 s)
+    _tr = cfg["teaser"] if isinstance(cfg["teaser"][0], list) else [cfg["teaser"]]
+    for ta, tb in _tr:
+        for a, b in segs:
+            x, y = max(a, ta), min(b, tb)
+            if y - x >= 3 / FPS: tsegs.append((round(x * FPS) / FPS, round(y * FPS) / FPS))
 T = sum(b - a for a, b in tsegs)
 print("teaser:", tsegs, f"{T:.2f}s")
 
