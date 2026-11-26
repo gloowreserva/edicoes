@@ -101,9 +101,15 @@ for a, b in segs:
         if y - x >= 1 / FPS: vsegs.append((x, y, any(r0 <= (x + y) / 2 <= r1 for r0, r1 in zoom_at)))
 if not zoom_at: vsegs = [(a, b, i % 2 == 1) for i, (a, b) in enumerate(segs)]
 vsegs = [(a, b, True) for a, b in tsegs] + vsegs  # o gancho entra com zoom
+# brutos de iPhone são HDR (HLG): conversão de verdade pra BT.709 (tone mapping), senão a pele fica pálida
+_trc = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=color_transfer",
+                       "-of", "csv=p=0", src], capture_output=True, text=True).stdout.strip().strip(",")
+HDR = ("zscale=t=linear:npl=203:tin=arib-std-b67:pin=bt2020:min=bt2020nc,format=gbrpf32le,zscale=p=bt709,"
+       "tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p,eq=brightness=0.05:contrast=1.05,"
+       if _trc in ("arib-std-b67", "smpte2084") else "")
 parts = []
 for i, (a, b, zoomed) in enumerate(vsegs):
-    v = f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H}"
+    v = f"{HDR}scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H}"
     if zoomed and z > 1.001:
         zw, zh = int(W * z) // 2 * 2, int(H * z) // 2 * 2
         v += f",scale={zw}:{zh},crop={W}:{H}:{(zw-W)//2}:{int((zh-H)*0.35)}"
@@ -183,6 +189,7 @@ for i, g in enumerate(groups if cfg.get("captions", True) else []):
     ass.append(f"Dialogue: 1,{ts(a)},{ts(b)},Cap,,0,0,0,,{pop}{txt}")
 
 hook = cfg["hook"]
+if not hook.get("dur"): hook["dur"] = T  # estilo 4: hook fica na tela durante todo o gancho
 ass.append(f"Dialogue: 2,{ts(0)},{ts(hook['dur'])},{ {'box': 'HookBox', 'box_rosa': 'HookRosa'}.get(hook.get('style'), 'Hook') },,0,0,0,,"
            r"{\fad(0,200)}" + hook["text"].replace("\n", r"\N"))
 for st in cfg.get("stickers", []):
