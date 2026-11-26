@@ -56,15 +56,17 @@ description: Editar vídeos curtos verticais (TikTok) no padrão Gloow, nos esti
 
 Mesma base dos estilos 1 e 2 (começa na fala, cortes de respiro/repetição, selo de comentário). O que muda:
 
-- **Gancho = o trecho mais impactante do próprio vídeo**: ler a transcrição, escolher a frase mais forte (a revelação, o número, a virada, a frase polêmica) e repetir esse trecho (vídeo + áudio, com zoom) nos **primeiros ~5 s**; depois o vídeo começa normalmente do início. Config: `"teaser": [ini, fim]` em tempo do original (3–6 s, frase inteira, sem cortar palavra).
-- **Texto do hook** = essa frase, na **caixa rosa** com texto branco (`"hook": {"style": "box_rosa", "dur": <duração do teaser>}`).
+- **Gancho = o trecho mais impactante do próprio vídeo**: ler a transcrição, escolher a frase mais forte (a revelação, o número, a virada, a frase polêmica) e repetir esse trecho (vídeo + áudio, com zoom) nos **primeiros ~5 s**; depois o vídeo começa normalmente do início. Config: `"teaser": [ini, fim]` em tempo do original, ou vários trechos `[[ini, fim], [ini, fim]]` (frase forte + complemento curto).
+  - **Aprovado pelo Vitor (26/11, Samuca 7607):** gancho de ~5–6 s com a ideia **inteira** ("Essas marcas me entregam vídeos prontos pra eu postar e eu não tomo restrição de postar esses vídeos"). Gancho curto de 3 s que corta no finalzinho foi reprovado.
+  - **Fim da palavra:** o Whisper às vezes marca o fim da última palavra 0,3–0,4 s antes do real. Medir o áudio (RMS em janelas de 50 ms) no fim do gancho e usar o fim real; se precisar, `"ext": 0.45` no config (quanto a borda pode avançar pelo áudio, padrão 0,2). Conferir retranscrevendo os primeiros 6 s do vídeo pronto.
+- **Texto do hook** = essa frase, na **caixa rosa** com texto branco (`"hook": {"style": "box_rosa", "dur": 0}`; `dur` 0 = dura o gancho inteiro).
 - Visual próprio: imagem mais viva (`"look": "vivo"`), **barra de progresso rosa** embaixo (`"progress": "0xFF14B4"`), **zoom só nas falas importantes** (`"zoom_at"`, `"zoom": 1.15`).
 - **Sem legenda** (`"captions": false`). Sobreposições só o suficiente (1 a 3, janela no topo), nenhuma durante o gancho.
 - Legenda (estilo 1): erro de palavra que o `replace` não pega (frase quebrada entre blocos) corrige com `"word_fix": {"inicio_da_palavra": "texto"}` ("" apaga).
 
 ## Lotes com vários estilos do mesmo bruto
 
-Lote de teste de 26/11: o Vitor pediu 4 estilos por bruto (1, 2, o do hook colorido = caixa rosa/cor viva/barra rosa sem gancho repetido, e o 4 novo com gancho). Se os brutos forem B-roll (sem fala), os 4 viram 4 versões do estilo 3. Quando o Vitor pedir, cada bruto é editado nos estilos 1, 2 e 4 (3 versões do mesmo vídeo, com hooks diferentes). Lotes grandes vão em remessas de 6 brutos (18 vídeos). Se o Vitor pedir só 2 edições por vídeo sem dizer quais, usar estilos 1 e 4 (os mais diferentes entre si); B-roll sai em 2 versões do estilo 3 (texto e música diferentes, `_v2`). Bruto que já foi editado antes ganha versões novas com hooks diferentes (`_v2`).
+**Padrão atual (26/11): cada bruto falado vira 4 vídeos**: estilo 1, estilo 2, **"estilo 3" do Vitor = hook colorido** (caixa rosa com pergunta, `look` vivo, barra rosa, `zoom_at`, sem gancho repetido; arquivo `_estilo3`) e estilo 4 (gancho). Ex.: 2 brutos → 8 vídeos. Se os brutos forem B-roll (sem fala), os 4 viram 4 versões do B-roll (arquivo `_estilo3`, `_v2`…). Quando o Vitor pedir, cada bruto é editado nos estilos 1, 2 e 4 (3 versões do mesmo vídeo, com hooks diferentes). Lotes grandes vão em remessas de 6 brutos (18 vídeos). Se o Vitor pedir só 2 edições por vídeo sem dizer quais, usar estilos 1 e 4 (os mais diferentes entre si); B-roll sai em 2 versões do estilo 3 (texto e música diferentes, `_v2`). Bruto que já foi editado antes ganha versões novas com hooks diferentes (`_v2`).
 
 ## Estilo de edição 3 (B-roll)
 
