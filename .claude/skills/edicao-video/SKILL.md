@@ -64,7 +64,7 @@ Mesma base dos estilos 1 e 2 (começa na fala, cortes de respiro/repetição, se
 
 ## Lotes com vários estilos do mesmo bruto
 
-Quando o Vitor pedir, cada bruto é editado nos estilos 1, 2 e 4 (3 versões do mesmo vídeo, com hooks diferentes). Lotes grandes vão em remessas de 6 brutos (18 vídeos). Se o Vitor pedir só 2 edições por vídeo sem dizer quais, usar estilos 1 e 4 (os mais diferentes entre si); B-roll sai em 2 versões do estilo 3 (texto e música diferentes, `_v2`). Bruto que já foi editado antes ganha versões novas com hooks diferentes (`_v2`).
+Lote de teste de 26/11: o Vitor pediu 4 estilos por bruto (1, 2, o do hook colorido = caixa rosa/cor viva/barra rosa sem gancho repetido, e o 4 novo com gancho). Se os brutos forem B-roll (sem fala), os 4 viram 4 versões do estilo 3. Quando o Vitor pedir, cada bruto é editado nos estilos 1, 2 e 4 (3 versões do mesmo vídeo, com hooks diferentes). Lotes grandes vão em remessas de 6 brutos (18 vídeos). Se o Vitor pedir só 2 edições por vídeo sem dizer quais, usar estilos 1 e 4 (os mais diferentes entre si); B-roll sai em 2 versões do estilo 3 (texto e música diferentes, `_v2`). Bruto que já foi editado antes ganha versões novas com hooks diferentes (`_v2`).
 
 ## Estilo de edição 3 (B-roll)
 
@@ -81,6 +81,8 @@ Para vídeos **sem fala** (a pessoa só aparece fazendo algo, posando etc.). Nã
 - **Clipe curto de "Saiba Mais"** (a pessoa só fala "clica em Saiba Mais / vai no grupo gratuito", ~8 s): é final de anúncio. Juntar com um B-roll do mesmo lote: B-roll com texto e música (sem o selo) + o clipe com legenda e selo "clica em SAIBA MAIS" → `Pessoa_NUM_anuncio_com_NUM.mp4`. Fotos do lote viram 2–3 s de B-roll (zoom lento) antes do clipe.
 - **Selo final chamativo**: no último ~1 s o texto sai e entra "GRUPO GRÁTIS / NA BIO" grande, amarelo em caixa rosa, com pop e tremida (6º argumento do script).
 - Clipes curtos de B-roll (5–10 s) que vierem no meio de um lote de vídeos falados também saem no estilo 3, com texto curto (1–2 frases).
+- Cor: o `broll.py` detecta bruto HDR do iPhone (HLG) e faz a conversão de verdade pra BT.709 (tone mapping), senão a pele fica pálida.
+- Faixas do Mixkit já usadas (lote 26/11, Eliton 1674/1675): 339, 284, 1086, 1165, 1140, 1077, 872, 989 — escolher outras no próximo lote.
 - Script: `python3 -I scripts/broll.py VIDEO MUSICA SAIDA "TEXTO" INICIO_MUSICA $'GRUPO GRÁTIS\nNA BIO'`.
 - Exemplos de frases base do Vitor:
   - "Enquanto você tá aí só assistindo a vida dos outros, tem gente com menos de 100 seguidores fazendo venda todo dia no app rosa só de copiar e colar vídeos prontos com 1 clique e postar. Pra entender como, entra no meu perfil."
@@ -130,7 +132,7 @@ Salvar cada vídeo editado com o nome da pessoa na frente, pra facilitar subir n
 
 ## Entrega no Google Drive
 
-- ⚠️ Upload pelo conector Google Drive (`create_file`, `base64Content` = `sha256:<hash>:<caminho>`, `video/mp4`, `disableConversionToGoogleType: true`): **limite de 10 MB por arquivo**. Vídeos falados (40–150 MB) não sobem por aqui: entregar na conversa para o Vitor arrastar na pasta do Drive do PC. B-rolls curtos (< 10 MB) podem subir direto.
+- ⚠️ Upload pelo conector Google Drive (`create_file`, `base64Content` = `sha256:<hash>:<caminho>`, `video/mp4`, `disableConversionToGoogleType: true`): **limite de ~3,1 MB por arquivo** (cada chamada ao conector tem teto de 4,2 MB; antes era 10 MB). Quase nenhum vídeo cabe: entregar na conversa (B-roll de 10 s fica com ~7–8 MB a 6 Mbps) para o Vitor arrastar na pasta do Drive do PC. Vídeos falados (40–150 MB) também não sobem por aqui: entregar na conversa para o Vitor arrastar na pasta do Drive do PC. B-rolls curtos (< 10 MB) podem subir direto.
 - **Regra do Vitor: não mexer em nada no Drive** (não mover, renomear, apagar nem editar). Só **subir** os vídeos editados na pasta certa.
 - Destino: pasta **"00 - ⏯️ POSTAGEM STAND BY (AGUARDANDO)"** (id `1Cx4WfPwmhR2UsuNGzEoPPcBaroDLofm4`, dentro da pasta raiz `1BEtIt9SzaappmPbInoOwEcDdHEVJ568n`), na subpasta da pessoa do vídeo:
   - Matheus (Mat): `14uHGLQTCvyS5E96B3aqG3u_zRXVVDabt`

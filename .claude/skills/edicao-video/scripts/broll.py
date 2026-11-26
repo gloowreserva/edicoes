@@ -22,6 +22,12 @@ CORES = {  # (texto, caixa) em &HBBGGRR
 cor_txt, cor_box = CORES.get(sys.argv[7] if len(sys.argv) > 7 else "rosa", CORES["rosa"])
 dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", video],
                            capture_output=True, text=True).stdout)
+# brutos de iPhone são HDR (HLG): conversão de verdade pra BT.709, senão a pele fica pálida
+_trc = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=color_transfer",
+                       "-of", "csv=p=0", video], capture_output=True, text=True).stdout.strip().strip(",")
+HDR = ("zscale=t=linear:npl=203:tin=arib-std-b67:pin=bt2020:min=bt2020nc,format=gbrpf32le,zscale=p=bt709,"
+       "tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p,eq=brightness=0.05:contrast=1.05,"
+       if _trc in ("arib-std-b67", "smpte2084") else "")
 ass = os.path.splitext(saida)[0] + ".ass"
 txt = texto.replace("\n", r"\N")
 def ts(t):
@@ -48,7 +54,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 Dialogue: 0,0:00:00.00,{ts(fim_txt)},B,,0,0,0,,{txt}
 {cta_ev}""")
 subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", video, "-ss", str(inicio), "-i", musica,
-                "-vf", f"scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=30,ass={ass}",
+                "-vf", f"{HDR}scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=30,ass={ass}",
                 "-map", "0:v", "-map", "1:a", "-af", f"loudnorm=I=-14:TP=-1.5,afade=t=out:st={max(0, dur - 0.1):.2f}:d=0.1",
                 "-t", f"{dur:.3f}", "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p",
                 "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", saida], check=True)

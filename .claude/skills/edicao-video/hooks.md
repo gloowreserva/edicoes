@@ -83,5 +83,13 @@
 59. Conta pequena, celular simples e vídeo pronto de marca famosa. É só isso. Comenta "app rosa".
 60. Parei de procurar produto pra vender. A marca já entrega o vídeo pronto no app rosa.
 61. 15 minutos por dia postando vídeo pronto. O resto do dia é seu. Entra no meu perfil.
+62. Enquanto você acha que precisa de muito seguidor, tem gente de bermuda em casa postando vídeo pronto no app rosa. Entra no meu perfil.
+63. Sem chefe, sem horário e sem gravar nada: só o vídeo pronto que a marca entrega no app rosa. Comenta "app rosa".
+64. Meu expediente hoje durou 15 minutos: abri o app rosa, peguei o vídeo pronto e postei. Entra no meu perfil.
+65. Calor, varanda e o trabalho do dia já feito: 1 vídeo pronto postado no app rosa. Comenta "app rosa".
+66. Pensando em quanta gente ainda acha que precisa de milhares de seguidores pra vender no ttk. Entra no meu perfil.
+67. Enquanto uns esperam a hora certa, outros já postaram o vídeo pronto do dia no app rosa. Comenta "app rosa".
+68. Ninguém me viu gravando nada hoje. Mesmo assim o vídeo pronto já tá postado no app rosa. Entra no meu perfil.
+69. Conta nova não é desculpa: tem gente começando do zero com vídeo pronto de marca famosa no app rosa. Comenta "app rosa".
 
-Variantes já usadas em vídeos: 1–61 (criar novas para os próximos B-rolls).
+Variantes já usadas em vídeos: 1–69 (criar novas para os próximos B-rolls).
