@@ -58,6 +58,7 @@ Mesma base dos estilos 1 e 2 (começa na fala, cortes de respiro/repetição, se
 
 - **Gancho = o trecho mais impactante do próprio vídeo**: ler a transcrição, escolher a frase mais forte (a revelação, o número, a virada, a frase polêmica) e repetir esse trecho (vídeo + áudio, com zoom) nos **primeiros ~5 s**; depois o vídeo começa normalmente do início. Config: `"teaser": [ini, fim]` em tempo do original, ou vários trechos `[[ini, fim], [ini, fim]]` (frase forte + complemento curto).
   - **Aprovado pelo Vitor (26/11, Samuca 7607):** gancho de ~5–6 s com a ideia **inteira** ("Essas marcas me entregam vídeos prontos pra eu postar e eu não tomo restrição de postar esses vídeos"). Gancho curto de 3 s que corta no finalzinho foi reprovado.
+  - Aprovados também (27/11, Mat 6960/6962): ganchos de ~5,2 s montados com 2 trechos (pergunta + resposta, ou frase cortada no meio de uma pausa).
   - **Fim da palavra:** o Whisper às vezes marca o fim da última palavra 0,3–0,4 s antes do real. Medir o áudio (RMS em janelas de 50 ms) no fim do gancho e usar o fim real; se precisar, `"ext": 0.45` no config (quanto a borda pode avançar pelo áudio, padrão 0,2). Conferir retranscrevendo os primeiros 6 s do vídeo pronto.
 - **Texto do hook** = essa frase, na **caixa rosa** com texto branco (`"hook": {"style": "box_rosa", "dur": 0}`; `dur` 0 = dura o gancho inteiro).
 - Visual próprio: imagem mais viva (`"look": "vivo"`), **barra de progresso rosa** embaixo (`"progress": "0xFF14B4"`), **zoom só nas falas importantes** (`"zoom_at"`, `"zoom": 1.15`).
@@ -98,7 +99,7 @@ Continuar a alternância de onde o lote anterior parou.
 ## Pessoas
 
 - **Eliton**: barbudo, de óculos, cabelo raspado (subpasta "Eliton" no Stand By).
-- **Mat (Matheus)**: o "alemão", barbudo, olhos claros, sem óculos (subpasta "Matheus" no Stand By).
+- **Mat (Matheus)**: o "alemão", barbudo, olhos claros, sem óculos (subpasta "Matheus" no Stand By). Brutos em 4K HDR; ele costuma andar pela casa mostrando as coisas (não cobrir). Sobreposição em janela pequena no canto.
 - **Samuca (Samuel)**: cara limpa, cabelo grande (subpasta "Samuel" no Stand By).
 
 ## Nome dos arquivos
