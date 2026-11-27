@@ -116,3 +116,6 @@ Referências: `@alfredosoaresoficial` (mais visto: 148 mil, "Perguntei pro Alê,
 - Hook em serifa itálica, última linha em negrito ("Não tem coisa melhor / do que vender").
 
 - **Junção que come palavra (lição do lote do Eliton):** onde a transcrição por trechos erra o horário da palavra (acontece em pausas longas), o corte pode engolir o "Não" de uma frase e INVERTER o sentido ("Não tenham sonhos rasos"). Sempre retranscrever o corte final; se faltar palavra, conferir o nível do áudio no original, abrir `lead` ou `gap_max` só naquele corte, ou tirar o trecho. Nunca entregar frase com sentido trocado.
+
+- **Aluna no Meet (lição do lote do Claudio):** no tira-dúvidas o Meet alterna a câmera entre o mentor e a aluna, às vezes a cada segundo. Classificar cada segundo: tela compartilhada = laterais pretas + miniatura acesa; aluna = laterais pretas sem miniatura, ou fundo totalmente diferente do mentor (diferença > 100 na faixa de parede de referência); o resto é o mentor (mesmo se mexendo). Trechos com alternância rápida: descartar. Um segundo isolado: cobrir com `broll` e conferir quadro a quadro no corte final.
+- **Lote com 10 estilos diferentes** (pedido do Eliton): amarelo, amarelo+B-roll, Ruyter+emoji, Kiwify serifado, moldura+partículas, Alfredo, Alfredo P&B, Kiwify cinema, Kiwify cinema P&B, Alfredo+B-roll.
