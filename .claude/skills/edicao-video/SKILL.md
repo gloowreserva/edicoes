@@ -59,6 +59,7 @@ Mesma base dos estilos 1 e 2 (começa na fala, cortes de respiro/repetição, se
 - **Gancho = o trecho mais impactante do próprio vídeo**: ler a transcrição, escolher a frase mais forte (a revelação, o número, a virada, a frase polêmica) e repetir esse trecho (vídeo + áudio, com zoom) nos **primeiros ~5 s**; depois o vídeo começa normalmente do início. Config: `"teaser": [ini, fim]` em tempo do original, ou vários trechos `[[ini, fim], [ini, fim]]` (frase forte + complemento curto).
   - **Aprovado pelo Vitor (26/11, Samuca 7607):** gancho de ~5–6 s com a ideia **inteira** ("Essas marcas me entregam vídeos prontos pra eu postar e eu não tomo restrição de postar esses vídeos"). Gancho curto de 3 s que corta no finalzinho foi reprovado.
   - Aprovados também (27/11, Mat 6960/6962): ganchos de ~5,2 s montados com 2 trechos (pergunta + resposta, ou frase cortada no meio de uma pausa).
+  - Gancho não começa com conectivo solto ("Porque…", "E…"): começar na palavra forte (1680: "Em 15 minutos do seu dia…").
   - **Começo de cada trecho também:** o Whisper às vezes marca o início da 1ª palavra tarde (7015: "melhor" começava em 4,22 s, marcado 4,40 s, e o gancho comia o "me"). Medir o RMS no início de cada trecho do gancho e começar no ataque real da voz.
   - **Fim da palavra:** o Whisper às vezes marca o fim da última palavra 0,3–0,4 s antes do real. Medir o áudio (RMS em janelas de 50 ms) no fim do gancho e usar o fim real; se precisar, `"ext": 0.45` no config (quanto a borda pode avançar pelo áudio, padrão 0,2). Conferir retranscrevendo os primeiros 6 s do vídeo pronto.
 - **Texto do hook** = essa frase, na **caixa rosa** com texto branco (`"hook": {"style": "box_rosa", "dur": 0}`; `dur` 0 = dura o gancho inteiro).
@@ -99,7 +100,7 @@ Continuar a alternância de onde o lote anterior parou.
 
 ## Pessoas
 
-- **Eliton**: barbudo, de óculos, cabelo raspado (subpasta "Eliton" no Stand By).
+- **Eliton**: barbudo, de óculos, cabelo raspado (subpasta "Eliton" no Stand By). Rosto alto no quadro: janela pequena no canto (`"size": [380, 400], "x": 40, "y": 160`) e selo de comentário mais baixo (`"y": 1100` no sticker), senão cobrem os óculos.
 - **Mat (Matheus)**: o "alemão", barbudo, olhos claros, sem óculos (subpasta "Matheus" no Stand By). Brutos em 4K HDR; ele costuma andar pela casa mostrando as coisas (não cobrir). Sobreposição em janela pequena no canto.
 - **Samuca (Samuel)**: cara limpa, cabelo grande (subpasta "Samuel" no Stand By).
 
