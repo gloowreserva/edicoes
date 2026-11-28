@@ -125,7 +125,8 @@ Salvar cada vídeo editado com o nome da pessoa na frente, pra facilitar subir n
 6. **Escrever o config** (ver `exemplos/`): vídeo, transcrição, `remove`, `replace`, `hook`, `stickers`, `overlays`, e no estilo 2 `captions`/`zoom`. Tempos sempre do vídeo **original**; o script remapeia.
    - `pip`: `file` (imagem ou vídeo), `crop` [x, y, largura, altura] em frações, `size`, `y`, `x` opcional, `from` para vídeo.
 7. **Editar**: `python3 -I scripts/edit.py config.json` (corta trecho por trecho para não estourar memória; ~2–5 min por vídeo; rodar um vídeo por vez).
-8. **Conferir quadros** (hook legível, janela com a tela certa e sem cobrir os olhos, legenda) antes de mandar ao Vitor.
+8. **Conferir quadros** — inclusive o 1º meio segundo: em gravação de teleprompter a pessoa às vezes ainda está ajeitando o celular quando começa a falar (fora do quadro). Aí segurar o 1º quadro bem enquadrado por ~0,6 s com o áudio correndo (ffmpeg `trim` + `loop` + `concat`, mesma duração).
+   - Antes: (hook legível, janela com a tela certa e sem cobrir os olhos, legenda) antes de mandar ao Vitor.
 
 ## Material de apoio no Drive (pasta do Vitor)
 
