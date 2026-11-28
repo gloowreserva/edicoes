@@ -69,7 +69,9 @@ Mesma base dos estilos 1 e 2 (começa na fala, cortes de respiro/repetição, se
 
 ## Lotes com vários estilos do mesmo bruto
 
-**Padrão atual (26/11): cada bruto falado vira 4 vídeos**: estilo 1, estilo 2, **"estilo 3" do Vitor = hook colorido** (caixa rosa com pergunta, `look` vivo, barra rosa, `zoom_at`, sem gancho repetido; arquivo `_estilo3`) e estilo 4 (gancho). Ex.: 2 brutos → 8 vídeos. Se os brutos forem B-roll (sem fala), os 4 viram 4 versões do B-roll (arquivo `_estilo3`, `_v2`…). Quando o Vitor pedir, cada bruto é editado nos estilos 1, 2 e 4 (3 versões do mesmo vídeo, com hooks diferentes). Lotes grandes vão em remessas de 6 brutos (18 vídeos). Se o Vitor pedir só 2 edições por vídeo sem dizer quais, usar estilos 1 e 4 (os mais diferentes entre si); B-roll sai em 2 versões do estilo 3 (texto e música diferentes, `_v2`). Bruto que já foi editado antes ganha versões novas com hooks diferentes (`_v2`).
+**Bruto repetido não é editado** (regra do Vitor, 28/11): antes de editar, conferir `editados.md` pelo número do arquivo e pelo começo da fala; se já foi editado, não editar e avisar. O resto do lote segue normal (4 estilos por bruto). Depois de entregar, registrar os brutos novos em `editados.md`.
+
+**Padrão atual (26/11): cada bruto falado vira 4 vídeos**: estilo 1, estilo 2, **"estilo 3" do Vitor = hook colorido** (caixa rosa com pergunta, `look` vivo, barra rosa, `zoom_at`, sem gancho repetido; arquivo `_estilo3`) e estilo 4 (gancho). Ex.: 2 brutos → 8 vídeos. Se os brutos forem B-roll (sem fala), os 4 viram 4 versões do B-roll (arquivo `_estilo3`, `_v2`…). Quando o Vitor pedir, cada bruto é editado nos estilos 1, 2 e 4 (3 versões do mesmo vídeo, com hooks diferentes). Lotes grandes vão em remessas de 6 brutos (18 vídeos). Se o Vitor pedir só 2 edições por vídeo sem dizer quais, usar estilos 1 e 4 (os mais diferentes entre si); B-roll sai em 2 versões do estilo 3 (texto e música diferentes, `_v2`).
 
 ## Estilo de edição 3 (B-roll)
 
