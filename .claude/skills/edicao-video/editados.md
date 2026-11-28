@@ -16,4 +16,3 @@ Antes de editar um lote, conferir cada bruto aqui: pelo número do arquivo (o Dr
 | IMG_1681 | Eliton | "Como botar três salários no seu bolso…" | 27/11 |
 | Teleprompter-2026-27-11_11-06-26 | Samuca | "Não é possível que você ainda não tá fazendo dinheiro com a internet…" | 28/11 |
 | Teleprompter-2026-27-11_11-09-45 | Samuca | "Eu desisti do TikTok Shop…" | 28/11 |
-| IMG_6863, IMG_6864 | — | editados em conversa anterior (o Vitor avisou) | antes de 26/11 |
